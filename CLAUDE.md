@@ -163,7 +163,7 @@ Features that put ArgusAI in a class of its own:
 |---|---|
 | Framework | Next.js 14+ (App Router, TypeScript) |
 | Styling | Tailwind CSS |
-| State Management | Zustand or TanStack Query |
+| State Management | Zustand (UI/client state) + TanStack Query (server state + caching) |
 | Charts | Recharts or Tremor |
 | Hosting | Vercel |
 
@@ -214,14 +214,28 @@ users (
   created_at TIMESTAMPTZ
 )
 
--- Linked bank accounts
+-- One row per Plaid institution link (one access_token per bank connection)
+-- A user linking Chase = 1 plaid_item covering all their Chase accounts
+plaid_items (
+  id UUID PRIMARY KEY,
+  user_id UUID REFERENCES users,
+  access_token_encrypted TEXT NOT NULL,  -- AES-256 encrypted Plaid access token
+  institution_id TEXT,                   -- Plaid institution ID (e.g. "ins_3")
+  institution_name TEXT,                 -- Human-readable name (e.g. "Chase")
+  cursor TEXT,                           -- Plaid /transactions/sync pagination cursor
+  linked_at TIMESTAMPTZ
+)
+
+-- Linked bank accounts (one or many per plaid_item)
 accounts (
   id UUID PRIMARY KEY,
   user_id UUID REFERENCES users,
-  plaid_account_id TEXT,
+  plaid_item_id UUID REFERENCES plaid_items,  -- which institution link owns this account
+  plaid_account_id TEXT UNIQUE,
   institution TEXT,
   account_type TEXT,  -- 'checking' | 'savings' | 'credit'
   balance DECIMAL,
+  credit_limit DECIMAL,  -- populated for credit accounts, NULL otherwise
   last_synced TIMESTAMPTZ
 )
 
@@ -236,7 +250,7 @@ transactions (
   subcategory TEXT,
   timestamp TIMESTAMPTZ,
   is_recurring BOOLEAN,
-  embedding_id TEXT  -- reference to vector store
+  embedding vector(1536)  -- pgvector column; stores text-embedding-3-small output inline
 )
 
 -- Detected recurring bills
@@ -257,15 +271,29 @@ subscriptions (
   merchant TEXT,
   avg_amount DECIMAL,
   billing_cycle TEXT,
+  price_change_pct DECIMAL,   -- % change vs. 3 months ago; positive = crept up
   first_detected TIMESTAMPTZ,
   is_active BOOLEAN
 )
 
--- AI-generated insights
+-- User savings goals (for Goal-Based AI Savings Planner)
+goals (
+  id UUID PRIMARY KEY,
+  user_id UUID REFERENCES users,
+  title TEXT,                  -- e.g. "$5,000 Emergency Fund"
+  target_amount DECIMAL,
+  current_amount DECIMAL DEFAULT 0,
+  target_date DATE,
+  monthly_contribution DECIMAL,  -- AI-recommended monthly savings amount
+  status TEXT,                   -- 'active' | 'completed' | 'paused'
+  created_at TIMESTAMPTZ
+)
+
+-- AI-generated insights (reports, alerts, health scores, anomalies)
 ai_insights (
   id UUID PRIMARY KEY,
   user_id UUID REFERENCES users,
-  insight_type TEXT,  -- 'monthly_report' | 'risk_alert' | 'copilot_response'
+  insight_type TEXT,  -- 'monthly_report' | 'risk_alert' | 'health_score' | 'anomaly' | 'copilot_response'
   summary TEXT,
   structured_output_json JSONB,
   created_at TIMESTAMPTZ

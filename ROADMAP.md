@@ -70,6 +70,12 @@ These get built progressively across phases — see each phase for when a page i
 | `/reports/[month]` | Individual monthly report — AI summary, highlights, warnings, recommendations | Phase 4 |
 | `/copilot` | AI Copilot chat — full-page conversation with streaming responses + tool-call indicators | Phase 5 |
 
+### AI Intelligence (continued)
+| Route | Page | Built In |
+|---|---|---|
+| `/goals` | Savings goals — AI-generated monthly plan, progress tracking, milestones | Phase 5 |
+| `/behavioral-insights` | Behavioral spending patterns — velocity spikes, impulse detection, category drift | Phase 5 |
+
 ### Simulators
 | Route | Page | Built In |
 |---|---|---|
@@ -184,7 +190,11 @@ These get built progressively across phases — see each phase for when a page i
 - [ ] Create Plaid developer account, get sandbox `client_id` + `secret`
 - [ ] Add `plaid-python` to dependencies
 - [ ] `POST /plaid/link-token` — creates a Plaid Link token scoped to the authenticated user
-- [ ] `POST /plaid/exchange-token` — exchanges `public_token` for `access_token`, AES-encrypts it, upserts into `accounts` table
+- [ ] `POST /plaid/exchange-token`:
+  - Exchange `public_token` → `access_token` via Plaid API
+  - AES-256 encrypt the `access_token` before storing
+  - Insert row into `plaid_items` (one row per institution link, stores encrypted token + cursor)
+  - Call Plaid `/accounts/get` → insert one row per account into `accounts` (referencing `plaid_item_id`)
 - [ ] `GET /accounts` — returns all linked accounts for the authenticated user (balance, type, institution)
 
 #### 2.2 — Transaction Sync Pipeline
@@ -198,7 +208,9 @@ These get built progressively across phases — see each phase for when a page i
 
 #### 2.3 — Embedding Generation
 - [ ] Set up `openai` client for `text-embedding-3-small` (or Voyage AI)
-- [ ] Add `embedding vector(1536)` column to `transactions` table migration
+- [ ] Run migration to add `embedding vector(1536)` column to `transactions` (schema in CLAUDE.md already reflects this)
+- [ ] Run migration to create `plaid_items` table and add `plaid_item_id` FK to `accounts` (from CLAUDE.md Section 7)
+- [ ] Run migration to add `price_change_pct` to `subscriptions` and create `goals` table
 - [ ] Create `ivfflat` vector index: `CREATE INDEX ON transactions USING ivfflat (embedding vector_cosine_ops)`
 - [ ] Write Celery task `generate_embedding(transaction_id)`:
   - Build string: `"{merchant} {amount} {category} {date}"`
@@ -284,6 +296,18 @@ These get built progressively across phases — see each phase for when a page i
   - Validate with Pydantic `CategoryResponse` schema
   - Fallback: if Plaid provides a valid category, use it without calling Claude
 - [ ] Write Celery batch task: `categorize_new_transactions(user_id)` — runs after each sync on uncategorized rows
+
+#### 3.4 — Behavioral Spending Intelligence
+- [ ] Write `analyze_spending_behavior(user_id)`:
+  - Compute per-category 30-day rolling average (baseline)
+  - Detect **velocity spikes**: current week spend > 2× weekly baseline for a category
+  - Detect **day-of-week patterns**: spending consistently higher on specific weekdays (e.g. Fridays)
+  - Detect **post-paycheck impulse pattern**: elevated dining/entertainment spend within 3 days of income transaction
+  - Detect **category drift**: category spend trending up for 3+ consecutive months
+  - Store each detected pattern in `ai_insights` with `insight_type = 'behavioral_pattern'`
+- [ ] Write `generate_behavioral_summary(user_id)` — Claude call that formats detected patterns into plain-English insights
+- [ ] `GET /behavioral-insights` — returns active behavioral patterns with natural language explanations
+- [ ] Schedule as weekly Celery task
 
 ---
 
@@ -442,7 +466,18 @@ The AI work in this phase is the RAG pipeline + report generation. The key AI co
   - Re-computes health score delta
   - `POST /scenario/simulate`
 
-#### 5.2 — Copilot Endpoint
+#### 5.2 — Goal-Based AI Savings Planner
+- [ ] Write `POST /goals` — creates a new savings goal (`title`, `target_amount`, `target_date`)
+- [ ] Write `GET /goals` — returns all active goals for the user
+- [ ] Write `generate_goal_plan(goal_id)` Celery task:
+  - Compute months remaining until `target_date`
+  - Pull average monthly discretionary spend from transaction history
+  - Call Claude claude-sonnet-4-6 to generate structured plan: `{monthly_contribution, milestones[], feasibility_score, recommendations[]}`
+  - Store result in `goals.monthly_contribution` + `ai_insights` with `insight_type = 'goal_plan'`
+- [ ] `GET /goals/{goal_id}/plan` — returns AI-generated plan for a specific goal
+- [ ] `PATCH /goals/{goal_id}` — update goal progress (current_amount, status)
+
+#### 5.3 — Copilot Endpoint
 - [ ] Write `POST /copilot/chat` (streaming SSE):
   - Accept `{message, conversation_history[]}`
   - Call `retrieve_relevant_transactions()` + `assemble_context()` for RAG
@@ -462,7 +497,7 @@ The AI work in this phase is the RAG pipeline + report generation. The key AI co
 
 ### `[AI]` Tasks
 
-#### 5.3 — Tool Definitions
+#### 5.4 — Tool Definitions
 Define each tool as a JSON schema for Claude (in `backend/copilot/tools.py`):
 
 - [ ] `get_balance_summary` — input: none; output: `{checking, savings, credit, net_worth}`
@@ -480,26 +515,26 @@ Each tool:
 
 ### `[FRONTEND]` Tasks
 
-#### 5.4 — Cashflow Page  `[/cashflow]`
+#### 5.5 — Cashflow Page  `[/cashflow]`
 - [ ] Build `/cashflow` — forecast chart
 - [ ] Recharts `AreaChart` with 3 bands: `projected_balance` (solid line), `upper_bound` / `lower_bound` (shaded area)
 - [ ] Time-range toggle: 30 days / 60 days
 - [ ] Below chart: upcoming bills timeline (dots on x-axis)
 
-#### 5.5 — Risk Radar Page  `[/risk-radar]`
+#### 5.6 — Risk Radar Page  `[/risk-radar]`
 - [ ] Build `/risk-radar` — real-time alert feed
 - [ ] Supabase Realtime subscription on `ai_insights` table filtered by `user_id` + `insight_type = 'risk_alert'`
 - [ ] Alert card component: severity icon (low = blue, medium = amber, high = red), message, due date, dismiss button
 - [ ] Empty state: "No active risks detected. Your finances look healthy."
 
-#### 5.6 — Health Score Page  `[/health-score]`
+#### 5.7 — Health Score Page  `[/health-score]`
 - [ ] Build `/health-score` — score breakdown
 - [ ] Radial gauge showing composite 0–100 score (animated)
 - [ ] 4 dimension bars: Liquidity, Stability, Debt Load, Spending Volatility — each showing score + weight
 - [ ] "What's dragging my score down?" explanation text per dimension
 - [ ] Score history sparkline (last 30 days)
 
-#### 5.7 — AI Copilot Page  `[/copilot]`
+#### 5.8 — AI Copilot Page  `[/copilot]`
 - [ ] Build `/copilot` — full-page chat interface
 - [ ] Message bubble components: user (right, primary color) vs. AI (left, neutral)
 - [ ] Streaming text: characters appear as they arrive via SSE (`EventSource`)
@@ -508,13 +543,28 @@ Each tool:
 - [ ] Suggested starter prompts: "Will I overdraft this month?", "How do I pay off my credit card fastest?"
 - [ ] Conversation history persisted in Zustand store (clears on page refresh — no server-side chat history v1)
 
-#### 5.8 — Debt Simulator Page  `[/simulators/debt]`
+#### 5.9 — Goals Page  `[/goals]`
+- [ ] Build `/goals` — savings goals overview
+- [ ] Goal card: title, target amount, current amount, progress bar (%), target date, monthly contribution
+- [ ] "Add Goal" button → modal with title, target amount, target date inputs
+- [ ] On goal create: call `POST /goals`, then trigger `generate_goal_plan` task
+- [ ] AI Plan section per goal: monthly contribution recommendation, milestone list, feasibility indicator
+- [ ] "Mark Progress" button to update `current_amount`
+
+#### 5.10 — Behavioral Insights Page  `[/behavioral-insights]`
+- [ ] Build `/behavioral-insights` — spending behavior analysis
+- [ ] Pattern cards: each detected behavioral pattern as a card with icon, explanation, affected category
+- [ ] Pattern types: Velocity Spike (🔴), Post-Paycheck Impulse (🟡), Category Drift (🟠), Day-of-Week Pattern (🔵)
+- [ ] Month-over-month category trend sparklines (Recharts `Sparkline`)
+- [ ] "Ask Copilot about this" button per pattern → pre-fills copilot with the behavioral insight as context
+
+#### 5.11 — Debt Simulator Page  `[/simulators/debt]`
 - [ ] Build `/simulators/debt` — input form + results
 - [ ] Input: add up to 5 debts (name, balance, APR, min payment) + extra monthly payment slider
 - [ ] Results: side-by-side Snowball vs. Avalanche cards showing payoff date + total interest
 - [ ] Month-by-month chart: stacked area chart showing debt balances shrinking over time per strategy
 
-#### 5.9 — Scenario Simulator Page  `[/simulators/scenario]`
+#### 5.12 — Scenario Simulator Page  `[/simulators/scenario]`
 - [ ] Build `/simulators/scenario` — slider-based what-if tool
 - [ ] Income delta slider: -$2,000 to +$2,000/month
 - [ ] Expense delta slider: -$1,000 to +$1,000/month
@@ -522,17 +572,17 @@ Each tool:
 - [ ] On slider change: debounced 300ms → call `POST /scenario/simulate` → re-render cashflow chart and health score delta
 - [ ] Delta indicators: "+8 Health Score", "-4% overdraft risk"
 
-#### 5.10 — Onboarding: Goals  `[/onboarding/goals]`
+#### 5.13 — Onboarding: Goals  `[/onboarding/goals]`
 - [ ] Build `/onboarding/goals` — post-bank-link step
 - [ ] Monthly income input, savings goal input (amount + target date)
 - [ ] Skip option → goes to dashboard
 
-#### 5.11 — Dashboard: Wire Up AI Data  `[/dashboard]`
+#### 5.14 — Dashboard: Wire Up AI Data  `[/dashboard]`
 - [ ] Update dashboard to show real Health Score card (from Phase 5 engine)
 - [ ] Update risk alerts strip to show live Supabase Realtime data
 - [ ] Add "Ask Copilot" quick-launch button
 
-#### 5.12 — Notifications Settings  `[/settings/notifications]`
+#### 5.15 — Notifications Settings  `[/settings/notifications]`
 - [ ] Build `/settings/notifications` — alert preferences
 - [ ] Toggles: Risk Radar email alerts, overdraft threshold setting, weekly summary email
 
@@ -638,6 +688,8 @@ ArgusAI/
 │   │   │   ├── risk-radar/page.tsx
 │   │   │   ├── health-score/page.tsx
 │   │   │   ├── copilot/page.tsx
+│   │   │   ├── goals/page.tsx
+│   │   │   ├── behavioral-insights/page.tsx
 │   │   │   ├── reports/
 │   │   │   │   ├── page.tsx
 │   │   │   │   └── [month]/page.tsx
@@ -690,10 +742,13 @@ ArgusAI/
 │   │   ├── embeddings.py            # generate_embedding
 │   │   ├── categorization.py        # categorize_new_transactions
 │   │   ├── detection.py             # detect_bills, detect_subscriptions
+│   │   ├── behavioral.py            # analyze_spending_behavior, generate_behavioral_summary
 │   │   ├── reports.py               # generate_monthly_report
+│   │   ├── goals.py                 # generate_goal_plan
 │   │   └── risk.py                  # detect_anomalies, run_risk_radar
-│   ├── migrations/                  # SQL schema files
-│   │   └── 001_initial_schema.sql
+│   ├── migrations/                  # SQL schema files (run in order)
+│   │   ├── 001_initial_schema.sql   # users, plaid_items, accounts, transactions, bills, subscriptions, goals, ai_insights
+│   │   └── 002_vector_indexes.sql   # ivfflat index on transactions.embedding
 │   └── tests/
 │
 └── infra/
