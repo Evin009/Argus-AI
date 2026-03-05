@@ -111,10 +111,10 @@ These get built progressively across phases — see each phase for when a page i
 ### `[BACKEND]` Tasks
 
 #### 1.1 — Project Scaffolding
-- [ ] Initialize monorepo: `/frontend`, `/backend`, `/infra` directories
-- [ ] Set up `pyproject.toml` (or `requirements.txt`) — FastAPI, Pydantic, supabase-py, python-dotenv
-- [ ] Create `.env.example` with all required variable names (no real values)
-- [ ] Add `.gitignore` covering `.env`, `__pycache__`, `.next`, `node_modules`
+- [x] Initialize monorepo: `/frontend`, `/backend`, `/infra` directories
+- [x] Set up `pyproject.toml` (or `requirements.txt`) — FastAPI, Pydantic, supabase-py, python-dotenv
+- [x] Create `.env.example` with all required variable names (no real values)
+- [x] Add `.gitignore` covering `.env`, `__pycache__`, `.next`, `node_modules`
 
 #### 1.2 — Supabase Setup
 - [ ] Create Supabase project
