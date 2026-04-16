@@ -121,10 +121,10 @@ These get built progressively across phases — see each phase for when a page i
 - [ ] Enable pgvector: run `CREATE EXTENSION vector;` in SQL editor
 - [ ] Run schema migration (from `CLAUDE.md` Section 7) to create all 6 tables
 - [ ] Enable Row-Level Security on all tables
-- [ ] Write RLS policies: users can only read/write their own rows (`auth.uid() = user_id`)
-- [ ] Copy Supabase URL + anon key + service role key to `.env`
+- [ ] Write RLS policies: users can only read/write their own rnv`
 - [ ] Confirm `auth.users` ↔ `public.users` foreign key works
-
+ows (`auth.uid() = user_id`)
+- [ ] Copy Supabase URL + anon key + service role key to `.e
 #### 1.3 — FastAPI Auth Middleware
 - [ ] Install dependencies: `fastapi`, `uvicorn`, `python-jose`, `httpx`
 - [ ] Write JWT middleware: extract `Authorization: Bearer <token>` → verify against Supabase JWKS → inject `user_id` into request state
@@ -477,39 +477,32 @@ The AI work in this phase is the RAG pipeline + report generation. The key AI co
 - [ ] `GET /goals/{goal_id}/plan` — returns AI-generated plan for a specific goal
 - [ ] `PATCH /goals/{goal_id}` — update goal progress (current_amount, status)
 
-#### 5.3 — Copilot Endpoint
-- [ ] Write `POST /copilot/chat` (streaming SSE):
-  - Accept `{message, conversation_history[]}`
-  - Call `retrieve_relevant_transactions()` + `assemble_context()` for RAG
-  - Inject context into first user message
-  - Enter agentic loop:
-    ```
-    while True:
-        response = client.messages.create(model, tools, messages)
-        if response.stop_reason == "end_turn": break
-        if response.stop_reason == "tool_use":
-            execute tools, append results, continue
-    ```
-  - Stream output tokens via SSE
-  - Append disclaimer to final response
+#### 5.3 — Multi-Agent System (LangGraph)
+- [ ] Install LangGraph deps (already in pyproject.toml)
+- [ ] Create `backend/agents/`:
+  - `supervisor.py`: SupervisorAgent routes queries (e.g., "cashflow?" → CashflowAgent)
+  - `cashflow_agent.py`: CashflowAgent (tools: forecast, RAG on transactions/bills)
+  - `risk_agent.py`: RiskAgent (tools: risk_radar, anomaly detection, RAG on alerts)
+  - `debt_agent.py`: DebtAgent (tools: debt_sim, RAG on accounts/debts)
+  - `rag_retriever.py`: Shared Supabase pgvector retriever (cosine sim on query embedding)
+- [ ] `POST /copilot/chat` (streaming SSE):
+  - Compile state: `{messages, user_id}`
+  - Invoke LangGraph graph: Supervisor → specialist(s) → aggregate → final response
+  - Each agent: LLM (Claude Sonnet) + tools + RAG context
+  - Stream graph nodes/tokens via SSE
+  - Persist agent memory in `ai_insights.conversation_history`
+  - Disclaimer: "Agents powered by custom LangGraph; not financial advice"
 
 ---
 
 ### `[AI]` Tasks
 
-#### 5.4 — Tool Definitions
-Define each tool as a JSON schema for Claude (in `backend/copilot/tools.py`):
-
-- [ ] `get_balance_summary` — input: none; output: `{checking, savings, credit, net_worth}`
-- [ ] `get_cashflow_forecast` — input: `{days: int}`; output: daily balance array
-- [ ] `get_spending_patterns` — input: `{months: int}`; output: category breakdown + MoM change
-- [ ] `run_debt_simulation` — input: `{strategy: "snowball"|"avalanche"}`; output: payoff schedule
-- [ ] `get_risk_alerts` — input: none; output: `[{type, severity, message, due_date}]`
-
-Each tool:
-- [ ] Validates input with Pydantic
-- [ ] Returns deterministic JSON from real DB data — no generated numbers
-- [ ] Logs the tool call with `user_id` + timestamp (audit trail)
+#### 5.4 — Agent Tools & RAG
+- [ ] Shared tools (LangChain Tool format) in `backend/agents/tools.py`:
+  - `get_balance_summary`, `get_cashflow_forecast`, `get_spending_patterns`, `run_debt_simulation`, `get_risk_alerts`
+  - Each: Pydantic input/output, DB-grounded (no hallucinations)
+- [ ] Agentic RAG: `rag_retriever` embeds query → pgvector search → injects top-10 transactions/context into agent prompt
+- [ ] Agent memory: Store conversation state in Supabase `ai_insights` (JSONB), retrieve via RAG for continuity
 
 ---
 

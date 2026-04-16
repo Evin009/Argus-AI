@@ -302,42 +302,46 @@ ai_insights (
 
 ---
 
-## 8. AI System Architecture
+## 8. AI System Architecture (Multi-Agent w/ LangGraph)
 
 ```
-User Query
-    │
-    ▼
-[RAG Retrieval] ──── Supabase Vector (pgvector — co-located with transaction DB)
-    │                  (transaction embeddings, history)
-    ▼
-[Context Assembly]
-    │  - Retrieved financial history
-    │  - Current account state
-    │  - Active goals and debts
-    ▼
-[LLM with Tool-Calling] (Claude claude-sonnet-4-6)
-    │
-    ├── Tool: get_cashflow_forecast()
-    ├── Tool: get_balance_summary()
-    ├── Tool: run_debt_simulation()
-    ├── Tool: get_risk_alerts()
-    └── Tool: get_spending_patterns()
-    │
-    ▼
-[Structured JSON Output]
-    │  - Validated against schema
-    │  - Guardrails: no speculative financial advice
-    │  - No hallucinated account numbers or balances
-    ▼
-[Response to User]
+User Query ────> [RAG Retrieval] ──── Supabase pgvector (transactions, insights)
+                  │
+                  ▼
+             [LangGraph Multi-Agent Supervisor]
+                  │
+    ┌─────────────┼─────────────┐
+    │             │             │
+CashflowAgent  RiskAgent    DebtAgent
+(forecast+RAG) (alerts+RAG)  (sims+RAG)
+    │             │             │
+    └─────────────┼─────────────┘
+                  │
+                  ▼
+             [Structured JSON Output]
+                  │
+                  ▼
+               Response to User (SSE)
 ```
+
+**Multi-Agent Flow**:
+1. **RAG**: Embed query → cosine search top-10 transactions/insights → inject context.
+2. **SupervisorAgent**: Routes to specialists (CashflowAgent for forecasts, RiskAgent for threats, DebtAgent for sims).
+3. **Specialists**: Claude Sonnet + tools (DB-grounded) + RAG context → reason step-by-step.
+4. **Aggregate**: Supervisor combines specialist outputs → final response.
+5. **Memory**: Persist state in `ai_insights.conversation_history` (JSONB, retrievable via RAG).
+
+**Tech**:
+- **Framework**: LangGraph (stateful graphs, conditional routing).
+- **LLM**: Claude-3.5-Sonnet (tool-calling).
+- **Embeddings**: text-embedding-3-small.
+- **Tools**: Pydantic-validated (balance_summary, cashflow_forecast, etc.).
 
 **Key AI design principles:**
-- All AI outputs referencing account data must be grounded in retrieved facts
-- Copilot responses include a "confidence" field and data sources cited
-- Sensitive financial figures are never generated — only retrieved and formatted
-- Output always includes a disclaimer that ArgusAI is not a licensed financial advisor
+- All outputs grounded in DB facts (RAG + tools).
+- Confidence scores + sources cited.
+- No generated financial figures — retrieve only.
+- Disclaimer: "Custom LangGraph agents; not financial advice."
 
 ---
 
