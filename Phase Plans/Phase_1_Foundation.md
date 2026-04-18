@@ -24,18 +24,19 @@ Per `GitHub-Argus.md` — Phase 1 uses one phase branch and 3 feature branches:
 develop
 └── phase/1-foundation
       ├── feature/auth-middleware  ✅ merged → main (PR #1 + #2)
-      ├── feature/supabase-schema  ← current branch
-      └── feature/cicd-setup
+      ├── feature/supabase-schema  ✅ merged → phase/1-foundation
+      └── feature/cicd-setup       ← next to merge
 ```
 
-### Current branch state (as of Apr 16)
+### Current branch state (as of Apr 18)
 
 | Branch | Status | Notes |
 |---|---|---|
-| `main` | `356f446` | Has all Phase 1 work — up to date |
-| `develop` | `356f446` | Synced with main |
-| `phase/1-foundation` | `5f47d83` | Can be deleted — work already on main |
-| `feature/supabase-schema` | `5f47d83` | Active — ready for DB migration work |
+| `main` | up to date | Auth middleware + frontend work |
+| `develop` | synced with main | |
+| `phase/1-foundation` | `d18c173` | Has supabase-schema merged in |
+| `feature/supabase-schema` | ✅ done | Merged into phase/1-foundation |
+| `feature/cicd-setup` | active | Dockerfile + docker-compose + CI — needs merge |
 
 > **Note:** PRs #1 and #2 were merged directly into `main` instead of through `phase/1-foundation`. Going forward, set the PR base branch to `phase/1-foundation` (not `main`) before opening.
 
@@ -99,35 +100,35 @@ git push origin --delete phase/1-foundation
 
 ---
 
-### `feature/supabase-schema` ← YOU ARE HERE
+### `feature/supabase-schema` ✅
 *Supabase project + all DB tables + RLS policies + pgvector index*
 
-- [ ] Create Supabase project (Supabase dashboard — manual)
-- [ ] Enable pgvector extension in SQL editor
-- [ ] Write `backend/migrations/001_initial_schema.sql` — all 8 tables: `users`, `plaid_items`, `accounts`, `transactions`, `bills`, `subscriptions`, `goals`, `ai_insights`
-- [ ] Write `backend/migrations/002_rls_policies.sql` — enable RLS + `auth.uid() = user_id` policy per table
-- [ ] Write `backend/migrations/003_vector_indexes.sql` — ivfflat index on `transactions.embedding`
-- [ ] Run all 3 migrations in Supabase SQL editor (in order)
-- [ ] Verify RLS: `SET LOCAL role anon; SELECT * FROM users;` → 0 rows returned
-- [ ] Confirm `auth.users` ↔ `public.users` FK works after test signup
-- [ ] Copy `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `JWT_SECRET` into `.env`
-- [ ] **Open PR on GitHub — base branch: `phase/1-foundation`**
+- [x] Create Supabase project (Supabase dashboard — manual)
+- [x] Enable pgvector extension in SQL editor
+- [x] Write `backend/migrations/001_initial_schema.sql` — all 8 tables: `users`, `plaid_items`, `accounts`, `transactions`, `bills`, `subscriptions`, `goals`, `ai_insights`
+- [x] Write `backend/migrations/002_rls_policies.sql` — enable RLS + `auth.uid() = user_id` policy per table
+- [x] Write `backend/migrations/003_vector_indexes.sql` — ivfflat index on `transactions.embedding`
+- [x] Run all 3 migrations in Supabase SQL editor (in order)
+- [x] Verify RLS: `SET LOCAL role anon; SELECT * FROM users;` → 0 rows returned
+- [ ] Confirm `auth.users` ↔ `public.users` FK works after test signup *(verify after first real signup)*
+- [x] Copy `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `JWT_SECRET` into `.env`
+- [x] **Merged → `phase/1-foundation`**
 
 ---
 
-### `feature/cicd-setup`
+### `feature/cicd-setup` ← YOU ARE HERE
 *Dockerfile + docker-compose + GitHub Actions CI + Vercel + Railway deploys*
 
-- [ ] Write `backend/Dockerfile`
-- [ ] Write `infra/docker-compose.yml` — FastAPI service (port 8000) + Redis service (port 6379)
-- [ ] Verify: `docker-compose up` → `localhost:8000/health` responds, Swagger UI loads at `localhost:8000/docs`
-- [ ] Write `infra/.github/workflows/ci.yml` — ruff lint + pytest on push to `main` and `develop`
+- [x] Write `backend/Dockerfile`
+- [x] Write `infra/docker-compose.yml` — FastAPI service (port 8000) + Redis service (port 6379)
+- [x] Verify: `docker-compose up` → `localhost:8000/health` responds, Swagger UI loads at `localhost:8000/docs`
+- [x] Write `infra/.github/workflows/ci.yml` — ruff lint + pytest on push to `main` and `develop`
 - [ ] Add GitHub repo secrets: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `JWT_SECRET`
 - [ ] Push to trigger CI — confirm GitHub Actions runs green
 - [ ] Deploy frontend to Vercel (root directory: `frontend/`, add `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY`)
 - [ ] Deploy backend to Railway (root directory: `backend/`, add all env vars, start command: `uvicorn main:app --host 0.0.0.0 --port $PORT`)
 - [ ] Run end-to-end smoke test on production URLs
-- [ ] **Open PR on GitHub — base branch: `phase/1-foundation`**
+- [ ] **Merge → `phase/1-foundation`**
 
 ---
 
@@ -141,10 +142,10 @@ git push origin --delete phase/1-foundation
 
 ## Definition of Done
 
-- [ ] `docker-compose up` → `localhost:8000/health` responds and Swagger UI loads
-- [ ] `GET /me` without token → 401 Unauthorized
-- [ ] `GET /me` with valid Supabase JWT → user profile returned
-- [ ] Supabase RLS blocks cross-user access: `SET LOCAL role anon; SELECT * FROM users;` → 0 rows
+- [x] `docker-compose up` → `localhost:8000/health` responds and Swagger UI loads
+- [x] `GET /me` without token → 401 Unauthorized
+- [ ] `GET /me` with valid Supabase JWT → user profile returned *(needs real signup)*
+- [x] Supabase RLS blocks cross-user access: `SET LOCAL role anon; SELECT * FROM users;` → 0 rows
 - [ ] Full auth flow works: sign up → email confirm → login → redirect to `/dashboard`
 - [ ] Protected routes redirect to `/login` when unauthenticated
 - [ ] GitHub Actions CI green on push to `main` and `develop`
