@@ -23,41 +23,33 @@ Per `GitHub-Argus.md` — Phase 1 uses one phase branch and 3 feature branches:
 ```
 develop
 └── phase/1-foundation
-      ├── feature/auth-middleware
-      ├── feature/supabase-schema
+      ├── feature/auth-middleware  ✅ merged → main (PR #1 + #2)
+      ├── feature/supabase-schema  ← current branch
       └── feature/cicd-setup
 ```
 
-### Setup commands
+### Current branch state (as of Apr 16)
 
-**One-time (create develop if not done):**
-```bash
-git checkout main
-git checkout -b develop
-git push -u origin develop
-```
+| Branch | Status | Notes |
+|---|---|---|
+| `main` | `356f446` | Has all Phase 1 work — up to date |
+| `develop` | `356f446` | Synced with main |
+| `phase/1-foundation` | `5f47d83` | Can be deleted — work already on main |
+| `feature/supabase-schema` | `5f47d83` | Active — ready for DB migration work |
 
-**Create the phase branch:**
-```bash
-git checkout develop
-git pull origin develop
-git checkout -b phase/1-foundation
-git push -u origin phase/1-foundation
-```
+> **Note:** PRs #1 and #2 were merged directly into `main` instead of through `phase/1-foundation`. Going forward, set the PR base branch to `phase/1-foundation` (not `main`) before opening.
 
-**Per feature branch:**
+### Per feature branch workflow
 ```bash
 # Start a feature
 git checkout phase/1-foundation
 git checkout -b feature/<name>
 git push -u origin feature/<name>
 
-# ... do your work, commit as you go ...
+# ... work, commit ...
 
-# When done — merge back to phase branch
-git checkout phase/1-foundation
-git merge feature/<name> --no-ff -m "merge: <short description>"
-git push origin phase/1-foundation
+# When done — open PR on GitHub with base = phase/1-foundation (NOT main)
+# After merge, delete the feature branch
 git branch -d feature/<name>
 git push origin --delete feature/<name>
 ```
@@ -101,13 +93,13 @@ git push origin --delete phase/1-foundation
 - [x] Build `app/page.tsx` — static landing page (hero, 3 feature highlights, CTA buttons)
 - [x] Build `app/(app)/layout.tsx` — sidebar nav shell (all route links, active highlight)
 - [x] Build `app/(app)/settings/page.tsx` — profile display + sign-out button
-- [ ] Verify: signup → email confirm → session set → redirect to `/dashboard` *(needs real Supabase project)*
+- [ ] Verify: signup → email confirm → session set → redirect to `/dashboard` *(needs real Supabase project — do after feature/supabase-schema)*
 - [ ] Verify: visit `/dashboard` logged out → redirected to `/login` *(needs real Supabase project)*
-- [ ] **Merge → `phase/1-foundation`**
+- [x] **Merged → main via PR #1 + PR #2**
 
 ---
 
-### `feature/supabase-schema`
+### `feature/supabase-schema` ← YOU ARE HERE
 *Supabase project + all DB tables + RLS policies + pgvector index*
 
 - [ ] Create Supabase project (Supabase dashboard — manual)
@@ -119,7 +111,7 @@ git push origin --delete phase/1-foundation
 - [ ] Verify RLS: `SET LOCAL role anon; SELECT * FROM users;` → 0 rows returned
 - [ ] Confirm `auth.users` ↔ `public.users` FK works after test signup
 - [ ] Copy `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `JWT_SECRET` into `.env`
-- [ ] **Merge → `phase/1-foundation`**
+- [ ] **Open PR on GitHub — base branch: `phase/1-foundation`**
 
 ---
 
@@ -135,12 +127,14 @@ git push origin --delete phase/1-foundation
 - [ ] Deploy frontend to Vercel (root directory: `frontend/`, add `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY`)
 - [ ] Deploy backend to Railway (root directory: `backend/`, add all env vars, start command: `uvicorn main:app --host 0.0.0.0 --port $PORT`)
 - [ ] Run end-to-end smoke test on production URLs
-- [ ] **Merge → `phase/1-foundation`**
+- [ ] **Open PR on GitHub — base branch: `phase/1-foundation`**
 
 ---
 
 ### Phase 1 Close
-- [ ] Merge `phase/1-foundation` → `develop` (see git commands above)
+- [ ] Open PR: `phase/1-foundation` → `develop` — base must be `develop`
+- [ ] Confirm CI passes before merging
+- [ ] Delete `phase/1-foundation` after merge
 - [ ] Mark Phase 1 as ✅ Complete in `ROADMAP.md`
 
 ---
