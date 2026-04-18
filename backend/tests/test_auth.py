@@ -20,7 +20,7 @@ def test_health():
 
 def test_get_me_unauthenticated():
     response = client.get("/api/me")
-    assert response.status_code == 403
+    assert response.status_code == 401
 
 
 def test_get_me_invalid_token():
@@ -30,7 +30,7 @@ def test_get_me_invalid_token():
 
 def test_sync_user_unauthenticated():
     response = client.post("/api/users/sync")
-    assert response.status_code == 403
+    assert response.status_code == 401
 
 
 def test_sync_user_invalid_token():
