@@ -112,14 +112,29 @@ User Query
 
 ## Development Timeline
 
-| Phase | Weeks | Deliverables |
-|---|---|---|
-| Foundation | 1–2 | Supabase setup (Auth, DB, RLS), FastAPI scaffold, CI/CD |
-| Data Pipeline | 3–4 | Plaid integration, transaction sync, normalization pipeline |
-| Intelligence Layer | 5–6 | Bill detection, subscription tracking, AI categorization |
-| AI Reports | 7–8 | Monthly AI reports, categorization improvements |
-| Copilot + Simulations | 9–10 | Financial Copilot, cashflow engine, debt + scenario simulators |
-| Production Hardening | 11–12 | Security audit, rate limiting, load testing, production deploy |
+| Phase | Weeks | Status | Deliverables |
+|---|---|---|---|
+| Foundation | 1–2 | 🟡 In Progress | Supabase setup (Auth, DB, RLS), FastAPI scaffold, Next.js frontend, CI/CD |
+| Data Pipeline | 3–4 | ⬜ Not Started | Plaid integration, transaction sync, normalization pipeline |
+| Intelligence Layer | 5–6 | ⬜ Not Started | Bill detection, subscription tracking, AI categorization |
+| AI Reports | 7–8 | ⬜ Not Started | Monthly AI reports, categorization improvements |
+| Copilot + Simulations | 9–10 | ⬜ Not Started | Financial Copilot, cashflow engine, debt + scenario simulators |
+| Production Hardening | 11–12 | ⬜ Not Started | Security audit, rate limiting, load testing, production deploy |
+
+### Phase 1 Progress
+
+| Area | Status |
+|---|---|
+| FastAPI backend scaffold + JWT auth middleware | ✅ Done |
+| `GET /me` and `POST /users/sync` endpoints | ✅ Done |
+| Next.js 14 frontend (TypeScript + Tailwind + App Router) | ✅ Done |
+| Supabase browser + server clients | ✅ Done |
+| Route protection middleware | ✅ Done |
+| Auth pages — login, signup, OAuth callback, verify-email | ✅ Done |
+| Landing page + sidebar nav shell + settings page | ✅ Done |
+| Supabase DB schema + RLS policies + pgvector index | 🟡 In Progress |
+| Dockerfile + docker-compose + GitHub Actions CI | 🟡 In Progress |
+| Vercel + Railway production deploys | ⬜ Pending |
 
 ---
 
