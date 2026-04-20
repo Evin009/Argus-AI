@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop, "phase/*", "feature/*"]
+  pull_request:
+    branches: [main, develop, "phase/*"]
+
+jobs:
+  backend:
+    name: Backend — Lint + Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install fastapi "uvicorn[standard]" "pydantic>=2" supabase \
+            "python-jose[cryptography]" httpx python-dotenv \
+            ruff pytest pytest-asyncio
+        working-directory: backend
+
+      - name: Lint (ruff)
+        run: ruff check .
+        working-directory: backend
+
+      - name: Test (pytest)
+        run: pytest tests/ -v
+        working-directory: backend
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET || 'ci-test-secret-key' }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://placeholder.supabase.co' }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key' }}
+          FRONTEND_URL: http://localhost:3000
