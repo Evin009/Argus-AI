@@ -94,8 +94,8 @@ git push origin --delete phase/1-foundation
 - [x] Build `app/page.tsx` — static landing page (hero, 3 feature highlights, CTA buttons)
 - [x] Build `app/(app)/layout.tsx` — sidebar nav shell (all route links, active highlight)
 - [x] Build `app/(app)/settings/page.tsx` — profile display + sign-out button
-- [ ] Verify: signup → email confirm → session set → redirect to `/dashboard` *(needs real Supabase project — do after feature/supabase-schema)*
-- [ ] Verify: visit `/dashboard` logged out → redirected to `/login` *(needs real Supabase project)*
+- [x] Verify: signup → email confirm → session set → redirect to `/dashboard`
+- [x] Verify: visit `/dashboard` logged out → redirected to `/login`
 - [x] **Merged → main via PR #1 + PR #2**
 
 ---
@@ -110,7 +110,7 @@ git push origin --delete phase/1-foundation
 - [x] Write `backend/migrations/003_vector_indexes.sql` — ivfflat index on `transactions.embedding`
 - [x] Run all 3 migrations in Supabase SQL editor (in order)
 - [x] Verify RLS: `SET LOCAL role anon; SELECT * FROM users;` → 0 rows returned
-- [ ] Confirm `auth.users` ↔ `public.users` FK works after test signup *(verify after first real signup)*
+- [x] Confirm `auth.users` ↔ `public.users` FK works after test signup
 - [x] Copy `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `JWT_SECRET` into `.env`
 - [x] **Merged → `phase/1-foundation`**
 
