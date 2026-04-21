@@ -94,5 +94,6 @@
 - Performance indexing + Redis caching
 - Load testing with Locust (100 concurrent users, P95 < 500ms)
 - Sentry + Axiom monitoring
+- Custom transactional email via SMTP (Resend/Postmark) — replace Supabase default sender with branded `noreply@argusai.com`
 - Full production smoke test
 - Tag `v1.0.0`
