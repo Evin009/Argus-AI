@@ -1,6 +1,6 @@
 # ArgusAI — Project Roadmap
 
-> 12-week build plan across 6 phases. Each phase builds on the previous.
+> 14-week build plan across 7 phases. Each phase builds on the previous.
 
 ---
 
@@ -9,11 +9,12 @@
 | Phase | Status | Weeks |
 |---|---|---|
 | Phase 1 — Foundation | ✅ Complete | 1–2 |
-| Phase 2 — Plaid Data Pipeline | ⬜ Not Started | 3–4 |
+| Phase 2 — Bank Data Pipeline | ⬜ Not Started | 3–4 |
 | Phase 3 — Intelligence Layer | ⬜ Not Started | 5–6 |
 | Phase 4 — AI Reports | ⬜ Not Started | 7–8 |
 | Phase 5 — Copilot + Simulations | ⬜ Not Started | 9–10 |
-| Phase 6 — Production Hardening | ⬜ Not Started | 11–12 |
+| Phase 6 — New Features | ⬜ Not Started | 11–12 |
+| Phase 7 — Production Hardening | ⬜ Not Started | 13–14 |
 
 ---
 
@@ -33,67 +34,88 @@
 | Dockerfile + docker-compose (FastAPI + Redis) | ✅ Done |
 | GitHub Actions CI — ruff lint + pytest (5/5 passing) | ✅ Done |
 | Frontend deployed to Vercel | ✅ Done |
-| Backend deployed to Railway | ⬜ Pending |
-| End-to-end auth flow verified on production | ⬜ Pending |
+| Backend deployed to Railway | ✅ Done |
+| End-to-end auth flow verified on production | ✅ Done |
 
 ---
 
-## Phase 2 — Plaid Data Pipeline ⬜
-**Goal:** Real bank accounts linked, transactions syncing into Supabase, data normalized and stored.
+## Phase 2 — Bank Data Pipeline ⬜
+**Goal:** Connect bank accounts via Plaid and store all transactions.
 
-- Plaid Link integration (sandbox)
-- `public_token` → `access_token` exchange + AES-256 encryption
-- Transaction sync pipeline (Celery + Redis)
-- Embedding generation (`text-embedding-3-small`)
-- `/accounts` and `/transactions` endpoints
-- Accounts, Transactions, Onboarding pages
+- Plaid Link integration (sandbox) — link token, OAuth redirect, token exchange
+- AES-256 encrypt and store access tokens in `plaid_items`
+- Transaction sync Celery task — Plaid `/transactions/sync`, normalize, upsert
+- Embedding generation task — `text-embedding-3-small`, store in `transactions.embedding`
+- Supabase RPC `match_transactions_by_embedding` for pgvector cosine search
+- Accounts page, Transactions page, Bank linking flow
 
 ---
 
 ## Phase 3 — Intelligence Layer ⬜
-**Goal:** Bill detection, subscription tracking, AI categorization, and dashboard live.
+**Goal:** Detect patterns, categorize spending, surface subscriptions and bills.
 
 - Recurring bill detection engine
 - Subscription tracker + creep detection
-- AI-powered transaction categorization (Claude)
-- Behavioral spending intelligence
+- AI-powered transaction categorization (Claude few-shot)
+- Behavioral spending intelligence (velocity spikes, category drift, impulse patterns)
 - Dashboard, Bills, Subscriptions pages
 
 ---
 
 ## Phase 4 — AI Reports ⬜
-**Goal:** Monthly AI financial reports auto-generated. RAG pipeline operational. Anomaly detection live.
+**Goal:** Surface anomalies, build RAG pipeline, generate monthly reports.
 
-- Anomaly detection (z-score outlier flagging)
-- RAG retrieval pipeline (pgvector cosine search)
-- Monthly report generation (Claude + Pydantic schema)
+- Anomaly detection (z-score outlier flagging, duplicate detection)
+- RAG retrieval pipeline (pgvector cosine search via `RAGRetriever`)
+- Monthly report generator — Celery task, Claude + RAG context, stored in `ai_insights`
 - Reports index + individual report pages
 
 ---
 
 ## Phase 5 — Copilot + Simulations ⬜
-**Goal:** All AI intelligence surfaces live — Copilot, engines, Health Score, Risk Radar, simulators.
+**Goal:** All AI intelligence systems live — Copilot, engines, Health Score, Risk Radar, simulators.
 
-- CashflowEngine (30–60 day forward simulation)
-- DebtSimulator (Snowball vs. Avalanche)
-- HealthScoreEngine (4-dimension composite score)
-- RiskRadarEngine (proactive alert system)
-- ScenarioEngine (what-if sliders)
-- Goal-Based AI Savings Planner
-- Multi-agent system (LangGraph — Supervisor + specialists)
-- AI Copilot chat with streaming SSE
+- `CashflowEngine` — 30–60 day forward balance projection with confidence bands
+- `DebtSimulator` — Snowball vs. Avalanche with month-by-month payoff schedules
+- `HealthScoreEngine` — 0–100 composite score across 4 dimensions, updates daily
+- `RiskRadarEngine` — overdraft probability, utilization alerts, upcoming bill warnings
+- `ScenarioEngine` — re-runs cashflow with modified income/expense inputs
+- Goal-Based AI Savings Planner — target + date → monthly milestone roadmap
+- Multi-agent system (LangGraph — Supervisor + CashflowAgent + RiskAgent + DebtAgent)
+- `POST /copilot/chat` SSE streaming endpoint
 - All intelligence pages: Cashflow, Risk Radar, Health Score, Copilot, Goals, Behavioral Insights, Simulators
 
 ---
 
-## Phase 6 — Production Hardening ⬜
+## Phase 6 — New Features ⬜
+**Goal:** Add three differentiating intelligence features.
+
+**Smart Payment Allocation**
+- `PaymentAllocationEngine` — priority-ordered allocation across cards, bills, savings with buffer floor
+- Integrated as `PaymentAgent` in multi-agent supervisor
+
+**Bonus Recommender**
+- `BonusSearchEngine` — Brave Search API + Claude to extract structured bonus offers
+- Filters institutions user already has, caches 24h
+- Integrated as `BonusAgent` in multi-agent supervisor
+
+**Credit Score**
+- Experian Connect API integration (sandbox → development)
+- Soft-pull credit report, score history, Claude-powered recommendations
+- Integrated as `CreditAgent` in multi-agent supervisor
+
+---
+
+## Phase 7 — Production Hardening ⬜
 **Goal:** Secure, monitored, rate-limited, load-tested, fully deployed. Tag `v1.0.0`.
 
-- Security audit (RLS, auth, IDOR, SQL injection)
-- Rate limiting (`slowapi` — 60/min standard, 10/min AI endpoints)
-- Performance indexing + Redis caching
+- Security audit (RLS, auth, IDOR, SQL injection, Plaid token exposure)
+- Per-user rate limiting (`slowapi` — 60/min standard, 10/min AI endpoints)
+- DB connection pooling via PgBouncer
+- Performance indexes on hot query paths
 - Load testing with Locust (100 concurrent users, P95 < 500ms)
-- Sentry + Axiom monitoring
-- Custom transactional email via SMTP (Resend/Postmark) — replace Supabase default sender with branded `noreply@argusai.com`
+- Sentry (error tracking) + Axiom (logs)
+- Custom transactional email via SMTP (Resend/Postmark) — replace Supabase default with branded `noreply@argusai.com`
+- UI polish — loading states, empty states, error boundaries, accessibility
 - Full production smoke test
 - Tag `v1.0.0`

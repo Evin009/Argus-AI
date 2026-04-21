@@ -146,8 +146,9 @@ This plan covers the full build of ArgusAI across 7 phases. Each phase builds on
 4. Add performance indexes on hot query paths
 5. Load testing with Locust — simulate 100 concurrent users
 6. Set up Sentry (error tracking) and Axiom (logs)
-7. UI polish — loading states, empty states, error boundaries, accessibility pass
-8. Final smoke tests in production environment
+7. Configure custom SMTP provider (Resend or Postmark) — replace Supabase default sender with branded `noreply@argusai.com`; customize all auth email templates (confirm signup, password reset, magic link)
+8. UI polish — loading states, empty states, error boundaries, accessibility pass
+9. Final smoke tests in production environment
 
 **Deliverable:** Production-ready, deployed, monitored
 
