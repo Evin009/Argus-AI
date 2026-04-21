@@ -21,7 +21,7 @@
 
 | Phase | Status | Weeks |
 |---|---|---|
-| Phase 1 — Foundation | ⬜ Not Started | 1–2 |
+| Phase 1 — Foundation | ✅ Complete | 1–2 |
 | Phase 2 — Plaid Data Pipeline | ⬜ Not Started | 3–4 |
 | Phase 3 — Intelligence Layer | ⬜ Not Started | 5–6 |
 | Phase 4 — AI Reports | ⬜ Not Started | 7–8 |
