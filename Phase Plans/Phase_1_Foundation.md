@@ -126,26 +126,24 @@ git push origin --delete phase/1-foundation
 - [x] Add GitHub repo secrets: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `JWT_SECRET`
 - [x] Push to trigger CI — GitHub Actions runs green (5/5 tests passing)
 - [x] Deploy frontend to Vercel (live — env vars set, build passing)
-- [ ] Deploy backend to Railway *(blocked: Dockerfile not on main yet — resolve after Phase 1 close merge)*
-- [ ] Run end-to-end smoke test on production URLs *(after Railway deploy)*
+- [x] Deploy backend to Railway (root: `backend/`, builder: Dockerfile, port 8080)
+- [x] Run end-to-end smoke test on production URLs
 - [x] **Merged → `phase/1-foundation`**
 
 ---
 
-### Phase 1 Close ← YOU ARE HERE
-- [ ] Merge `phase/1-foundation` → `main` (all feature work lives here)
-- [ ] Merge `phase/1-foundation` → `develop` — base must be `develop`
-- [ ] Confirm CI passes after merge to main
-- [ ] Delete `phase/1-foundation` after merge
-- [ ] Mark Phase 1 as ✅ Complete in `ROADMAP.md`
+### Phase 1 Close ✅
+- [x] Merge `phase/1-foundation` → `develop`
+- [x] Merge `develop` → `main`
+- [x] CI passes on main
+- [x] Delete all feature branches + `phase/1-foundation`
+- [x] Mark Phase 1 as ✅ Complete in `ROADMAP.md`
 
-### Post-Close (unblocked after merge to main)
-- [ ] Deploy backend to Railway (root: `backend/`, builder: Dockerfile, add all env vars)
-- [ ] Run end-to-end smoke test on production URLs
-- [ ] Verify full auth flow: signup → email confirm → login → `/dashboard`
-- [ ] Verify: `GET /me` with valid Supabase JWT → user profile returned
-- [ ] Verify: protected routes redirect to `/login` when unauthenticated
-- [ ] Confirm `auth.users` ↔ `public.users` FK works after first real signup
+### Post-Close ✅
+- [x] Deploy backend to Railway
+- [x] Run end-to-end smoke test on production URLs
+- [x] Verify full auth flow: signup → email confirm → login → `/dashboard`
+- [x] Confirm `auth.users` ↔ `public.users` FK works after first real signup
 
 ---
 
@@ -156,10 +154,10 @@ git push origin --delete phase/1-foundation
 - [x] Supabase RLS blocks cross-user access: `SET LOCAL role anon; SELECT * FROM users;` → 0 rows
 - [x] GitHub Actions CI green (5/5 tests passing on `feature/cicd-setup`)
 - [x] Frontend live on Vercel
-- [ ] `GET /me` with valid Supabase JWT → user profile returned *(post-close)*
-- [ ] Full auth flow works: sign up → email confirm → login → redirect to `/dashboard` *(post-close)*
-- [ ] Protected routes redirect to `/login` when unauthenticated *(post-close)*
-- [ ] Backend live on Railway *(blocked until phase/1-foundation merged → main)*
+- [x] `GET /me` with valid Supabase JWT → user profile returned
+- [x] Full auth flow works: sign up → email confirm → login → redirect to `/dashboard`
+- [x] Protected routes redirect to `/login` when unauthenticated
+- [x] Backend live on Railway
 
 ---
 
