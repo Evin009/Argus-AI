@@ -8,32 +8,25 @@ Most personal finance apps are backward-looking — they show you what you alrea
 
 ## What Sets ArgusAI Apart
 
-Apps like Rocket Money, Mint, YNAB, Monarch Money, and Copilot are all built around the same idea: show you what you spent, help you set a budget, and alert you after something goes wrong. They are reporting tools, not intelligence systems.
+Apps like Rocket Money, Mint, YNAB, and Monarch Money are all built around the same idea: show you what you spent and alert you after something goes wrong. They are reporting tools. ArgusAI is an intelligence system — it tells you what is about to happen and what to do about it.
 
-ArgusAI is built around a fundamentally different premise — that the most valuable thing a finance app can do is tell you what is about to happen, not what already did.
+**It predicts, not just reports.**
+ArgusAI automatically runs a 30–60 day cashflow simulation using your transaction history, income patterns, and known bills. You can see a projected overdraft 10 days out — before your bank knows it's coming.
 
-**Prediction over reporting.**
-ArgusAI runs a 30–60 day cashflow simulation automatically, using your transaction history, known recurring bills, and income patterns. It outputs a probability-weighted daily balance curve — not a static chart of last month's spending. You can see a projected overdraft 10 days out before your bank even knows it's coming.
+**It reasons about your actual situation.**
+Ask the Copilot "Can I afford a $1,400 laptop right now?" and it queries your real balances, checks upcoming bills, reviews your savings goals, and returns a direct recommendation. Not generic advice — a structured answer grounded in your specific numbers.
 
-**Reasoning over dashboards.**
-The AI Copilot doesn't just surface data — it reasons about it. Ask "Can I afford a $1,400 laptop right now?" and it queries your real balances, runs an affordability simulation against your upcoming bills, checks your savings goals, and returns a structured answer with a recommendation. No other consumer finance app does this.
+**It models your behavior, not just your transactions.**
+Most apps categorize what you spent. ArgusAI learns your spending baseline and flags when something changes — velocity spikes, impulse patterns, category drift. It gets more useful the longer you use it.
 
-**Behavioral intelligence.**
-Most apps categorize your transactions. ArgusAI models your behavior. It learns your spending baseline and detects deviations — velocity spikes, impulse patterns, category-level drift, and day-of-week anomalies — and surfaces them with natural language explanations. The system gets more accurate the longer you use it.
+**It warns you before problems happen.**
+Risk Radar scores your overdraft probability daily and fires alerts when the risk crosses a threshold. Not a notification after the overdraft — a warning with enough time to do something about it.
 
-**Proactive risk, not reactive alerts.**
-Rocket Money tells you after a subscription renews. ArgusAI tells you before your balance drops below your bill obligations. Risk Radar scores your overdraft probability daily and fires warnings when the risk crosses a threshold, giving you time to act.
+**It catches subscription creep.**
+Price increases on streaming, software, and subscription services are usually small enough to go unnoticed. ArgusAI tracks each service over a rolling 3-month window and flags anything that has quietly gone up.
 
-**Subscription creep detection.**
-Most users have no idea their subscriptions are quietly getting more expensive. ArgusAI tracks price changes per subscription over a rolling 3-month window and flags services that have crept up — often by small enough amounts that no individual charge triggers concern.
-
-**Your financial data has memory.**
-Standard finance apps forget everything between sessions. ArgusAI stores vector embeddings of your transaction history and retrieves relevant context at query time. The Copilot can reason about "last March" or compare "this month vs. Q3" because it has structured, searchable memory of your financial history.
-
-**Strategy, not just tracking.**
-When you want to pay off debt, ArgusAI doesn't just show you a Snowball vs. Avalanche table. It runs a 24-month cashflow simulation for each strategy, accounting for your actual spending volatility, and tells you which approach is safer given your specific financial profile.
-
-The result is a system that acts less like a finance tracker and more like a financially-literate advisor that knows your numbers, reasons about your situation, and tells you what to do next.
+**It remembers your financial history.**
+Standard finance apps reset every session. ArgusAI stores embeddings of your transaction history so the Copilot can reason across time — comparing months, spotting seasonal patterns, and answering questions about the past without you having to look anything up.
 
 ---
 
