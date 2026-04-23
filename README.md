@@ -8,6 +8,59 @@ ArgusAI is a real-time **financial guardian and decision engine** that predicts 
 
 ---
 
+## Build Progress
+
+| Phase | Status | Weeks |
+|---|---|---|
+| Phase 1 — Foundation | ✅ Complete | 1–2 |
+| Phase 1.5 — Design System | 🟡 In Progress | Pre-Phase 2 |
+| Phase 2 — Bank Data Pipeline | ⬜ Not Started | 3–4 |
+| Phase 3 — Intelligence Layer | ⬜ Not Started | 5–6 |
+| Phase 4 — AI Reports | ⬜ Not Started | 7–8 |
+| Phase 5 — Copilot + Simulations | ⬜ Not Started | 9–10 |
+| Phase 6 — New Features | ⬜ Not Started | 11–12 |
+| Phase 7 — Production Hardening | ⬜ Not Started | 13–14 |
+
+---
+
+## Phase 1 — Foundation ✅
+
+All Phase 1 deliverables are complete and live in production.
+
+| Deliverable | Status |
+|---|---|
+| FastAPI backend scaffold + JWT auth middleware | ✅ Done |
+| `GET /me` and `POST /users/sync` endpoints | ✅ Done |
+| Next.js 14 frontend (TypeScript + Tailwind + App Router) | ✅ Done |
+| Supabase browser + server clients | ✅ Done |
+| Route protection middleware | ✅ Done |
+| Auth pages — login, signup, OAuth callback, verify-email | ✅ Done |
+| Landing page + sidebar nav shell + settings page | ✅ Done |
+| Supabase DB schema — 8 tables + RLS policies + pgvector index | ✅ Done |
+| Dockerfile + docker-compose (FastAPI + Redis) | ✅ Done |
+| GitHub Actions CI — ruff lint + pytest (5/5 passing) | ✅ Done |
+| Frontend deployed to Vercel | ✅ Done |
+| Backend deployed to Railway | ✅ Done |
+| End-to-end auth flow verified on production | ✅ Done |
+
+---
+
+## Phase 1.5 — Design System 🟡
+
+Locking in the visual identity, component libraries, and page designs before Phase 2 begins.
+
+| Deliverable | Status |
+|---|---|
+| Page mockups in Pencil.dev (all 14 pages) | ⬜ Not Started |
+| Tailwind theme — color tokens, typography, spacing | ⬜ Not Started |
+| shadcn/ui — initialized + 11 core components dark-themed | ⬜ Not Started |
+| Aceternity UI — hero + landing page effects | ⬜ Not Started |
+| Custom app components — `StatCard`, `RiskBadge`, `SectionHeader`, `EmptyState` | ⬜ Not Started |
+| Sidebar finalized with all nav links (all phases) | ⬜ Not Started |
+| Landing page + auth pages redesigned | ⬜ Not Started |
+
+---
+
 ## Why ArgusAI?
 
 Most personal finance apps (Mint, YNAB, Copilot, Monarch Money) share the same fundamental failures:
@@ -55,6 +108,9 @@ ArgusAI addresses all seven with dedicated intelligence systems.
 | Goal-Based AI Savings Planner | Set a savings target — ArgusAI builds a structured monthly roadmap |
 | Anomaly Detection | Statistical outlier detection for duplicate charges, spikes, and unusual transactions |
 | AI Decision Engine | "Can I afford a $1,400 MacBook right now?" → structured affordability analysis against your real numbers |
+| Smart Payment Allocation | Priority-ordered allocation across credit cards, bills, and savings with buffer floor |
+| Bonus Recommender | Finds bank/card signup bonuses filtered to institutions you don't already have |
+| Credit Score Integration | Experian Connect — soft-pull credit report, score history, AI-powered recommendations |
 
 ---
 
@@ -62,17 +118,17 @@ ArgusAI addresses all seven with dedicated intelligence systems.
 
 | Layer | Technology |
 |---|---|
-| Frontend | Next.js 14+ (TypeScript), Tailwind CSS → Vercel |
-| Backend | FastAPI (Python) → Railway / Fly.io |
+| Frontend | Next.js 14+ (TypeScript), Tailwind CSS, shadcn/ui, Aceternity UI → Vercel |
+| Backend | FastAPI (Python 3.12) → Railway |
 | Database | Supabase (managed PostgreSQL + pgvector + Realtime + RLS) |
-| Auth | Supabase Auth — JWT-based, OAuth, refresh token rotation |
+| Auth | Supabase Auth — JWT-based, OAuth (Google), refresh token rotation |
 | Vector Search | pgvector via Supabase — co-located with transaction data, no separate service |
 | Cache / Jobs | Redis + Celery (Plaid sync, embedding generation) |
-| AI / LLM | Claude claude-sonnet-4-6 (Anthropic API) with tool-calling |
+| AI / LLM | Claude Sonnet (Anthropic API) with tool-calling + LangGraph multi-agent |
 | RAG | Custom retrieval pipeline over Supabase pgvector |
-| Embeddings | text-embedding-3-small (OpenAI) or Voyage AI |
+| Embeddings | text-embedding-3-small (OpenAI) |
 | Bank Data | Plaid API |
-| Monitoring | Sentry + Axiom / Datadog |
+| Monitoring | Sentry + Axiom |
 | CI/CD | GitHub Actions |
 
 ---
@@ -83,24 +139,22 @@ ArgusAI addresses all seven with dedicated intelligence systems.
 User Query
     │
     ▼
-[RAG Retrieval] ──── Supabase Vector (pgvector, co-located with transaction DB)
+[RAG Retrieval] ──── Supabase pgvector (transactions + insights)
     │
     ▼
-[Context Assembly]  ←── current balances, active goals, upcoming bills
-    │
-    ▼
-[Claude claude-sonnet-4-6 with Tool-Calling]
-    ├── get_cashflow_forecast()
-    ├── get_balance_summary()
-    ├── run_debt_simulation()
-    ├── get_risk_alerts()
-    └── get_spending_patterns()
+[LangGraph Multi-Agent Supervisor]
+    ├── CashflowAgent  →  CashflowEngine (30–60 day forecast)
+    ├── RiskAgent      →  RiskRadarEngine (overdraft probability, alerts)
+    ├── DebtAgent      →  DebtSimulator (Snowball vs. Avalanche)
+    ├── PaymentAgent   →  PaymentAllocationEngine
+    ├── BonusAgent     →  BonusSearchEngine (Brave Search + Claude)
+    └── CreditAgent    →  CreditEngine (Experian Connect)
     │
     ▼
 [Structured JSON Output]  ←── schema-validated, no hallucinated financial data
     │
     ▼
-[Response to User]
+[SSE Response to User]
 ```
 
 **Key principles:**
@@ -110,39 +164,11 @@ User Query
 
 ---
 
-## Development Timeline
-
-| Phase | Weeks | Status | Deliverables |
-|---|---|---|---|
-| Foundation | 1–2 | 🟡 In Progress | Supabase setup (Auth, DB, RLS), FastAPI scaffold, Next.js frontend, CI/CD |
-| Data Pipeline | 3–4 | ⬜ Not Started | Plaid integration, transaction sync, normalization pipeline |
-| Intelligence Layer | 5–6 | ⬜ Not Started | Bill detection, subscription tracking, AI categorization |
-| AI Reports | 7–8 | ⬜ Not Started | Monthly AI reports, categorization improvements |
-| Copilot + Simulations | 9–10 | ⬜ Not Started | Financial Copilot, cashflow engine, debt + scenario simulators |
-| Production Hardening | 11–12 | ⬜ Not Started | Security audit, rate limiting, load testing, production deploy |
-
-### Phase 1 Progress
-
-| Area | Status |
-|---|---|
-| FastAPI backend scaffold + JWT auth middleware | ✅ Done |
-| `GET /me` and `POST /users/sync` endpoints | ✅ Done |
-| Next.js 14 frontend (TypeScript + Tailwind + App Router) | ✅ Done |
-| Supabase browser + server clients | ✅ Done |
-| Route protection middleware | ✅ Done |
-| Auth pages — login, signup, OAuth callback, verify-email | ✅ Done |
-| Landing page + sidebar nav shell + settings page | ✅ Done |
-| Supabase DB schema + RLS policies + pgvector index | 🟡 In Progress |
-| Dockerfile + docker-compose + GitHub Actions CI | 🟡 In Progress |
-| Vercel + Railway production deploys | ⬜ Pending |
-
----
-
 ## What ArgusAI Is NOT
 
 - **Not a robo-advisor** — does not invest or manage assets
 - **Not a licensed financial advisor** — all AI outputs carry appropriate disclaimers
-- **Not credit monitoring** — no credit report pulls, no hard inquiries
+- **Not credit monitoring** — soft-pull only via Experian Connect, no hard inquiries
 - **Not a bank** — read-only via Plaid; no fund transfers
 
 ---
@@ -150,3 +176,5 @@ User Query
 ## Project Context
 
 For full architectural details, data models, security requirements, competitive differentiators, and use cases, see [CLAUDE.md](CLAUDE.md).
+
+For the phase-by-phase build plan, see the [Phase Plans](Phase%20Plans/) folder.
