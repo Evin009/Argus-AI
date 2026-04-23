@@ -10,23 +10,17 @@ Most personal finance apps are backward-looking — they show you what you alrea
 
 Apps like Rocket Money, Mint, YNAB, and Monarch Money are all built around the same idea: show you what you spent and alert you after something goes wrong. They are reporting tools. ArgusAI is an intelligence system — it tells you what is about to happen and what to do about it.
 
-**It predicts, not just reports.**
-ArgusAI automatically runs a 30–60 day cashflow simulation using your transaction history, income patterns, and known bills. You can see a projected overdraft 10 days out — before your bank knows it's coming.
+- **It predicts, not just reports.** ArgusAI runs a 30–60 day cashflow simulation automatically using your transaction history, income patterns, and known bills. You can see a projected overdraft 10 days out — before your bank knows it's coming.
 
-**It reasons about your actual situation.**
-Ask the Copilot "Can I afford a $1,400 laptop right now?" and it queries your real balances, checks upcoming bills, reviews your savings goals, and returns a direct recommendation. Not generic advice — a structured answer grounded in your specific numbers.
+- **It reasons about your actual situation.** Ask the Copilot "Can I afford a $1,400 laptop right now?" and it queries your real balances, checks upcoming bills, reviews your savings goals, and returns a direct recommendation grounded in your specific numbers.
 
-**It models your behavior, not just your transactions.**
-Most apps categorize what you spent. ArgusAI learns your spending baseline and flags when something changes — velocity spikes, impulse patterns, category drift. It gets more useful the longer you use it.
+- **It models your behavior, not just your transactions.** Most apps categorize what you spent. ArgusAI learns your spending baseline and flags when something changes — velocity spikes, impulse patterns, category drift. It gets more useful the longer you use it.
 
-**It warns you before problems happen.**
-Risk Radar scores your overdraft probability daily and fires alerts when the risk crosses a threshold. Not a notification after the overdraft — a warning with enough time to do something about it.
+- **It warns you before problems happen.** Risk Radar scores your overdraft probability daily and fires an alert when the risk crosses a threshold — not a notification after the overdraft, but a warning with enough time to act.
 
-**It catches subscription creep.**
-Price increases on streaming, software, and subscription services are usually small enough to go unnoticed. ArgusAI tracks each service over a rolling 3-month window and flags anything that has quietly gone up.
+- **It catches subscription creep.** Price increases on streaming and software services are usually small enough to go unnoticed. ArgusAI tracks each service over a rolling 3-month window and flags anything that has quietly gone up.
 
-**It remembers your financial history.**
-Standard finance apps reset every session. ArgusAI stores embeddings of your transaction history so the Copilot can reason across time — comparing months, spotting seasonal patterns, and answering questions about the past without you having to look anything up.
+- **It remembers your financial history.** Standard finance apps reset every session. ArgusAI stores embeddings of your transaction history so the Copilot can reason across time — comparing months, spotting seasonal patterns, and answering questions about the past without you digging through statements.
 
 ---
 
