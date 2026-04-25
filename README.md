@@ -46,7 +46,7 @@ Apps like Rocket Money, Mint, YNAB, and Monarch Money are all built around the s
 
 ## Features
 
-### Core
+### Data & Accounts
 
 | Feature | Description |
 |---|---|
@@ -54,28 +54,43 @@ Apps like Rocket Money, Mint, YNAB, and Monarch Money are all built around the s
 | Bank Account Linking | Plaid API — checking, savings, and credit accounts |
 | Transaction Pipeline | Sync, normalize, and store raw Plaid transactions automatically |
 | Automated Categorization | AI-powered classification of every transaction into spending categories |
+
+### Tracking & Reporting
+
+| Feature | Description |
+|---|---|
 | Recurring Bill Detection | Merchant and pattern-based detection of recurring charges |
 | Subscription Dashboard | Full overview of active subscriptions with amounts, cycles, and price history |
+| Subscription Creep Detection | Flags gradual price increases per service over a rolling 3-month window |
+| Anomaly Detection | Statistical outlier detection for duplicate charges, foreign transactions, and unusual spikes |
 | Monthly AI Report | Auto-generated monthly summary with AI-written insights and trend analysis |
 
-### Intelligence
+### Forecasting & Simulations
+
+| Feature | Description |
+|---|---|
+| Cashflow Prediction Engine | 30–60 day forward simulation with probability-weighted daily balance curves |
+| Scenario Simulator | Adjust income or expenses and see the real-time impact on your 30–60 day forecast |
+| Debt Payoff Simulator | Snowball vs. Avalanche comparison with month-by-month payoff schedules and interest saved |
+| Smart Payment Allocation | Priority-ordered allocation of available funds across credit cards, bills, and savings |
+| Goal-Based Savings Planner | Set a savings target and date — ArgusAI generates a structured monthly milestone roadmap |
+
+### Risk & Health
+
+| Feature | Description |
+|---|---|
+| Financial Health Score | Real-time 0–100 score across four dimensions: Liquidity, Stability, Debt Load, Spending Volatility |
+| Risk Radar | Proactive scoring of overdraft probability, credit utilization, and upcoming bill risk |
+| Behavioral Intelligence | Detects impulse patterns, spending velocity spikes, and category-level drift over time |
+| Credit Score Integration | Experian Connect — soft-pull credit report, score history, AI-powered improvement recommendations |
+
+### AI Copilot
 
 | Feature | Description |
 |---|---|
 | AI Financial Copilot | Conversational agent with tool-calling — queries your real data, runs simulations, explains reasoning |
-| Cashflow Prediction Engine | 30–60 day forward simulation with probability-weighted daily balance curves |
-| Debt Payoff Simulator | Snowball vs. Avalanche comparison with month-by-month payoff schedules and interest saved |
-| Financial Health Score | Real-time 0–100 score across four dimensions: Liquidity, Stability, Debt Load, Spending Volatility |
-| Risk Radar | Proactive scoring of overdraft probability, credit utilization, and upcoming bill risk |
-| Scenario Simulator | Adjust income or expenses and see the real-time impact on your 30–60 day forecast |
-| Behavioral Intelligence | Detects impulse patterns, spending velocity spikes, and category-level drift over time |
-| Subscription Creep Detection | Flags gradual price increases per service over a rolling 3-month window |
-| Goal-Based Savings Planner | Set a savings target and date — ArgusAI generates a structured monthly milestone roadmap |
-| Anomaly Detection | Statistical outlier detection for duplicate charges, foreign transactions, and unusual spikes |
 | AI Decision Engine | Affordability analysis grounded in your real balances, bills, and goals |
-| Smart Payment Allocation | Priority-ordered allocation of available funds across credit cards, bills, and savings |
 | Bonus Recommender | Finds bank and card signup bonuses filtered to institutions you don't already have |
-| Credit Score Integration | Experian Connect — soft-pull credit report, score history, AI-powered improvement recommendations |
 
 ---
 
