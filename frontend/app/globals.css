@@ -64,6 +64,26 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ─── shadcn/ui Semantic Variables ─────────────────────────────────── */
+/* Maps shadcn's expected token names to ArgusAI brand tokens           */
+:root {
+  --radius: 0.5rem;
+  --card:                  var(--surface);
+  --card-foreground:       var(--on-surface);
+  --popover:               var(--surface);
+  --popover-foreground:    var(--on-surface);
+  --primary:               var(--accent-light);
+  --primary-foreground:    var(--accent-on);
+  --secondary:             var(--surface-high);
+  --secondary-foreground:  var(--on-surface);
+  --muted:                 var(--surface-low);
+  --muted-foreground:      var(--on-muted);
+  --destructive:           var(--danger);
+  --destructive-foreground: var(--on-surface);
+  --input:                 var(--border);
+  --ring:                  var(--accent);
+}
+
 /* ─── Scrollbar ─────────────────────────────────────────────────────── */
 ::-webkit-scrollbar        { width: 5px; }
 ::-webkit-scrollbar-track  { background: var(--surface-lowest); }
