@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -241,11 +242,30 @@ function DashboardMockup() {
 // ── Page ──────────────────────────────────────────────────────────────
 
 export default function LandingPage() {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    setScrolled(window.scrollY > 60);
+    const onScroll = () => setScrolled(window.scrollY > 60);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
     <div className="min-h-screen bg-background text-on-background">
 
       {/* ── Nav ───────────────────────────────────────────────────── */}
-      <nav className="fixed top-4 left-1/2 z-50 w-[calc(100%-3rem)] max-w-5xl -translate-x-1/2 rounded-2xl border border-white/10 bg-surface-lowest/60 shadow-[0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-xl">
+      <motion.nav
+        className="fixed left-1/2 z-50 -translate-x-1/2 border border-white/10 bg-surface-lowest/60 shadow-[0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-xl"
+        initial={false}
+        animate={{
+          width: scrolled ? "calc(100% - 3rem)" : "calc(100% - 1rem)",
+          maxWidth: scrolled ? "1024px" : "1400px",
+          top: scrolled ? "16px" : "10px",
+          borderRadius: scrolled ? "24px" : "14px",
+        }}
+        transition={{ duration: 0.6, ease: [0.32, 0.72, 0, 1] }}
+      >
         <div className="flex h-14 items-center justify-between px-6">
           <span className="font-display text-xl font-bold uppercase tracking-tighter text-accent-light">
             ArgusAI
@@ -266,7 +286,7 @@ export default function LandingPage() {
             </Button>
           </div>
         </div>
-      </nav>
+      </motion.nav>
 
       {/* ── Hero ──────────────────────────────────────────────────── */}
       <AuroraBackground className="relative flex h-screen w-full flex-col items-center justify-center px-6 text-center">
