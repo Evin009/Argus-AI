@@ -11,15 +11,22 @@
 |---|---|
 | Stitch landing page design | ✅ Completed — Visual Design Implementation project |
 | Brand tokens in `globals.css` | ✅ Completed — Tailwind v4 `@theme inline` + CSS variables |
-| Fonts (Space Grotesk + Manrope) | ✅ Completed — loaded via `next/font/google` in `app/layout.tsx` |
+| Fonts (Space Grotesk + Manrope + Playfair Display) | ✅ Completed — loaded via `next/font/google` in `app/layout.tsx` |
 | Aurora background component | ✅ Completed — `components/ui/aurora-background.tsx` |
-| Landing page (`app/page.tsx`) | ✅ Completed — all 7 sections implemented |
+| FadeIn scroll component | ✅ Completed — `components/ui/fade-in.tsx` |
+| Landing page (`app/page.tsx`) | ✅ Completed — all 7 sections, framer-motion animations, shadcn Button/Input |
 | `framer-motion`, `clsx`, `tailwind-merge` | ✅ Installed |
-| shadcn/ui setup | 🔲 Not started |
-| Aceternity UI components | 🔲 Not started |
-| App layout shell + sidebar | 🔲 Not started |
-| Custom components (StatCard, RiskBadge, etc.) | 🔲 Not started |
-| Auth pages redesign | 🔲 Not started |
+| `class-variance-authority`, `@radix-ui/react-slot` | ✅ Installed |
+| shadcn/ui `Button` | ✅ Completed — brand-token variants, used across landing page |
+| shadcn/ui `Input` | ✅ Completed — used in CTA email capture |
+| `lib/utils.ts` (`cn` helper) | ✅ Completed |
+| shadcn CSS variables wired to brand tokens | ✅ Completed — in `globals.css` |
+| Floating animated nav (scroll-aware) | ✅ Completed — widens at top, compresses on scroll |
+| shadcn/ui remaining components | 🔲 Deferred to app shell phase |
+| Aceternity UI components | 🔲 Deferred to app shell phase |
+| App layout shell + sidebar | 🔲 Deferred — landing page is current focus |
+| Custom components (StatCard, RiskBadge, etc.) | 🔲 Deferred — app shell phase |
+| Auth pages redesign | 🔲 Deferred — after landing page is done |
 
 ### Design System Decisions Made
 
@@ -178,32 +185,32 @@ git push origin --delete feature/design-system
 
 ### shadcn/ui Setup
 
-- [ ] Initialize shadcn — `npx shadcn@latest init` (select dark theme, set CSS variable mode)
-- [ ] Configure `components.json` — set `tailwind.baseColor` to match brand, aliases to `@/components`
-- [ ] Override shadcn CSS variables in `globals.css` to match ArgusAI color palette
-- [ ] Add core components used across the app:
-  - `npx shadcn@latest add button`
-  - `npx shadcn@latest add input`
-  - `npx shadcn@latest add card`
-  - `npx shadcn@latest add badge`
-  - `npx shadcn@latest add dialog`
-  - `npx shadcn@latest add dropdown-menu`
-  - `npx shadcn@latest add table`
-  - `npx shadcn@latest add toast`
-  - `npx shadcn@latest add avatar`
-  - `npx shadcn@latest add separator`
-  - `npx shadcn@latest add skeleton`
-- [ ] Verify all added shadcn components render correctly in the dark theme
+- [x] Initialize shadcn — configured manually via `components.json` (style "default", rsc true, tsx true)
+- [x] Configure `components.json` — aliases set to `@/components` and `@/lib/utils`
+- [x] Override shadcn CSS variables in `globals.css` to match ArgusAI color palette
+- [x] Add core components used across the app:
+  - [x] `npx shadcn@latest add button` — brand-token variants, `font-display`, `cva`
+  - [x] `npx shadcn@latest add input` — brand tokens, focus ring uses `--accent`
+  - [ ] `npx shadcn@latest add card` — deferred to app shell phase
+  - [ ] `npx shadcn@latest add badge` — deferred to app shell phase
+  - [ ] `npx shadcn@latest add dialog` — deferred to app shell phase
+  - [ ] `npx shadcn@latest add dropdown-menu` — deferred to app shell phase
+  - [ ] `npx shadcn@latest add table` — deferred to app shell phase
+  - [ ] `npx shadcn@latest add toast` — deferred to app shell phase
+  - [ ] `npx shadcn@latest add avatar` — deferred to app shell phase
+  - [ ] `npx shadcn@latest add separator` — deferred to app shell phase
+  - [ ] `npx shadcn@latest add skeleton` — deferred to app shell phase
+- [ ] Verify all added shadcn components render correctly in the dark theme — in progress (Button + Input verified on landing page)
 
 ---
 
 ### Aceternity UI Setup
 
 - [x] Install Aceternity dependencies — `npm install framer-motion clsx tailwind-merge`
-- [ ] Install `npx aceternity-ui@latest add` for selected components only:
-  - `background-beams` or `aurora-background` — landing page hero background
+- [x] Custom `aurora-background` built — `components/ui/aurora-background.tsx` (CSS @keyframes, no Aceternity CLI needed)
+- [ ] Install `npx aceternity-ui@latest add` for remaining components (deferred to app shell phase):
   - `spotlight` — hero section spotlight effect
-  - `card-hover-effect` — feature highlights section on landing page
+  - `card-hover-effect` — replace interim framer-motion hover on feature cards
   - `moving-border` — optional CTA button accent on landing page
   - `meteors` or `sparkles` — dashboard header ambient effect (subtle, not distracting)
 - [ ] Wrap Aceternity components in `React.Suspense` where needed to avoid SSR issues
@@ -215,6 +222,7 @@ git push origin --delete feature/design-system
 
 Built on top of shadcn primitives — these are ArgusAI-specific wrappers:
 
+- [x] `FadeIn.tsx` — scroll-triggered fade+slide wrapper using framer-motion `useInView`; used across all landing page sections
 - [ ] `StatCard.tsx` — metric card with label, large value (JetBrains Mono), optional delta badge (`positive`/`danger`); used on dashboard, health score, cashflow
 - [ ] `RiskBadge.tsx` — risk level badge (`low` / `medium` / `high`) with color-coded variant
 - [ ] `SectionHeader.tsx` — page section heading with optional subtitle and action button slot
@@ -267,14 +275,14 @@ Built on top of shadcn primitives — these are ArgusAI-specific wrappers:
 ## Definition of Done
 
 - [ ] All key pages designed in Pencil.dev and reviewed for consistency
-- [ ] `tailwind.config.ts` has full color + font + radius + shadow tokens
-- [ ] `globals.css` CSS variables match ArgusAI palette (overriding shadcn defaults)
-- [ ] Inter + JetBrains Mono loaded via `next/font/google` with no layout shift
-- [ ] shadcn initialized and all 11 core components added and dark-themed correctly
-- [ ] Aceternity components installed and rendering on landing page only
-- [ ] 4 custom app components built: `StatCard`, `RiskBadge`, `SectionHeader`, `EmptyState`
+- [x] `globals.css` CSS variables match ArgusAI palette (overriding shadcn defaults) — Tailwind v4 `@theme inline`, no `tailwind.config.ts`
+- [x] Space Grotesk + Manrope + Playfair Display loaded via `next/font/google` with no layout shift
+- [ ] shadcn initialized and all 11 core components added and dark-themed correctly — Button + Input done; remaining deferred
+- [x] Custom aurora background component rendering on landing page
+- [ ] Remaining Aceternity components installed (spotlight, card-hover-effect, etc.) — deferred
+- [ ] 4 custom app components built: `StatCard`, `RiskBadge`, `SectionHeader`, `EmptyState` — `FadeIn` done; rest deferred
 - [ ] Sidebar shows all planned nav links; future pages marked Coming Soon
-- [ ] Landing page uses Aceternity hero + brand palette
+- [x] Landing page built with brand palette, framer-motion animations, hero bg, scroll-aware nav, shadcn Button + Input
 - [ ] Auth pages use shadcn Card + Input + Button
 - [ ] No hardcoded color hex values in any component — all use Tailwind tokens
 - [ ] PR merged into `develop`, CI green

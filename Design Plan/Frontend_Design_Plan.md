@@ -43,13 +43,15 @@ utilities via `@theme inline`. **Never hardcode hex values in components — use
 |---|---|---|---|---|
 | Display / Headings | Space Grotesk | `font-display` | 600–700 | 2rem–5rem |
 | Body / Paragraphs | Manrope | `font-body` | 400–500 | 0.875rem–1.125rem |
+| Accent / Editorial | Playfair Display | `font-serif italic` | 400 | match context |
 
-Both fonts loaded via `next/font/google` in `app/layout.tsx`. Variables injected as
-`--font-space-grotesk` and `--font-manrope`.
+All fonts loaded via `next/font/google` in `app/layout.tsx`. Variables: `--font-space-grotesk`,
+`--font-manrope`, `--font-playfair`.
 
 **Rules:**
 - All headings, labels, nav items, stat values, badge text → `font-display`
 - All body copy, descriptions, paragraph text → `font-body` (default body)
+- Single accent words in hero headlines → `font-serif italic font-normal` (e.g. "finances")
 - Monospace financial figures (amounts, percentages) → `font-display` with tabular nums (`font-variant-numeric: tabular-nums`)
 
 ---
@@ -101,7 +103,7 @@ Status key: `✅ Done` · `🎨 Designed` · `🔲 Not started`
 
 | Page | Route | Stitch Design | Built | Notes |
 |---|---|---|---|---|
-| Landing Page | `/` | ✅ | ✅ | Hero, features, mockup, CTA, footer |
+| Landing Page | `/` | ✅ | ✅ | Hero bg image, aurora, animated nav, framer-motion sections, shadcn Button/Input, dashboard mockup, feature grid, teaser grid, CTA, footer |
 | Login | `/login` | 🔲 | 🔲 | shadcn Card + Input + Button |
 | Signup | `/signup` | 🔲 | 🔲 | shadcn Card + Input + Button |
 | Verify Email | `/verify-email` | 🔲 | 🔲 | Simple card, resend link |
@@ -127,12 +129,13 @@ Status key: `✅ Done` · `🎨 Designed` · `🔲 Not started`
 
 ### 3.1 shadcn/ui — Status
 
-Initialize: `npx shadcn@latest init` (dark mode, CSS variable mode, aliases to `@/components`)
+Initialized via `components.json`. CSS variables wired to brand tokens in `globals.css`.
+`lib/utils.ts` (`cn` helper) created. Deps: `class-variance-authority`, `@radix-ui/react-slot`.
 
 | Component | Status | Notes |
 |---|---|---|
-| `button` | 🔲 | Override with accent-light primary variant |
-| `input` | 🔲 | Override border/focus to brand tokens |
+| `button` | ✅ | Brand-token variants: default (accent-light), secondary, outline, ghost, destructive |
+| `input` | ✅ | Brand tokens applied, focus ring uses `--accent` |
 | `card` | 🔲 | Override bg to `--surface`, border to `--border` |
 | `badge` | 🔲 | Add positive/warning/danger/neutral variants |
 | `dialog` | 🔲 | |
@@ -148,6 +151,7 @@ Initialize: `npx shadcn@latest init` (dark mode, CSS variable mode, aliases to `
 | Component | File | Status | Description |
 |---|---|---|---|
 | `AuroraBackground` | `components/ui/aurora-background.tsx` | ✅ | CSS-animated aurora blobs for landing hero |
+| `FadeIn` | `components/ui/fade-in.tsx` | ✅ | Scroll-triggered fade+slide-up wrapper (framer-motion) |
 | `StatCard` | `components/ui/stat-card.tsx` | 🔲 | Metric card: label + large mono value + delta badge |
 | `RiskBadge` | `components/ui/risk-badge.tsx` | 🔲 | Risk level badge: low/medium/high with color variant |
 | `SectionHeader` | `components/ui/section-header.tsx` | 🔲 | Page heading + optional subtitle + action slot |
@@ -155,12 +159,12 @@ Initialize: `npx shadcn@latest init` (dark mode, CSS variable mode, aliases to `
 
 ### 3.3 Aceternity UI — Planned
 
-Install dependencies already done (`framer-motion`, `clsx`, `tailwind-merge`).
+Dependencies installed: `framer-motion` ✅ · `clsx` ✅ · `tailwind-merge` ✅
 
 | Component | Status | Planned Usage |
 |---|---|---|
 | `aurora-background` | ✅ Custom impl | Landing hero |
-| `card-hover-effect` | 🔲 | Landing feature grid — replace CSS hover |
+| `card-hover-effect` | 🔲 | Landing feature grid — framer-motion `whileHover` lift implemented as interim |
 | `spotlight` | 🔲 | Hero section focal point |
 | `moving-border` | 🔲 | Optional CTA button accent |
 | `meteors` | 🔲 | Dashboard header ambient effect |
@@ -187,11 +191,15 @@ File: `frontend/app/(app)/layout.tsx`
 |---|---|---|
 | Font — display | Space Grotesk | Terminal-adjacent feel; more technical than Inter; matches Stitch visual output |
 | Font — body | Manrope | Clean, readable at small sizes; pairs well with Space Grotesk |
+| Font — editorial accent | Playfair Display italic | Cursive serif contrast on hero headline word "finances" |
 | Accent color | Warm peach `#ecbca7` / `#fde4d0` | Stitch design output; feels trustworthy and approachable vs cold purple |
 | Tailwind config | CSS-first via `@theme inline` in `globals.css` | Tailwind v4 standard; no `tailwind.config.ts` needed |
-| Nav style | Floating pill, glassmorphism | Modern SaaS pattern; contrasts cleanly against hero image |
-| Dashboard preview | CSS mockup (not screenshot) | App not built yet; CSS mockup is swappable in one component |
-| Hero background | Photo + aurora blobs overlay | Stitch design direction; more atmospheric than pure gradient |
+| Nav style | Scroll-aware floating pill, glassmorphism | Widens at top of page, compresses to pill on scroll; framer-motion animated |
+| Nav scroll trigger | 60px scroll depth | Gives the user a moment to see the wide state before it compresses |
+| Dashboard preview | CSS mockup (not screenshot) | App not built yet; swappable via `DashboardMockup` component in `page.tsx` |
+| Hero background | Photo (`/public/images/hero.jpg`) + aurora blobs overlay | More atmospheric than pure gradient; diffuses into page at bottom |
+| Animation library | framer-motion | Hero stagger, scroll FadeIn, card hover lifts, nav morph |
+| shadcn approach | `components.json` + manual CSS variable override | CSS vars mapped to brand tokens in `globals.css`; no shadcn defaults used |
 
 ---
 
