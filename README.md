@@ -54,14 +54,17 @@ Apps like Rocket Money, Mint, YNAB, and Monarch Money are all built around the s
 | Bank Account Linking | Plaid API — checking, savings, and credit accounts |
 | Transaction Pipeline | Sync, normalize, and store raw Plaid transactions automatically |
 | Automated Categorization | AI-powered classification of every transaction into spending categories |
+| Sync Reliability Indicator | Live health badge per account showing last-synced status — green, amber, or red |
 
 ### Tracking & Reporting
 
 | Feature | Description |
 |---|---|
 | Recurring Bill Detection | Merchant and pattern-based detection of recurring charges |
+| Bill Due Date Calendar | Monthly calendar view of upcoming bills color-coded by urgency |
 | Subscription Dashboard | Full overview of active subscriptions with amounts, cycles, and price history |
 | Subscription Creep Detection | Flags gradual price increases per service over a rolling 3-month window |
+| Spending Streak Tracker | Tracks consecutive weeks under budget per category — surfaces positive momentum |
 | Anomaly Detection | Statistical outlier detection for duplicate charges, foreign transactions, and unusual spikes |
 | Monthly AI Report | Auto-generated monthly summary with AI-written insights and trend analysis |
 

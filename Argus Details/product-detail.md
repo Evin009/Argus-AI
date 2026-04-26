@@ -81,7 +81,16 @@ Ask "Can I afford a $1,400 MacBook right now?" and get a structured yes/no with 
 
 ### Tier 4 — New Features (Planned)
 
-**20. Smart Payment Allocation**
+**20. Spending Streak / Momentum Tracker**
+Tracks consecutive weeks you stay under budget in a given spending category. Surfaces positive reinforcement — "You've stayed under budget on dining for 3 weeks" — in your Dashboard and Behavioral Insights page. Stored as streak insights so the Copilot can reference your momentum.
+
+**21. Bill Due Date Calendar View**
+A monthly calendar showing every upcoming bill with its amount and due date. Color-coded by urgency — red if due within 7 days, amber if 8–14 days. Gives you a clear visual of when your money leaves, not just how much.
+
+**22. Sync Reliability Indicator**
+Each linked account shows a live sync health badge — green if synced within the last hour, amber if over 6 hours, red if over 24 hours or failed. Reconnecting a bank never loses your transaction history because all syncs are idempotent by Plaid transaction ID.
+
+**23. Smart Payment Allocation**
 Tracks all your credit card balances and due dates in one place. When a direct deposit lands in your checking account, ArgusAI recommends exactly how to split it — which cards to pay, how much to each, what to reserve for bills, and what to put toward savings. Enforces a configurable buffer so your checking never goes too low.
 
 **21. Bonus Recommender**

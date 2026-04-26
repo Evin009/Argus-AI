@@ -59,9 +59,11 @@ This plan covers the full build of ArgusAI across 7 phases. Each phase builds on
 2. Build subscription tracker — identify software/streaming/service charges, detect price creep vs. 3 months ago, write to `subscriptions` table
 3. Build AI categorization — Claude classifies each transaction into a category using few-shot prompting; update `transactions.category`
 4. Build behavioral spending intelligence — detect velocity spikes, day-of-week patterns, category-level drift from baseline
-5. Build frontend: Dashboard (spending summary), Bills page, Subscriptions page
+5. Build Spending Streak Tracker — track consecutive weeks under budget per category; store as `insight_type = 'streak'` in `ai_insights`; surface in Dashboard and Behavioral Insights page
+6. Build Bill Due Date Calendar view — monthly calendar page (`/bills/calendar`) showing all upcoming bills color-coded by urgency (red <7 days, amber 8–14 days)
+7. Build frontend: Dashboard (spending summary), Bills page, Bills Calendar page, Subscriptions page
 
-**Deliverable:** Bills and subscriptions identified automatically, transactions categorized
+**Deliverable:** Bills and subscriptions identified automatically, transactions categorized, spending streaks tracked, bill calendar live
 
 ---
 
@@ -147,8 +149,9 @@ This plan covers the full build of ArgusAI across 7 phases. Each phase builds on
 5. Load testing with Locust — simulate 100 concurrent users
 6. Set up Sentry (error tracking) and Axiom (logs)
 7. Configure custom SMTP provider (Resend or Postmark) — replace Supabase default sender with branded `noreply@argusai.com`; customize all auth email templates (confirm signup, password reset, magic link)
-8. UI polish — loading states, empty states, error boundaries, accessibility pass
-9. Final smoke tests in production environment
+8. Surface sync reliability indicator on Accounts page — last-synced timestamp + health badge per account (green <1hr, amber >6hr, red >24hr or failed)
+9. UI polish — loading states, empty states, error boundaries, accessibility pass
+10. Final smoke tests in production environment
 
 **Deliverable:** Production-ready, deployed, monitored
 

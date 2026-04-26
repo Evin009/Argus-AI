@@ -58,7 +58,9 @@
 - Subscription tracker + creep detection
 - AI-powered transaction categorization (Claude few-shot)
 - Behavioral spending intelligence (velocity spikes, category drift, impulse patterns)
-- Dashboard, Bills, Subscriptions pages
+- Spending Streak / Momentum Tracker (consecutive weeks under budget per category)
+- Bill Due Date Calendar view (monthly calendar, color-coded by urgency)
+- Dashboard, Bills, Bills Calendar, Subscriptions pages
 
 ---
 
@@ -110,6 +112,7 @@
 **Goal:** Secure, monitored, rate-limited, load-tested, fully deployed. Tag `v1.0.0`.
 
 - Security audit (RLS, auth, IDOR, SQL injection, Plaid token exposure)
+- Sync reliability indicator per account — last-synced timestamp + health badge (green/amber/red)
 - Per-user rate limiting (`slowapi` — 60/min standard, 10/min AI endpoints)
 - DB connection pooling via PgBouncer
 - Performance indexes on hot query paths
