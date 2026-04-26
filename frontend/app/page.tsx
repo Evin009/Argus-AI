@@ -400,7 +400,7 @@ export default function LandingPage() {
           </div>
 
           <h1 className="text-shadow-hero font-display text-6xl font-bold leading-tight tracking-tight text-on-surface md:text-7xl lg:text-8xl">
-            Your finances,{" "}
+            Your <span className="font-serif italic font-normal">finances,</span>{" "}
             <span className="text-accent-light">
               <br />
               one step ahead.

@@ -52,6 +52,7 @@
 
   --font-display: var(--font-space-grotesk), "Space Grotesk", sans-serif;
   --font-body:    var(--font-manrope), "Manrope", sans-serif;
+  --font-serif:   var(--font-playfair), "Playfair Display", serif;
 }
 
 /* ─── Base ─────────────────────────────────────────────────────────── */
