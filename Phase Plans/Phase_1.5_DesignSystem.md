@@ -5,6 +5,37 @@
 
 ---
 
+## Progress — Last Updated 2026-04-26
+
+| Area | Status |
+|---|---|
+| Stitch landing page design | ✅ Completed — Visual Design Implementation project |
+| Brand tokens in `globals.css` | ✅ Completed — Tailwind v4 `@theme inline` + CSS variables |
+| Fonts (Space Grotesk + Manrope) | ✅ Completed — loaded via `next/font/google` in `app/layout.tsx` |
+| Aurora background component | ✅ Completed — `components/ui/aurora-background.tsx` |
+| Landing page (`app/page.tsx`) | ✅ Completed — all 7 sections implemented |
+| `framer-motion`, `clsx`, `tailwind-merge` | ✅ Installed |
+| shadcn/ui setup | 🔲 Not started |
+| Aceternity UI components | 🔲 Not started |
+| App layout shell + sidebar | 🔲 Not started |
+| Custom components (StatCard, RiskBadge, etc.) | 🔲 Not started |
+| Auth pages redesign | 🔲 Not started |
+
+### Design System Decisions Made
+
+- **Fonts:** Space Grotesk (display/headings) + Manrope (body) — matches the Stitch visual design output.
+  The Phase 1.5 plan originally specified Inter + JetBrains Mono. Space Grotesk gives a more technical,
+  terminal-adjacent feel that better matches the product direction.
+- **Accent color:** Warm peach (`#ecbca7` / `#fde4d0`) from the Stitch design, replacing the originally
+  planned purple (`#6C63FF`). The earthy warm tone fits the professional-but-approachable product tone.
+  Purple is available as an option if the direction changes.
+- **Tailwind config:** Tailwind v4 uses CSS-first config (`@theme inline` in `globals.css`). There is no
+  `tailwind.config.ts` — all tokens live in `globals.css`.
+
+---
+
+---
+
 ## What This Phase Covers
 
 | Layer | Goal |
@@ -110,9 +141,9 @@ git push origin --delete feature/design-system
 
 ## Execution Checklist
 
-### Design Mockups (Pencil.dev — before writing any code)
+### Design Mockups (Pencil.dev / Google Stitch)
 
-- [ ] Design `Landing page` — hero, feature highlights, CTA section, footer
+- [x] Design `Landing page` — Stitch project "Visual Design Implementation" (ID: 14880738280645865795)
 - [ ] Design `Login` + `Signup` + `Verify Email` pages
 - [ ] Design `Dashboard` — summary cards, account overview, recent transactions strip
 - [ ] Design `Accounts` page — account cards + bank linking flow
@@ -132,17 +163,16 @@ git push origin --delete feature/design-system
 
 ### Tailwind + Global Styles
 
-- [ ] Install fonts — add Inter + JetBrains Mono via `next/font/google` in `app/layout.tsx`
-- [ ] Extend `tailwind.config.ts`:
-  - Add full color palette as custom tokens (`colors.background`, `colors.surface`, etc.)
-  - Add `fontFamily.sans = Inter`, `fontFamily.mono = JetBrains Mono`
-  - Add custom `borderRadius` scale (`sm: 6px`, `md: 10px`, `lg: 16px`, `xl: 24px`)
-  - Add custom `boxShadow` tokens (`card`, `elevated`, `glow-accent`)
-- [ ] Update `globals.css`:
-  - Set CSS variables for all color tokens (enables easy dark/light switching later)
-  - Set `body` background to `background`, text to `text-primary`
-  - Style scrollbars to match dark theme (thin, muted track)
-  - Remove default Next.js boilerplate styles
+- [x] Install fonts — Space Grotesk + Manrope via `next/font/google` in `app/layout.tsx`
+- [x] Brand tokens in `globals.css` (Tailwind v4 `@theme inline` — no `tailwind.config.ts` needed):
+  - Full color palette as CSS variables + Tailwind utilities
+  - Font family tokens for `font-display` and `font-body`
+  - Aurora animation keyframes
+- [x] Update `globals.css`:
+  - CSS variables for all color tokens in `:root`
+  - Body background + text set to brand tokens
+  - Custom scrollbar styling
+  - Aurora animation classes and text-shadow utility
 
 ---
 
@@ -169,7 +199,7 @@ git push origin --delete feature/design-system
 
 ### Aceternity UI Setup
 
-- [ ] Install Aceternity dependencies — `npm install framer-motion clsx tailwind-merge`
+- [x] Install Aceternity dependencies — `npm install framer-motion clsx tailwind-merge`
 - [ ] Install `npx aceternity-ui@latest add` for selected components only:
   - `background-beams` or `aurora-background` — landing page hero background
   - `spotlight` — hero section spotlight effect
@@ -208,10 +238,15 @@ Built on top of shadcn primitives — these are ArgusAI-specific wrappers:
 
 ### Landing Page (`app/page.tsx`)
 
-- [ ] Apply brand color palette and Inter font
-- [ ] Hero section: Aceternity `aurora-background` or `background-beams` + bold headline + two CTA buttons
-- [ ] Feature highlights section: Aceternity `card-hover-effect` with 4 feature cards
-- [ ] Footer: minimal — product name + tagline
+- [x] Brand color palette (warm peach) + Space Grotesk font applied throughout
+- [x] Hero section: custom CSS aurora background (`components/ui/aurora-background.tsx`) + bold headline + two CTA buttons
+- [x] Problem section: 3-column statement strip
+- [x] Feature highlights: 4 cards (2×2) with CSS-animated previews (chart, terminal, radar, heatmap)
+- [x] Dashboard mockup: fake terminal window showing stats, cashflow chart, risk alerts
+- [x] Feature teaser grid: 6-item (3×2) for Debt Simulator, Health Score, Scenario Simulator, Subscription Creep, Smart Allocation, Bill Calendar
+- [x] Final CTA section: email input + Get Early Access button
+- [x] Footer: minimal with nav links + disclaimer
+- [ ] Aceternity `card-hover-effect` — placeholder CSS hover; replace with full Aceternity component when installed
 
 ---
 
