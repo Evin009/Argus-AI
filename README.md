@@ -10,13 +10,13 @@ ArgusAI connects to your bank accounts, learns your financial patterns, and runs
 
 | Layer | Technology |
 |---|---|
-| Frontend | Next.js 14+ (TypeScript), Tailwind CSS, shadcn/ui, Aceternity UI |
+| Frontend | Next.js 16 (TypeScript), Tailwind CSS, shadcn/ui, Framer Motion |
 | Backend | FastAPI (Python 3.12) |
 | Database | Supabase — PostgreSQL + pgvector + Realtime + Row-Level Security |
 | Auth | Supabase Auth — JWT, OAuth (Google), refresh token rotation |
 | Vector Search | pgvector via Supabase — co-located with transaction data |
 | Cache / Jobs | Redis + Celery |
-| AI | Claude Sonnet (Anthropic) + LangGraph multi-agent system |
+| AI | Claude Sonnet 4.6 (Anthropic) + LangGraph multi-agent system |
 | RAG | Custom retrieval pipeline over Supabase pgvector |
 | Embeddings | OpenAI text-embedding-3-small |
 | Bank Data | Plaid API |
@@ -163,7 +163,7 @@ SSE Response to User
 | Page mockups in Pencil.dev (all 14 pages) | Not Started |
 | Tailwind theme — color tokens, typography, spacing | Not Started |
 | shadcn/ui — initialized + core components dark-themed | Not Started |
-| Aceternity UI — hero + landing page effects | Not Started |
+| Framer Motion — page transitions and animation effects | Not Started |
 | Custom app components — StatCard, RiskBadge, SectionHeader, EmptyState | Not Started |
 | Sidebar finalized with all nav links | Not Started |
 | Landing page + auth pages redesigned | Not Started |
