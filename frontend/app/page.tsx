@@ -316,9 +316,9 @@ export default function LandingPage() {
             variants={heroItem}
             className="text-shadow-hero font-display text-6xl font-bold leading-tight tracking-tight text-on-surface md:text-7xl lg:text-8xl"
           >
-            Your <span className="font-serif italic font-normal">finances,</span>{" "}
+            Your finances,{" "}
             <span className="text-accent-light">
-              <br />one step ahead.
+              <br /><span className="font-serif italic font-normal">one step ahead.</span>
             </span>
           </motion.h1>
 
