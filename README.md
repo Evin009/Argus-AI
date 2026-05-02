@@ -6,11 +6,21 @@ ArgusAI connects to your bank accounts, learns your financial patterns, and runs
 
 ---
 
+## Recent progress (May 2026)
+
+- **Phase 1.5 — design system:** Tailwind CSS v4 with brand tokens in `globals.css` (`@theme inline`, CSS variables — no separate `tailwind.config.ts`). Typography: Space Grotesk, Manrope, and Playfair Display via `next/font/google`. Warm-peach accent palette aligned with the Stitch landing design.
+- **Component stack:** shadcn/ui initialized (`components.json`); **Button** and **Input** themed to Argus tokens and used on the landing page. **Framer Motion** for section motion; custom **AuroraBackground** and **FadeIn** (scroll-triggered) components on the marketing page.
+- **Landing page:** Public `app/page.tsx` rebuilt with seven sections (hero with aurora, problem strip, feature cards, dashboard mockup, feature grid, email CTA, footer), floating scroll-aware nav, and asset-backed visuals. Login, signup, and verify-email still use the Phase 1 layout — auth reskin deferred.
+- **Backend:** `GET /health` added for load checks and deploy probes; auth routes unchanged (`GET /api/me`, `POST /api/users/sync`).
+- **Planning:** Detailed Phase 1.5 checklist and decisions live in [Phase Plans/Phase_1.5_DesignSystem.md](Phase%20Plans/Phase_1.5_DesignSystem.md) (Stitch landing marked complete; Pencil.dev mockups for the rest of the app still open).
+
+---
+
 ## Tech Stack
 
 | Layer | Technology |
 |---|---|
-| Frontend | Next.js 16 (TypeScript), Tailwind CSS, shadcn/ui, Framer Motion |
+| Frontend | Next.js 16 (TypeScript), Tailwind CSS v4, shadcn/ui, Framer Motion |
 | Backend | FastAPI (Python 3.12) |
 | Database | Supabase — PostgreSQL + pgvector + Realtime + Row-Level Security |
 | Auth | Supabase Auth — JWT, OAuth (Google), refresh token rotation |
@@ -144,13 +154,14 @@ SSE Response to User
 |---|---|
 | FastAPI backend scaffold + JWT auth middleware | Done |
 | `GET /me` and `POST /users/sync` endpoints | Done |
-| Next.js 14 frontend (TypeScript + Tailwind + App Router) | Done |
+| Next.js 16 frontend (TypeScript + Tailwind v4 + App Router) | Done |
 | Supabase browser + server clients | Done |
 | Route protection middleware | Done |
 | Auth pages — login, signup, OAuth callback, verify-email | Done |
 | Landing page + sidebar nav shell + settings page | Done |
 | Supabase DB schema — 8 tables + RLS policies + pgvector index | Done |
 | Dockerfile + docker-compose (FastAPI + Redis) | Done |
+| `GET /health` — service health check | Done |
 | GitHub Actions CI — ruff lint + pytest (5/5 passing) | Done |
 | Frontend deployed to Vercel | Done |
 | Backend deployed to Railway | Done |
@@ -160,13 +171,13 @@ SSE Response to User
 
 | Deliverable | Status |
 |---|---|
-| Page mockups in Pencil.dev (all 14 pages) | Not Started |
-| Tailwind theme — color tokens, typography, spacing | Not Started |
-| shadcn/ui — initialized + core components dark-themed | Not Started |
-| Framer Motion — page transitions and animation effects | Not Started |
-| Custom app components — StatCard, RiskBadge, SectionHeader, EmptyState | Not Started |
-| Sidebar finalized with all nav links | Not Started |
-| Landing page + auth pages redesigned | Not Started |
+| Page mockups — landing via Google Stitch; Pencil.dev for remaining app pages | In progress |
+| Tailwind theme — color tokens, typography, spacing (`globals.css` + `@theme inline`) | Done |
+| shadcn/ui — initialized; Button + Input dark-themed; more primitives deferred to app shell | In progress |
+| Framer Motion — landing section animations + scroll-aware nav | In progress |
+| Custom app components — FadeIn done; StatCard, RiskBadge, SectionHeader, EmptyState deferred | In progress |
+| Sidebar finalized with all nav links | Not started |
+| Landing page redesigned; auth pages (login / signup / verify-email) | Landing done; auth deferred |
 
 ---
 
