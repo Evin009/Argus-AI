@@ -18,7 +18,9 @@ main                          ← production only, always stable
       ├── phase/3-intelligence-layer
       │     ├── feature/bill-detection
       │     ├── feature/subscription-tracker
-      │     └── feature/categorization
+      │     ├── feature/categorization
+      │     ├── feature/spending-streak-tracker
+      │     └── feature/bill-calendar
       │
       ├── phase/4-ai-reports
       │     ├── feature/anomaly-detection
@@ -42,7 +44,8 @@ main                          ← production only, always stable
       └── phase/7-hardening
             ├── feature/rate-limiting
             ├── feature/security-audit
-            └── feature/load-testing
+            ├── feature/load-testing
+            └── feature/sync-reliability
 
 release/v1.0                  ← cut from develop when ready to ship
 hotfix/<description>          ← cut from main only, for production emergencies
@@ -187,7 +190,7 @@ git push origin --delete phase/2-data-pipeline
 
 ## Phase 3 — Intelligence Layer
 
-**Branches to create:** `phase/3-intelligence-layer` + 3 feature branches
+**Branches to create:** `phase/3-intelligence-layer` + 5 feature branches
 
 ```bash
 git checkout develop
@@ -227,6 +230,28 @@ git merge feature/categorization --no-ff -m "merge: AI transaction categorizatio
 git push origin phase/3-intelligence-layer
 git branch -d feature/categorization
 git push origin --delete feature/categorization
+
+# --- Feature: Spending Streak Tracker ---
+git checkout phase/3-intelligence-layer
+git checkout -b feature/spending-streak-tracker
+git push -u origin feature/spending-streak-tracker
+# ... work ...
+git checkout phase/3-intelligence-layer
+git merge feature/spending-streak-tracker --no-ff -m "merge: spending streak / momentum tracker"
+git push origin phase/3-intelligence-layer
+git branch -d feature/spending-streak-tracker
+git push origin --delete feature/spending-streak-tracker
+
+# --- Feature: Bill Calendar ---
+git checkout phase/3-intelligence-layer
+git checkout -b feature/bill-calendar
+git push -u origin feature/bill-calendar
+# ... work ...
+git checkout phase/3-intelligence-layer
+git merge feature/bill-calendar --no-ff -m "merge: bill due date calendar view"
+git push origin phase/3-intelligence-layer
+git branch -d feature/bill-calendar
+git push origin --delete feature/bill-calendar
 
 # --- Phase 3 Complete ---
 git checkout develop
@@ -443,7 +468,7 @@ git push origin --delete phase/6-new-features
 
 ## Phase 7 — Production Hardening
 
-**Branches to create:** `phase/7-hardening` + 3 feature branches
+**Branches to create:** `phase/7-hardening` + 4 feature branches
 
 ```bash
 git checkout develop
@@ -483,6 +508,17 @@ git merge feature/load-testing --no-ff -m "merge: load testing + performance fix
 git push origin phase/7-hardening
 git branch -d feature/load-testing
 git push origin --delete feature/load-testing
+
+# --- Feature: Sync Reliability ---
+git checkout phase/7-hardening
+git checkout -b feature/sync-reliability
+git push -u origin feature/sync-reliability
+# ... work ...
+git checkout phase/7-hardening
+git merge feature/sync-reliability --no-ff -m "merge: sync reliability indicator per account"
+git push origin phase/7-hardening
+git branch -d feature/sync-reliability
+git push origin --delete feature/sync-reliability
 
 # --- Phase 7 Complete ---
 git checkout develop
@@ -594,4 +630,4 @@ git push origin feature/your-current-feature
 | `release/v*` | `develop` | `main` + `develop` | Before shipping |
 | `hotfix/*` | `main` | `main` + `develop` | Emergencies only |
 
-**Total feature branches across all phases: 22**
+**Total feature branches across all phases: 25**

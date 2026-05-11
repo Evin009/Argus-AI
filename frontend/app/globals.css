@@ -1,26 +1,118 @@
 @import "tailwindcss";
 
+/* ─── ArgusAI Design Tokens ───────────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background:        #101415;
+  --surface:           #1c2021;
+  --surface-low:       #181c1d;
+  --surface-lowest:    #0b0f10;
+  --surface-high:      #272b2c;
+  --surface-bright:    #363a3b;
+
+  --on-background:     #e0e3e4;
+  --on-surface:        #e0e3e4;
+  --on-muted:          #9a8f86;
+
+  --border:            #4e453e;
+
+  --accent:            #ecbca7;
+  --accent-light:      #fde4d0;
+  --accent-on:         #3c2e20;
+  --accent-container:  #634131;
+
+  --positive:          #22c55e;
+  --warning:           #f59e0b;
+  --danger:            #ef4444;
+  --neutral:           #3b82f6;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background:        var(--background);
+  --color-surface:           var(--surface);
+  --color-surface-low:       var(--surface-low);
+  --color-surface-lowest:    var(--surface-lowest);
+  --color-surface-high:      var(--surface-high);
+  --color-surface-bright:    var(--surface-bright);
+
+  --color-on-background:     var(--on-background);
+  --color-on-surface:        var(--on-surface);
+  --color-on-muted:          var(--on-muted);
+
+  --color-border:            var(--border);
+
+  --color-accent:            var(--accent);
+  --color-accent-light:      var(--accent-light);
+  --color-accent-on:         var(--accent-on);
+  --color-accent-container:  var(--accent-container);
+
+  --color-positive:          var(--positive);
+  --color-warning:           var(--warning);
+  --color-danger:            var(--danger);
+  --color-neutral:           var(--neutral);
+
+  --font-display: var(--font-space-grotesk), "Space Grotesk", sans-serif;
+  --font-body:    var(--font-manrope), "Manrope", sans-serif;
+  --font-serif:   var(--font-playfair), "Playfair Display", serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* ─── Base ─────────────────────────────────────────────────────────── */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--background);
+  color: var(--on-background);
+  font-family: var(--font-manrope), "Manrope", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── shadcn/ui Semantic Variables ─────────────────────────────────── */
+/* Maps shadcn's expected token names to ArgusAI brand tokens           */
+:root {
+  --radius: 0.5rem;
+  --card:                  var(--surface);
+  --card-foreground:       var(--on-surface);
+  --popover:               var(--surface);
+  --popover-foreground:    var(--on-surface);
+  --primary:               var(--accent-light);
+  --primary-foreground:    var(--accent-on);
+  --secondary:             var(--surface-high);
+  --secondary-foreground:  var(--on-surface);
+  --muted:                 var(--surface-low);
+  --muted-foreground:      var(--on-muted);
+  --destructive:           var(--danger);
+  --destructive-foreground: var(--on-surface);
+  --input:                 var(--border);
+  --ring:                  var(--accent);
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────────────────── */
+::-webkit-scrollbar        { width: 5px; }
+::-webkit-scrollbar-track  { background: var(--surface-lowest); }
+::-webkit-scrollbar-thumb  { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--on-muted); }
+
+/* ─── Aurora Animations ─────────────────────────────────────────────── */
+@keyframes aurora-1 {
+  0%, 100% { transform: translate(0, 0) scale(1);   opacity: 0.20; }
+  33%       { transform: translate(60px, -40px) scale(1.08); opacity: 0.28; }
+  66%       { transform: translate(-30px, 20px) scale(0.93); opacity: 0.14; }
+}
+
+@keyframes aurora-2 {
+  0%, 100% { transform: translate(0, 0) scale(1);    opacity: 0.14; }
+  50%       { transform: translate(-80px, 60px) scale(1.18); opacity: 0.22; }
+}
+
+@keyframes aurora-3 {
+  0%, 100% { transform: translate(0, 0) scale(1);   opacity: 0.10; }
+  40%       { transform: translate(40px, -60px) scale(0.88); opacity: 0.17; }
+  80%       { transform: translate(-20px, 30px) scale(1.08); opacity: 0.08; }
+}
+
+.aurora-blob-1 { animation: aurora-1 14s ease-in-out infinite; }
+.aurora-blob-2 { animation: aurora-2 18s ease-in-out infinite; animation-delay: -5s; }
+.aurora-blob-3 { animation: aurora-3 22s ease-in-out infinite; animation-delay: -9s; }
+
+/* ─── Utility ───────────────────────────────────────────────────────── */
+.text-shadow-hero {
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.8), 0 2px 4px rgba(0, 0, 0, 0.5);
 }

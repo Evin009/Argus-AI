@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Manrope:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-primary-fixed-variant": "#544435",
+                    "surface": "#101415",
+                    "background": "#101415",
+                    "surface-dim": "#101415",
+                    "on-error": "#690005",
+                    "on-secondary": "#46291a",
+                    "on-primary-container": "#736151",
+                    "secondary-fixed-dim": "#ecbca7",
+                    "tertiary-container": "#ffdbcd",
+                    "secondary-fixed": "#ffdbcb",
+                    "surface-tint": "#dac2af",
+                    "outline-variant": "#4e453e",
+                    "on-secondary-container": "#ddae99",
+                    "on-background": "#e0e3e4",
+                    "inverse-on-surface": "#2d3132",
+                    "primary-container": "#f7deca",
+                    "surface-container": "#1c2021",
+                    "outline": "#9a8f86",
+                    "on-primary-fixed": "#25190d",
+                    "surface-container-lowest": "#0b0f10",
+                    "on-tertiary-fixed": "#321204",
+                    "on-tertiary-container": "#895945",
+                    "on-secondary-fixed": "#2e1508",
+                    "error": "#ffb4ab",
+                    "tertiary": "#ffffff",
+                    "surface-bright": "#363a3b",
+                    "primary-fixed-dim": "#dac2af",
+                    "on-tertiary": "#4c2616",
+                    "on-primary": "#3c2e20",
+                    "tertiary-fixed-dim": "#f6b9a0",
+                    "primary-fixed": "#f7deca",
+                    "inverse-primary": "#6d5b4c",
+                    "tertiary-fixed": "#ffdbcd",
+                    "secondary": "#ecbca7",
+                    "on-secondary-fixed-variant": "#603f2f",
+                    "inverse-surface": "#e0e3e4",
+                    "error-container": "#93000a",
+                    "surface-container-highest": "#313536",
+                    "surface-variant": "#313536",
+                    "surface-container-high": "#272b2c",
+                    "on-tertiary-fixed-variant": "#673c2a",
+                    "secondary-container": "#634131",
+                    "surface-container-low": "#181c1d",
+                    "on-surface-variant": "#d1c4bb",
+                    "on-error-container": "#ffdad6",
+                    "primary": "#ffffff",
+                    "on-surface": "#e0e3e4"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "16px",
+                    "margin": "32px",
+                    "base": "4px",
+                    "xs": "4px",
+                    "xl": "48px",
+                    "sm": "8px",
+                    "md": "16px",
+                    "lg": "24px"
+            },
+            "fontFamily": {
+                    "body-md": ["Manrope"],
+                    "code": ["Space Grotesk"],
+                    "mono-label": ["Space Grotesk"],
+                    "body-lg": ["Manrope"],
+                    "h2": ["Space Grotesk"],
+                    "h1": ["Space Grotesk"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400"}],
+                    "code": ["14px", {"lineHeight": "1.5", "letterSpacing": "0", "fontWeight": "400"}],
+                    "mono-label": ["12px", {"lineHeight": "1", "letterSpacing": "0.1em", "fontWeight": "500"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400"}],
+                    "h2": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "h1": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #101415;
+            color: #e0e3e4;
+        }
+        .text-shadow-strong {
+            text-shadow: 0 4px 12px rgba(0,0,0,0.8), 0 2px 4px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body class="font-body-md bg-background text-on-background antialiased">
+<!-- TopNavBar -->
+<nav class="bg-zinc-950/40 backdrop-blur-md fixed top-0 w-full z-50 border-b border-zinc-800/30">
+<div class="flex justify-between items-center h-16 px-6 md:px-12 max-w-[1440px] mx-auto">
+<div class="text-xl font-bold tracking-tighter uppercase text-[#FDE4D0] font-['Space_Grotesk']">
+                ArgusAI
+            </div>
+<div class="hidden md:flex items-center gap-8 font-['Space_Grotesk'] font-medium tracking-tight">
+<a class="text-[#FDE4D0] border-b border-[#FDE4D0] pb-1 hover:text-[#FDE4D0] hover:border-zinc-700 transition-all duration-200" href="#">Platform</a>
+<a class="text-white hover:text-[#FDE4D0] transition-all duration-200" href="#">Infrastructure</a>
+<a class="text-white hover:text-[#FDE4D0] transition-all duration-200" href="#">Terminal</a>
+<a class="text-white hover:text-[#FDE4D0] transition-all duration-200" href="#">Security</a>
+<a class="text-white hover:text-[#FDE4D0] transition-all duration-200" href="#">Docs</a>
+</div>
+<div class="flex items-center gap-4 font-['Space_Grotesk']">
+<button class="hidden sm:block text-white hover:text-[#FDE4D0] transition-colors font-medium">Login</button>
+<button class="bg-[#FDE4D0] text-[#3c2e20] px-5 py-2 rounded-lg font-bold active:scale-95 transition-transform text-sm">Deploy Now</button>
+</div>
+</div>
+</nav>
+<main>
+<!-- Hero Section -->
+<section class="relative h-screen flex flex-col items-center justify-center text-center px-6 overflow-hidden">
+<!-- Background Image with Dark Overlay -->
+<div class="absolute inset-0 z-0">
+<img alt="Background" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/ADBb0uiuW1af7VdbH_9sbSZ86R48Tfnxas0SbggzVU9n_nV-1E58hXm_DdDOMUfyLQG5AGJmAQ3szBdcq4QIuF75gkBTmSIUEtWUArsq69HQ7PYvgYPU3Kf_e9gcxTGKa7ojjkE24ysmh1KqvMvZeE4tVoO_Nn52lx0QcBL5UNzXEKuSseGN6-GYcVOFxzFCMHwE3OOaJNFAmf0ZNG-FQPCljVnHGG-goxyE2VU7--4L62m-YTAtLw7AJ9qRUlv4iD3dst8WddDcBzYSAw"/>
+<div class="absolute inset-0 bg-black/50 backdrop-blur-[2px]"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-black/30"></div>
+</div>
+<div class="z-10 max-w-4xl space-y-8 mt-16">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/20 bg-black/40 backdrop-blur-sm">
+<span class="w-2 h-2 rounded-full bg-[#FDE4D0] animate-pulse"></span>
+<span class="font-mono-label text-white uppercase tracking-widest text-[10px]">Next-Gen Financial Intelligence</span>
+</div>
+<h1 class="font-h1 text-h1 md:text-7xl lg:text-8xl text-white font-bold leading-tight text-shadow-strong">
+                    Your finances, <br/>
+<span class="text-[#FDE4D0]">one step ahead.</span>
+</h1>
+<p class="font-body-lg text-body-lg text-white/90 max-w-2xl mx-auto text-shadow-strong font-medium">
+                    ArgusAI combines clinical precision with behavioral intelligence to predict, monitor, and optimize your financial stack in real-time.
+                </p>
+<div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+<button class="bg-[#FDE4D0] text-[#3c2e20] px-8 py-4 rounded-lg font-bold text-lg hover:brightness-110 transition-all shadow-xl">
+                        Initialize Terminal
+                    </button>
+<button class="bg-black/40 backdrop-blur-md border border-white/20 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-black/60 transition-all shadow-xl">
+                        View Documentation
+                    </button>
+</div>
+</div>
+<!-- Scroll Indicator -->
+<div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 animate-bounce">
+<span class="material-symbols-outlined text-white/50 text-3xl">expand_more</span>
+</div>
+</section>
+<!-- Dashboard Preview -->
+<section class="py-24 bg-background relative z-10">
+<div class="w-full max-w-6xl mx-auto px-4 -mt-40">
+<div class="relative rounded-t-xl border-x border-t border-outline-variant bg-surface-container-lowest overflow-hidden aspect-video shadow-2xl">
+<div class="h-8 border-b border-outline-variant bg-surface-container flex items-center px-4 gap-2">
+<div class="w-3 h-3 rounded-full bg-error-container"></div>
+<div class="w-3 h-3 rounded-full bg-secondary-container"></div>
+<div class="w-3 h-3 rounded-full bg-outline-variant"></div>
+<div class="ml-4 font-mono-label text-[10px] text-on-surface-variant">ARGUS_TERMINAL_V.2.04</div>
+</div>
+<img alt="Advanced financial analytics dashboard" class="w-full h-full object-cover opacity-80 mix-blend-screen" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCjVjMdPFirdC2qG5hBGaG8FwJLnPVmsDHbLAmI7caIzWwEI75nhaqwjtyuDv7tRQc5s3oit8b3sfriDBCmV-PRWkCiLSvnLRJxtODz6S_sGiNo0y6Vb7MmLexvTBE6EG45hUaPvE5RgHg2R3eZ7mtJxH2AnalxAUOBL693hmuKLlqfUpUuNkW6wPyhZFkbR9M9bx9_EKp-ZYpj8oIsLL0etPmTSDVKUwxjvH5xk2tp7SUoSKXcu5XiM5s42S7Htpoyp_8bjxKiEgUW"/>
+</div>
+</div>
+</section>
+<!-- Section 2: Problem Statements -->
+<section class="py-24 px-6 max-w-7xl mx-auto">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-center md:text-left">
+<div class="space-y-4">
+<h3 class="font-mono-label text-secondary uppercase">Lagging Indicators</h3>
+<p class="text-on-surface-variant/70 font-body-md">Traditional finance tools tell you what happened yesterday. ArgusAI calculates what happens tomorrow based on current trajectories.</p>
+</div>
+<div class="space-y-4">
+<h3 class="font-mono-label text-secondary uppercase">Cognitive Overload</h3>
+<p class="text-on-surface-variant/70 font-body-md">Sifting through fragmented bank statements is inefficient. We unify disparate data into a single, actionable intelligence stream.</p>
+</div>
+<div class="space-y-4">
+<h3 class="font-mono-label text-secondary uppercase">Static Risk Models</h3>
+<p class="text-on-surface-variant/70 font-body-md">Market volatility doesn't wait for quarterly reviews. Our risk radar operates on a continuous, sub-second polling interval.</p>
+</div>
+</div>
+</section>
+<!-- Section 3: Core Feature Grid -->
+<section class="py-24 px-6 bg-surface-container-low border-y border-outline-variant/30">
+<div class="max-w-7xl mx-auto">
+<div class="mb-16 text-center">
+<h2 class="font-h2 text-h2 text-primary mb-4">Tactical Intelligence</h2>
+<p class="text-on-surface-variant max-w-xl mx-auto">Precision-engineered modules for total financial oversight.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<!-- Cashflow Prediction -->
+<div class="p-8 bg-surface-container rounded-lg border border-outline-variant hover:border-secondary transition-colors group">
+<span class="material-symbols-outlined text-secondary text-4xl mb-6">timeline</span>
+<h3 class="text-2xl font-bold mb-4 font-h2">Cashflow Prediction</h3>
+<p class="text-on-surface-variant font-body-md mb-6">ML-driven forecasting that anticipates liquidity gaps up to 18 months in advance with 98.4% variance accuracy.</p>
+<div class="h-32 bg-surface-container-lowest rounded-md border border-outline-variant/30 overflow-hidden relative">
+<img class="w-full h-full object-cover opacity-20 group-hover:opacity-40 transition-opacity" data-alt="Abstract wavy lines" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZ21fszcIqfrhRI8zJBhtYNlJgC51SOvKTT_fFXwBDFA1mZft74krUcXbHzRugOkLyAr5EZKi3cmQoGtP9hJ3Jk8MbOVEGM0BikyWY6LRVJLIW-e_gZkTwjzmbWqTvAG7V8QKD0YxeRVgvh8QkQTaUBKWjCQaMvPwpmcO0tZCCKit50BtarqLXEuzrf-z9TygKbxFwKisVlrx9wN_8x6WudCLQwccEGE4298N004mYVk5WwL7ojJgqPisSv13_hSFoK6i-pZbA_zWk"/>
+</div>
+</div>
+<!-- AI Copilot -->
+<div class="p-8 bg-surface-container rounded-lg border border-outline-variant hover:border-secondary transition-colors group">
+<span class="material-symbols-outlined text-secondary text-4xl mb-6">smart_toy</span>
+<h3 class="text-2xl font-bold mb-4 font-h2">AI Copilot</h3>
+<p class="text-on-surface-variant font-body-md mb-6">A conversational interface that understands complex natural language queries about your entire financial ecosystem.</p>
+<div class="h-32 bg-surface-container-lowest rounded-md border border-outline-variant/30 overflow-hidden flex items-center justify-center text-secondary/30 font-mono text-[10px]">
+                            [AGENT_READY_SYSTEM_IDLE]
+                        </div>
+</div>
+<!-- Risk Radar -->
+<div class="p-8 bg-surface-container rounded-lg border border-outline-variant hover:border-secondary transition-colors group">
+<span class="material-symbols-outlined text-secondary text-4xl mb-6">radar</span>
+<h3 class="text-2xl font-bold mb-4 font-h2">Risk Radar</h3>
+<p class="text-on-surface-variant font-body-md mb-6">Continuous scanning of market exposure, counterparty risk, and algorithmic drift across all holdings.</p>
+<div class="h-32 bg-surface-container-lowest rounded-md border border-outline-variant/30 overflow-hidden">
+<img class="w-full h-full object-cover opacity-20 group-hover:opacity-40 transition-opacity" data-alt="Technical data visualization" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgiNKUx2w-ptrJoMRInMIkGDdi-NJ6FXRM-KlZ23bqUymI1wzfpMFsHj46favQdHgxklSaD8MR0Vt3gR0sA3DXanXnP8M8rlgp4EtVxjv_t2PLch5kjr2tczHzwrsCbmtP7KUWiR85RKlpImqeCRhBVVLZmSWbEyhlCBF-iu5VuQHfd4HW4FVQqrxGMGu0_6C7XhiHAn_5iBdNcjSRXIfrQI2sQRvRYjW-5mTXv0VIz4dLezDrMLv5S4IO3S9FppUtK3xSL-HPJQMh"/>
+</div>
+</div>
+<!-- Behavioral Intelligence -->
+<div class="p-8 bg-surface-container rounded-lg border border-outline-variant hover:border-secondary transition-colors group">
+<span class="material-symbols-outlined text-secondary text-4xl mb-6">psychology</span>
+<h3 class="text-2xl font-bold mb-4 font-h2">Behavioral Intelligence</h3>
+<p class="text-on-surface-variant font-body-md mb-6">Identifying psychological bias in decision-making and suggesting neutral alternatives to maximize long-term yield.</p>
+<div class="h-32 bg-surface-container-lowest rounded-md border border-outline-variant/30 overflow-hidden flex items-center justify-center">
+<div class="grid grid-cols-8 gap-1 opacity-20">
+<div class="w-4 h-4 bg-secondary"></div><div class="w-4 h-4 bg-secondary/50"></div><div class="w-4 h-4 bg-secondary"></div><div class="w-4 h-4 bg-secondary/20"></div>
+<div class="w-4 h-4 bg-secondary/80"></div><div class="w-4 h-4 bg-secondary"></div><div class="w-4 h-4 bg-secondary/10"></div><div class="w-4 h-4 bg-secondary"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 5: Feature Teaser Grid -->
+<section class="py-24 px-6 max-w-7xl mx-auto">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+<div class="p-6 border border-outline-variant bg-surface-container-low rounded-lg">
+<span class="material-symbols-outlined text-secondary mb-3">trending_down</span>
+<h4 class="font-bold font-h2 mb-2">Debt Simulator</h4>
+<p class="text-sm text-on-surface-variant">Stress-test interest rate hikes across your entire liabilities portfolio.</p>
+</div>
+<div class="p-6 border border-outline-variant bg-surface-container-low rounded-lg">
+<span class="material-symbols-outlined text-secondary mb-3">health_metrics</span>
+<h4 class="font-bold font-h2 mb-2">Health Score</h4>
+<p class="text-sm text-on-surface-variant">A proprietary 0-100 score measuring your financial resilience and agility.</p>
+</div>
+<div class="p-6 border border-outline-variant bg-surface-container-low rounded-lg">
+<span class="material-symbols-outlined text-secondary mb-3">account_tree</span>
+<h4 class="font-bold font-h2 mb-2">Scenario Simulator</h4>
+<p class="text-sm text-on-surface-variant">"What if" engine for life changes, market crashes, or major acquisitions.</p>
+</div>
+<div class="p-6 border border-outline-variant bg-surface-container-low rounded-lg">
+<span class="material-symbols-outlined text-secondary mb-3">shield_lock</span>
+<h4 class="font-bold font-h2 mb-2">Protocol Shield</h4>
+<p class="text-sm text-on-surface-variant">AES-256 encrypted terminal with zero-knowledge proof data synchronization.</p>
+</div>
+</div>
+</section>
+<!-- Section 7: Final CTA -->
+<section class="py-32 px-6">
+<div class="max-w-5xl mx-auto bg-gradient-to-br from-secondary-container/30 to-surface-container border border-outline-variant rounded-2xl p-12 text-center space-y-8 relative overflow-hidden">
+<div class="absolute -top-24 -right-24 w-64 h-64 bg-secondary/10 rounded-full blur-[80px]"></div>
+<div class="absolute -bottom-24 -left-24 w-64 h-64 bg-secondary/10 rounded-full blur-[80px]"></div>
+<h2 class="font-h1 text-h1 text-primary">Stop reviewing, <br/><span class="text-secondary">start staying ahead.</span></h2>
+<p class="text-body-lg text-on-surface-variant max-w-xl mx-auto">
+                    Join the waitlist for the ArgusAI Terminal. Early access deployments starting Q4 2024.
+                </p>
+<div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+<input class="w-full sm:w-80 bg-surface-container-low border border-outline-variant px-4 py-4 rounded-lg focus:ring-1 focus:ring-secondary outline-none text-on-surface" placeholder="Enter work email" type="email"/>
+<button class="w-full sm:w-auto bg-[#FDE4D0] text-on-primary px-8 py-4 rounded-lg font-bold">Request Access</button>
+</div>
+<p class="font-mono-label text-[10px] text-zinc-600 uppercase tracking-[0.2em]">Deployment Tier: Enterprise-Ready Terminal Edition</p>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-zinc-950 w-full border-t border-zinc-900">
+<div class="py-12 px-6 md:px-12 flex flex-col md:flex-row justify-between items-center gap-8 max-w-[1440px] mx-auto border-t border-zinc-800/40">
+<div class="text-lg font-black text-[#FDE4D0] font-['Space_Grotesk'] uppercase">
+                ArgusAI
+            </div>
+<div class="flex flex-wrap justify-center gap-8 font-['Space_Grotesk'] text-[12px] tracking-widest uppercase">
+<a class="text-zinc-600 hover:text-zinc-300 transition-colors cursor-pointer" href="#">Security Protocols</a>
+<a class="text-zinc-600 hover:text-zinc-300 transition-colors cursor-pointer" href="#">API Docs</a>
+<a class="text-zinc-600 hover:text-zinc-300 transition-colors cursor-pointer" href="#">Privacy</a>
+<a class="text-zinc-600 hover:text-zinc-300 transition-colors cursor-pointer" href="#">Status</a>
+</div>
+<div class="font-['Space_Grotesk'] text-[12px] tracking-widest uppercase text-zinc-600 text-center md:text-right">
+                © 2024 ARGUS STRATEGIC INTELLIGENCE. ALL SYSTEMS OPERATIONAL.
+            </div>
+</div>
+</footer>
+</body></html>

@@ -1,60 +1,18 @@
 # ArgusAI
 
-> An AI-powered Financial Intelligence System — not a budgeting app.
+An AI-powered Financial Intelligence System built for people who want to stay ahead of their finances — not just review them after the fact.
 
-ArgusAI is a real-time **financial guardian and decision engine** that predicts risk, reasons about your financial behavior, and helps you make smarter money decisions *before* problems occur.
-
-**The core thesis:** Every existing finance app is backward-looking — they show you what you already spent. ArgusAI is forward-looking. It simulates, forecasts, and reasons about what is *about to happen* to your finances, and what you should do about it now.
+ArgusAI connects to your bank accounts, learns your financial patterns, and runs continuous simulations in the background. It surfaces risks before they become problems, answers financial questions grounded in your real data, and builds forward-looking projections so you always know where you stand — not just where you were.
 
 ---
 
-## Why ArgusAI?
+## Recent progress (May 2026)
 
-Most personal finance apps (Mint, YNAB, Copilot, Monarch Money) share the same fundamental failures:
-
-- **Reactive** — they report past spending instead of predicting future outcomes
-- **No reasoning** — dashboards and charts with no strategic intelligence
-- **No simulations** — can't model "what if I buy this?"
-- **No behavioral analysis** — categorizes transactions but never models your patterns
-- **Late risk detection** — alerts fire *after* the overdraft, not before
-- **No memory** — can't reason across your financial history
-- **Budget-focused** — tracks compliance, not actual financial outcomes
-
-ArgusAI addresses all seven with dedicated intelligence systems.
-
----
-
-## Feature Set
-
-### Core MVP
-| Feature | Description |
-|---|---|
-| User Authentication | Supabase Auth — JWT, OAuth (Google), refresh token rotation |
-| Bank Account Linking | Plaid API — real checking, savings, and credit accounts |
-| Transaction Pipeline | Sync, normalize, and store raw Plaid transactions |
-| Automated Categorization | AI-powered spending classification |
-| Recurring Bill Detection | Merchant + pattern-based detection of recurring charges |
-| Subscription Dashboard | Visual overview of all active subscriptions with billing cycles |
-| Monthly AI Report | Auto-generated monthly financial summary with AI insights |
-
-### Advanced Intelligence
-| Feature | Description |
-|---|---|
-| AI Financial Copilot | Conversational agent with tool-calling — queries your real data, runs simulations |
-| Cashflow Prediction Engine | 30–60 day forward simulation with probability-weighted balance curves |
-| Debt Payoff Simulator | Snowball vs. Avalanche with projected payoff dates and interest saved |
-| Dynamic Financial Health Score | Real-time 0–100 score across Liquidity, Stability, Debt Load, and Spending Volatility |
-| Risk Radar Feed | Proactive alerts for overdraft risk, utilization spikes, and missed bills — before they happen |
-
-### Elite Differentiators
-| Feature | Description |
-|---|---|
-| Interactive Scenario Simulator | Adjustable income/expense sliders that re-run the 30–60 day forecast in real time |
-| Behavioral Spending Intelligence | Detects impulse patterns, velocity spikes, and category-level drift over time |
-| Subscription Creep Detection | Flags gradual price increases users typically miss |
-| Goal-Based AI Savings Planner | Set a savings target — ArgusAI builds a structured monthly roadmap |
-| Anomaly Detection | Statistical outlier detection for duplicate charges, spikes, and unusual transactions |
-| AI Decision Engine | "Can I afford a $1,400 MacBook right now?" → structured affordability analysis against your real numbers |
+- **Phase 1.5 — design system:** Tailwind CSS v4 with brand tokens in `globals.css` (`@theme inline`, CSS variables — no separate `tailwind.config.ts`). Typography: Space Grotesk, Manrope, and Playfair Display via `next/font/google`. Warm-peach accent palette aligned with the Stitch landing design.
+- **Component stack:** shadcn/ui initialized (`components.json`); **Button** and **Input** themed to Argus tokens and used on the landing page. **Framer Motion** for section motion; custom **AuroraBackground** and **FadeIn** (scroll-triggered) components on the marketing page.
+- **Landing page:** Public `app/page.tsx` rebuilt with seven sections (hero with aurora, problem strip, feature cards, dashboard mockup, feature grid, email CTA, footer), floating scroll-aware nav, and asset-backed visuals. Login, signup, and verify-email still use the Phase 1 layout — auth reskin deferred.
+- **Backend:** `GET /health` added for load checks and deploy probes; auth routes unchanged (`GET /api/me`, `POST /api/users/sync`).
+- **Planning:** Detailed Phase 1.5 checklist and decisions live in [Phase Plans/Phase_1.5_DesignSystem.md](Phase%20Plans/Phase_1.5_DesignSystem.md) (Stitch landing marked complete; Pencil.dev mockups for the rest of the app still open).
 
 ---
 
@@ -62,91 +20,174 @@ ArgusAI addresses all seven with dedicated intelligence systems.
 
 | Layer | Technology |
 |---|---|
-| Frontend | Next.js 14+ (TypeScript), Tailwind CSS → Vercel |
-| Backend | FastAPI (Python) → Railway / Fly.io |
-| Database | Supabase (managed PostgreSQL + pgvector + Realtime + RLS) |
-| Auth | Supabase Auth — JWT-based, OAuth, refresh token rotation |
-| Vector Search | pgvector via Supabase — co-located with transaction data, no separate service |
-| Cache / Jobs | Redis + Celery (Plaid sync, embedding generation) |
-| AI / LLM | Claude claude-sonnet-4-6 (Anthropic API) with tool-calling |
+| Frontend | Next.js 16 (TypeScript), Tailwind CSS v4, shadcn/ui, Framer Motion |
+| Backend | FastAPI (Python 3.12) |
+| Database | Supabase — PostgreSQL + pgvector + Realtime + Row-Level Security |
+| Auth | Supabase Auth — JWT, OAuth (Google), refresh token rotation |
+| Vector Search | pgvector via Supabase — co-located with transaction data |
+| Cache / Jobs | Redis + Celery |
+| AI | Claude Sonnet 4.6 (Anthropic) + LangGraph multi-agent system |
 | RAG | Custom retrieval pipeline over Supabase pgvector |
-| Embeddings | text-embedding-3-small (OpenAI) or Voyage AI |
+| Embeddings | OpenAI text-embedding-3-small |
 | Bank Data | Plaid API |
-| Monitoring | Sentry + Axiom / Datadog |
+| Hosting | Vercel (frontend), Railway (backend) |
+| Monitoring | Sentry + Axiom |
 | CI/CD | GitHub Actions |
 
 ---
 
-## AI System Architecture
+## What Sets ArgusAI Apart
+
+Apps like Rocket Money, Mint, YNAB, and Monarch Money are all built around the same idea: show you what you spent and alert you after something goes wrong. They are reporting tools. ArgusAI is an intelligence system — it tells you what is about to happen and what to do about it.
+
+- **It predicts, not just reports.** ArgusAI runs a 30–60 day cashflow simulation automatically using your transaction history, income patterns, and known bills. You can see a projected overdraft 10 days out — before your bank knows it's coming.
+
+- **It reasons about your actual situation.** Ask the Copilot "Can I afford a $1,400 laptop right now?" and it queries your real balances, checks upcoming bills, reviews your savings goals, and returns a direct recommendation grounded in your specific numbers — not generic financial advice.
+
+- **It models your behavior, not just your transactions.** Most apps categorize what you spent. ArgusAI learns your spending baseline and flags when something changes — velocity spikes, impulse patterns, category drift. It gets more useful the longer you use it.
+
+- **It warns you before problems happen.** Risk Radar scores your overdraft probability daily and fires an alert when the risk crosses a threshold — not a notification after the overdraft, but a warning with enough time to act.
+
+- **It catches subscription creep.** Price increases on streaming and software services are usually small enough to go unnoticed individually. ArgusAI tracks each service over a rolling 3-month window and flags anything that has quietly gone up.
+
+- **It remembers your financial history.** Standard finance apps reset every session. ArgusAI stores embeddings of your transaction history so the Copilot can reason across time — comparing months, spotting seasonal patterns, and answering questions about the past without you digging through statements.
+
+---
+
+## Features
+
+### Data & Accounts
+
+| Feature | Description |
+|---|---|
+| Authentication | Supabase Auth — JWT, OAuth (Google), refresh token rotation |
+| Bank Account Linking | Plaid API — checking, savings, and credit accounts |
+| Transaction Pipeline | Sync, normalize, and store raw Plaid transactions automatically |
+| Automated Categorization | AI-powered classification of every transaction into spending categories |
+| Sync Reliability Indicator | Live health badge per account showing last-synced status — green, amber, or red |
+
+### Tracking & Reporting
+
+| Feature | Description |
+|---|---|
+| Recurring Bill Detection | Merchant and pattern-based detection of recurring charges |
+| Bill Due Date Calendar | Monthly calendar view of upcoming bills color-coded by urgency |
+| Subscription Dashboard | Full overview of active subscriptions with amounts, cycles, and price history |
+| Subscription Creep Detection | Flags gradual price increases per service over a rolling 3-month window |
+| Spending Streak Tracker | Tracks consecutive weeks under budget per category — surfaces positive momentum |
+| Anomaly Detection | Statistical outlier detection for duplicate charges, foreign transactions, and unusual spikes |
+| Monthly AI Report | Auto-generated monthly summary with AI-written insights and trend analysis |
+
+### Forecasting & Simulations
+
+| Feature | Description |
+|---|---|
+| Cashflow Prediction Engine | 30–60 day forward simulation with probability-weighted daily balance curves |
+| Scenario Simulator | Adjust income or expenses and see the real-time impact on your 30–60 day forecast |
+| Debt Payoff Simulator | Snowball vs. Avalanche comparison with month-by-month payoff schedules and interest saved |
+| Smart Payment Allocation | Priority-ordered allocation of available funds across credit cards, bills, and savings |
+| Goal-Based Savings Planner | Set a savings target and date — ArgusAI generates a structured monthly milestone roadmap |
+
+### Risk & Health
+
+| Feature | Description |
+|---|---|
+| Financial Health Score | Real-time 0–100 score across four dimensions: Liquidity, Stability, Debt Load, Spending Volatility |
+| Risk Radar | Proactive scoring of overdraft probability, credit utilization, and upcoming bill risk |
+| Behavioral Intelligence | Detects impulse patterns, spending velocity spikes, and category-level drift over time |
+| Credit Score Integration | Experian Connect — soft-pull credit report, score history, AI-powered improvement recommendations |
+
+### AI Copilot
+
+| Feature | Description |
+|---|---|
+| AI Financial Copilot | Conversational agent with tool-calling — queries your real data, runs simulations, explains reasoning |
+| AI Decision Engine | Affordability analysis grounded in your real balances, bills, and goals |
+| Bonus Recommender | Finds bank and card signup bonuses filtered to institutions you don't already have |
+
+---
+
+## AI Architecture
+
+Every Copilot response is grounded in retrieved data, not generated figures. When you ask a question, ArgusAI embeds it, retrieves the most relevant transactions and insights from your history via pgvector cosine search, and routes to the appropriate specialist agent. Each agent has access to a set of database-grounded tools — balance queries, cashflow forecasts, risk scores — and reasons step-by-step before returning a structured response.
 
 ```
 User Query
     │
     ▼
-[RAG Retrieval] ──── Supabase Vector (pgvector, co-located with transaction DB)
+RAG Retrieval  ──  Supabase pgvector (transactions + insights)
     │
     ▼
-[Context Assembly]  ←── current balances, active goals, upcoming bills
+LangGraph Multi-Agent Supervisor
+    ├── CashflowAgent   →  30–60 day balance forecast
+    ├── RiskAgent       →  overdraft probability, proactive alerts
+    ├── DebtAgent       →  Snowball vs. Avalanche simulation
+    ├── PaymentAgent    →  payment allocation across accounts
+    ├── BonusAgent      →  bank and card bonus search
+    └── CreditAgent     →  Experian credit profile + recommendations
     │
     ▼
-[Claude claude-sonnet-4-6 with Tool-Calling]
-    ├── get_cashflow_forecast()
-    ├── get_balance_summary()
-    ├── run_debt_simulation()
-    ├── get_risk_alerts()
-    └── get_spending_patterns()
+Structured JSON Output  (schema-validated — no hallucinated financial data)
     │
     ▼
-[Structured JSON Output]  ←── schema-validated, no hallucinated financial data
-    │
-    ▼
-[Response to User]
+SSE Response to User
 ```
 
-**Key principles:**
-- All financial figures are retrieved, never generated
-- Every copilot response includes a confidence field and cited data sources
-- All outputs include a disclaimer: ArgusAI is not a licensed financial advisor
-
 ---
 
-## Development Timeline
+## Build Status
 
-| Phase | Weeks | Status | Deliverables |
-|---|---|---|---|
-| Foundation | 1–2 | 🟡 In Progress | Supabase setup (Auth, DB, RLS), FastAPI scaffold, Next.js frontend, CI/CD |
-| Data Pipeline | 3–4 | ⬜ Not Started | Plaid integration, transaction sync, normalization pipeline |
-| Intelligence Layer | 5–6 | ⬜ Not Started | Bill detection, subscription tracking, AI categorization |
-| AI Reports | 7–8 | ⬜ Not Started | Monthly AI reports, categorization improvements |
-| Copilot + Simulations | 9–10 | ⬜ Not Started | Financial Copilot, cashflow engine, debt + scenario simulators |
-| Production Hardening | 11–12 | ⬜ Not Started | Security audit, rate limiting, load testing, production deploy |
+| Phase | Description | Status |
+|---|---|---|
+| Phase 1 | Foundation | Complete |
+| Phase 1.5 | Design System | In Progress |
+| Phase 2 | Bank Data Pipeline | Not Started |
+| Phase 3 | Intelligence Layer | Not Started |
+| Phase 4 | AI Reports | Not Started |
+| Phase 5 | Copilot + Simulations | Not Started |
+| Phase 6 | New Features | Not Started |
+| Phase 7 | Production Hardening | Not Started |
 
-### Phase 1 Progress
+### Phase 1 — Foundation
 
-| Area | Status |
+| Deliverable | Status |
 |---|---|
-| FastAPI backend scaffold + JWT auth middleware | ✅ Done |
-| `GET /me` and `POST /users/sync` endpoints | ✅ Done |
-| Next.js 14 frontend (TypeScript + Tailwind + App Router) | ✅ Done |
-| Supabase browser + server clients | ✅ Done |
-| Route protection middleware | ✅ Done |
-| Auth pages — login, signup, OAuth callback, verify-email | ✅ Done |
-| Landing page + sidebar nav shell + settings page | ✅ Done |
-| Supabase DB schema + RLS policies + pgvector index | 🟡 In Progress |
-| Dockerfile + docker-compose + GitHub Actions CI | 🟡 In Progress |
-| Vercel + Railway production deploys | ⬜ Pending |
+| FastAPI backend scaffold + JWT auth middleware | Done |
+| `GET /me` and `POST /users/sync` endpoints | Done |
+| Next.js 16 frontend (TypeScript + Tailwind v4 + App Router) | Done |
+| Supabase browser + server clients | Done |
+| Route protection middleware | Done |
+| Auth pages — login, signup, OAuth callback, verify-email | Done |
+| Landing page + sidebar nav shell + settings page | Done |
+| Supabase DB schema — 8 tables + RLS policies + pgvector index | Done |
+| Dockerfile + docker-compose (FastAPI + Redis) | Done |
+| `GET /health` — service health check | Done |
+| GitHub Actions CI — ruff lint + pytest (5/5 passing) | Done |
+| Frontend deployed to Vercel | Done |
+| Backend deployed to Railway | Done |
+| End-to-end auth flow verified on production | Done |
+
+### Phase 1.5 — Design System
+
+| Deliverable | Status |
+|---|---|
+| Page mockups — landing via Google Stitch; Pencil.dev for remaining app pages | In progress |
+| Tailwind theme — color tokens, typography, spacing (`globals.css` + `@theme inline`) | Done |
+| shadcn/ui — initialized; Button + Input dark-themed; more primitives deferred to app shell | In progress |
+| Framer Motion — landing section animations + scroll-aware nav | In progress |
+| Custom app components — FadeIn done; StatCard, RiskBadge, SectionHeader, EmptyState deferred | In progress |
+| Sidebar finalized with all nav links | Not started |
+| Landing page redesigned; auth pages (login / signup / verify-email) | Landing done; auth deferred |
 
 ---
 
-## What ArgusAI Is NOT
+## Scope
 
-- **Not a robo-advisor** — does not invest or manage assets
-- **Not a licensed financial advisor** — all AI outputs carry appropriate disclaimers
-- **Not credit monitoring** — no credit report pulls, no hard inquiries
-- **Not a bank** — read-only via Plaid; no fund transfers
+ArgusAI is a read-only intelligence layer over your existing accounts. It does not invest or manage assets, initiate fund transfers, pull hard credit inquiries, or provide licensed financial advice. All AI outputs include appropriate disclaimers.
 
 ---
 
-## Project Context
+## Documentation
 
-For full architectural details, data models, security requirements, competitive differentiators, and use cases, see [CLAUDE.md](CLAUDE.md).
+Full architectural details, data models, and security requirements are in [CLAUDE.md](CLAUDE.md).
+Phase-by-phase build plans are in the [Phase Plans](Phase%20Plans/) folder.
