@@ -15,6 +15,37 @@
 
 ---
 
+## Work Division
+
+### Backend Track
+All Python/FastAPI work. Lives in `backend/`.
+
+| Area | Work |
+|---|---|
+| Plaid API | Link token generation, public token exchange, OAuth redirect handling |
+| Encryption | AES-256-GCM encrypt/decrypt for Plaid access tokens before DB storage |
+| Routers | `POST /plaid/link-token`, `POST /plaid/exchange-token`, `GET /plaid/accounts`, `POST /plaid/sync`, `GET /transactions` |
+| Celery tasks | `sync_transactions_for_user` — Plaid `/transactions/sync` → normalize → upsert |
+| Embedding tasks | `generate_embedding_for_transaction` — OpenAI `text-embedding-3-small` → store in `transactions.embedding` |
+| Database | Migration `004_vector_search_rpc.sql` — pgvector cosine search RPC function |
+| Tests | Auth guard smoke tests for all new endpoints, normalization unit tests |
+
+### Frontend Track
+All Next.js/React work. Lives in `frontend/`.
+
+| Area | Work |
+|---|---|
+| API layer | `lib/api.ts` — typed fetch wrapper that attaches Supabase JWT to every backend request |
+| Plaid Link | `react-plaid-link` SDK integration — fetch link token → open modal → exchange token on success |
+| Accounts page | `app/(app)/accounts/page.tsx` — linked bank cards, "Connect a bank" CTA, sync trigger |
+| Transactions page | `app/(app)/transactions/page.tsx` — paginated table with date/merchant/category/amount/recurring badge |
+| Dashboard page | `app/(app)/dashboard/page.tsx` — onboarding redirect if no accounts; summary cards if accounts exist |
+| Shared components | `StatCard`, `RiskBadge`, `SectionHeader`, `EmptyState` (deferred from Phase 1.5) + remaining shadcn components (`card`, `badge`, `table`, `skeleton`) |
+
+> **Dependency order:** Backend endpoints must exist before the corresponding frontend pages can be wired up. Build `feature/plaid-integration` and `feature/transaction-sync` first, then `feature/accounts-ui`.
+
+---
+
 ## Git Branch Structure
 
 Per `GitHub-Argus.md` — Phase 2 uses one phase branch and 3 feature branches:
