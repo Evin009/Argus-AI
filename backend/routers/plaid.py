@@ -1,16 +1,16 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException
+from plaid.model.item_public_token_exchange_request import ItemPublicTokenExchangeRequest
+from plaid.model.link_token_create_request import LinkTokenCreateRequest
+from plaid.model.link_token_create_request_user import LinkTokenCreateRequestUser
 from pydantic import BaseModel
 
 from db.client import get_supabase
 from middleware.auth import get_current_user
-from services.encryption import decrypt_token, encrypt_token
+from services.encryption import encrypt_token
 from services.plaid_client import PLAID_COUNTRY_CODES, PLAID_PRODUCTS, get_plaid_client
-from plaid.model.item_public_token_exchange_request import ItemPublicTokenExchangeRequest
-from plaid.model.link_token_create_request import LinkTokenCreateRequest
-from plaid.model.link_token_create_request_user import LinkTokenCreateRequestUser
 
 router = APIRouter(prefix="/plaid", tags=["plaid"])
 
@@ -63,7 +63,7 @@ async def exchange_public_token(
             "access_token_encrypted": encrypted,
             "institution_id": body.institution_id,
             "institution_name": body.institution_name,
-            "linked_at": datetime.now(timezone.utc).isoformat(),
+            "linked_at": datetime.now(UTC).isoformat(),
         },
         on_conflict="institution_id,user_id",
     ).execute()
@@ -99,7 +99,7 @@ async def exchange_public_token(
                     else str(acct["type"]),
                     "balance": balances.get("current") or balances.get("available") or 0,
                     "credit_limit": balances.get("limit"),
-                    "last_synced": datetime.now(timezone.utc).isoformat(),
+                    "last_synced": datetime.now(UTC).isoformat(),
                 },
                 on_conflict="plaid_account_id",
             ).execute()
