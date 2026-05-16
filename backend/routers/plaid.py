@@ -120,3 +120,10 @@ async def get_accounts(user_id: str = Depends(get_current_user)):
         .execute()
     )
     return {"accounts": result.data}
+
+
+@router.post("/sync")
+async def trigger_sync(user_id: str = Depends(get_current_user)):
+    from tasks.sync_transactions import sync_transactions_for_user
+    task = sync_transactions_for_user.delay(user_id)
+    return {"status": "syncing", "task_id": task.id}
