@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from routers import auth
+from routers import auth, plaid, transactions
 
 load_dotenv()
 
@@ -16,15 +16,21 @@ app = FastAPI(
 
 frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
 
+# In development allow any localhost port; in production restrict to FRONTEND_URL
+_dev_origins = [f"http://localhost:{p}" for p in range(3000, 3010)]
+allow_origins = list({frontend_url, *_dev_origins})
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[frontend_url],
+    allow_origins=allow_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 app.include_router(auth.router)
+app.include_router(plaid.router)
+app.include_router(transactions.router)
 
 
 @app.get("/health", tags=["system"])

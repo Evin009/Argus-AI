@@ -1,43 +1,36 @@
-import os
-
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from jose import JWTError, jwt
 
-security = HTTPBearer()
+from db.client import get_supabase
+
+security = HTTPBearer(auto_error=False)
 
 
 async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
+    credentials: HTTPAuthorizationCredentials | None = Depends(security),
 ) -> str:
     """
-    Verifies a Supabase-issued JWT and returns the authenticated user_id (sub claim).
-    Inject this as a dependency on any protected route.
+    Verifies a Supabase-issued JWT via supabase.auth.get_user and returns the user_id.
+    Works with both HS256 (legacy) and RS256 (new JWT Signing Keys).
     """
-    token = credentials.credentials
-    jwt_secret = os.environ.get("JWT_SECRET")
-
-    if not jwt_secret:
+    if credentials is None:
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="JWT_SECRET is not configured",
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+            headers={"WWW-Authenticate": "Bearer"},
         )
-
     try:
-        payload = jwt.decode(
-            token,
-            jwt_secret,
-            algorithms=["HS256"],
-            audience="authenticated",
-        )
-        user_id: str | None = payload.get("sub")
-        if not user_id:
+        supabase = get_supabase()
+        response = supabase.auth.get_user(credentials.credentials)
+        if not response.user:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Token missing subject claim",
+                detail="Could not validate credentials",
             )
-        return user_id
-    except JWTError:
+        return response.user.id
+    except HTTPException:
+        raise
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
