@@ -10,7 +10,11 @@ os.environ.setdefault("PLAID_SECRET", "placeholder")
 os.environ.setdefault("PLAID_ENV", "sandbox")
 os.environ.setdefault("PLAID_TOKEN_ENCRYPTION_KEY", "a" * 64)
 
-from tasks.sync_transactions import _extract_category, _extract_subcategory, _normalize_transaction  # noqa: E402
+from tasks.sync_transactions import (  # noqa: E402
+    _extract_category,
+    _extract_subcategory,
+    _normalize_transaction,
+)
 
 
 def test_normalize_uses_merchant_name():

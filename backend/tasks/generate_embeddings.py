@@ -1,8 +1,9 @@
 import os
 
+from openai import OpenAI
+
 from celery_app import celery
 from db.client import get_supabase
-from openai import OpenAI
 
 
 def _get_openai_client() -> OpenAI:

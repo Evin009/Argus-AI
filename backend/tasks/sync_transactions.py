@@ -1,12 +1,12 @@
 import uuid
 from datetime import UTC, datetime
 
+from plaid.model.transactions_sync_request import TransactionsSyncRequest
+
 from celery_app import celery
 from db.client import get_supabase
 from services.encryption import decrypt_token
 from services.plaid_client import get_plaid_client
-
-from plaid.model.transactions_sync_request import TransactionsSyncRequest
 
 
 def _normalize_transaction(plaid_txn: dict, account_id: str) -> dict:
