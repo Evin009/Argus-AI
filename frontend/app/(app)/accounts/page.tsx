@@ -3,7 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import { useCallback, useEffect, useState } from "react";
-import { usePlaidLink } from "react-plaid-link";
+import { usePlaidLink, PlaidLinkOnSuccessMetadata } from "react-plaid-link";
 import { api } from "@/lib/api";
 
 type Account = {
@@ -15,9 +15,6 @@ type Account = {
   last_synced: string;
 };
 
-type PlaidMetadata = {
-  institution?: { institution_id: string; name: string };
-};
 
 function AccountCard({ account }: { account: Account }) {
   const isCredit = account.account_type === "credit";
@@ -87,7 +84,7 @@ function PlaidLinkButton({ onSuccess }: { onSuccess: () => void }) {
   }, []);
 
   const handleSuccess = useCallback(
-    async (publicToken: string, metadata: PlaidMetadata) => {
+    async (publicToken: string, metadata: PlaidLinkOnSuccessMetadata) => {
       try {
         await api.post("/plaid/exchange-token", {
           public_token: publicToken,
