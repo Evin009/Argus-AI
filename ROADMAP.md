@@ -9,7 +9,7 @@
 | Phase | Status | Weeks |
 |---|---|---|
 | Phase 1 — Foundation | ✅ Complete | 1–2 |
-| Phase 2 — Bank Data Pipeline | ⬜ Not Started | 3–4 |
+| Phase 2 — Bank Data Pipeline | ✅ Complete | 3–4 |
 | Phase 3 — Intelligence Layer | ⬜ Not Started | 5–6 |
 | Phase 4 — AI Reports | ⬜ Not Started | 7–8 |
 | Phase 5 — Copilot + Simulations | ⬜ Not Started | 9–10 |
@@ -39,15 +39,28 @@
 
 ---
 
-## Phase 2 — Bank Data Pipeline ⬜
+## Phase 2 — Bank Data Pipeline ✅
 **Goal:** Connect bank accounts via Plaid and store all transactions.
 
-- Plaid Link integration (sandbox) — link token, OAuth redirect, token exchange
-- AES-256 encrypt and store access tokens in `plaid_items`
-- Transaction sync Celery task — Plaid `/transactions/sync`, normalize, upsert
-- Embedding generation task — `text-embedding-3-small`, store in `transactions.embedding`
-- Supabase RPC `match_transactions_by_embedding` for pgvector cosine search
-- Accounts page, Transactions page, Bank linking flow
+| Deliverable | Status |
+|---|---|
+| Plaid Link integration (sandbox) — link token, token exchange, AES-256 encryption | ✅ Done |
+| `POST /plaid/link-token`, `POST /plaid/exchange-token`, `GET /plaid/accounts`, `POST /plaid/sync` | ✅ Done |
+| `GET /transactions` endpoint with pagination + category filter | ✅ Done |
+| Transaction sync Celery task — Plaid `/transactions/sync`, normalize, upsert | ✅ Done |
+| Embedding generation task — `text-embedding-3-small`, store in `transactions.embedding` | ✅ Done |
+| Supabase RPC `match_transactions_by_embedding` for pgvector cosine search | ✅ Done |
+| Accounts page — linked bank cards, Plaid Link flow, sync trigger, utilization bar | ✅ Done |
+| Transactions page — paginated table, category filter, recurring badge | ✅ Done |
+| Dashboard page — onboarding empty state + summary cards (balance, credit, accounts) | ✅ Done |
+| `frontend/lib/api.ts` — JWT-authenticated fetch wrapper | ✅ Done |
+| Celery worker added to `infra/docker-compose.yml` | ✅ Done |
+| Dockerfile fixed to install from `pyproject.toml` | ✅ Done |
+| Auth middleware updated to use `supabase.auth.get_user()` (RS256 compatible) | ✅ Done |
+| Migration 005 — unique constraint on `plaid_items(institution_id, user_id)` | ✅ Done |
+| Migration 006 — `handle_new_user` trigger + backfill for `public.users` | ✅ Done |
+| 48 sandbox transactions synced with embeddings verified end-to-end | ✅ Done |
+| CI green on `main` | ✅ Done |
 
 ---
 
