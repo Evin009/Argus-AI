@@ -54,20 +54,20 @@ develop
 
 ## Execution Checklist
 
-### `feature/bill-detection`
+### `feature/bill-detection` ✅
 *Detect recurring bills from transaction history*
 
 **Backend:**
-- [ ] Create `backend/tasks/detect_bills.py`:
+- [x] Create `backend/tasks/detect_bills.py`:
   - `detect_recurring_bills_for_user(user_id)` Celery task
   - Group transactions by merchant, compute median amount and interval
   - Classify as `monthly`, `weekly`, or `annual` based on date gaps
   - Upsert into `bills` table — merchant, recurrence_pattern, avg_amount, next_due_date
-- [ ] Write `backend/routers/bills.py` — `GET /bills` endpoint
-- [ ] Register `bills` router in `backend/main.py`
-- [ ] Chain `detect_recurring_bills_for_user` to fire after `sync_transactions_for_user` completes
-- [ ] Write `backend/tests/test_bill_detection.py` — unit tests for pattern detection logic
-- [ ] **Merged → `phase/3-intelligence-layer`**
+- [x] Write `backend/routers/bills.py` — `GET /bills` endpoint
+- [x] Register `bills` router in `backend/main.py`
+- [x] Chain `detect_recurring_bills_for_user` to fire after `sync_transactions_for_user` completes
+- [x] Write `backend/tests/test_bill_detection.py` — unit tests for pattern detection logic
+- [x] **Merged → `phase/3-intelligence-layer`**
 
 ---
 
