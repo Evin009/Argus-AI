@@ -93,4 +93,7 @@ def detect_recurring_bills_for_user(user_id: str) -> dict:
             bill, on_conflict="user_id,merchant"
         ).execute()
 
+    from tasks.detect_subscriptions import detect_subscriptions_for_user
+    detect_subscriptions_for_user.delay(user_id)
+
     return {"user_id": user_id, "bills_detected": len(bills)}
