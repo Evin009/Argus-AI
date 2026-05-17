@@ -108,10 +108,10 @@ develop
 - [x] Delete all feature branches + `phase/2-data-pipeline`
 - [x] Mark Phase 2 as ✅ Complete in `ROADMAP.md`
 
-### Post-Close
-- [ ] Deploy updated backend + Celery worker to Railway
-- [ ] Deploy updated frontend to Vercel
-- [ ] Run end-to-end smoke test on production
+### Post-Close ✅
+- [x] Deploy updated backend + Celery worker to Railway
+- [x] Deploy updated frontend to Vercel
+- [x] Run end-to-end smoke test on production — bank linking, sync, transactions, embeddings all verified on `argus-ai-baqq.vercel.app`
 
 ---
 
@@ -127,6 +127,9 @@ These were not in the original plan but were required:
 | Migration 005 — unique constraint on `plaid_items(institution_id, user_id)` | Required for upsert `on_conflict` in exchange-token endpoint |
 | Migration 006 — `handle_new_user` trigger + backfill | `public.users` rows not created on signup, causing FK violation on `plaid_items` |
 | `REDIS_URL=redis://redis:6379/0` | Docker containers can't reach Redis via `localhost` — must use service name |
+| `FRONTEND_URL` on Railway set to Vercel production URL | CORS was blocking production frontend — localhost-only CORS config doesn't work in prod |
+| Railway Redis service added + `REDIS_URL` variable reference wired to both API and Celery worker | Redis wasn't provisioned in Phase 1 — required for Celery task queue in production |
+| Celery worker deployed as separate Railway service | Not part of original Phase 1 deploy — needed as independent service with same env vars |
 
 ---
 

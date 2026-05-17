@@ -61,19 +61,27 @@
 | Migration 006 — `handle_new_user` trigger + backfill for `public.users` | ✅ Done |
 | 48 sandbox transactions synced with embeddings verified end-to-end | ✅ Done |
 | CI green on `main` | ✅ Done |
+| Celery worker deployed as separate Railway service | ✅ Done |
+| Railway Redis provisioned + wired to API and Celery worker | ✅ Done |
+| Production smoke test passed on `argus-ai-baqq.vercel.app` | ✅ Done |
 
 ---
 
 ## Phase 3 — Intelligence Layer ⬜
 **Goal:** Detect patterns, categorize spending, surface subscriptions and bills.
 
-- Recurring bill detection engine
-- Subscription tracker + creep detection
-- AI-powered transaction categorization (Claude few-shot)
-- Behavioral spending intelligence (velocity spikes, category drift, impulse patterns)
-- Spending Streak / Momentum Tracker (consecutive weeks under budget per category)
-- Bill Due Date Calendar view (monthly calendar, color-coded by urgency)
-- Dashboard, Bills, Bills Calendar, Subscriptions pages
+| Deliverable | Status |
+|---|---|
+| Recurring bill detection engine — merchant + amount pattern matching | ⬜ Pending |
+| Subscription tracker + price creep detection (vs 3 months ago) | ⬜ Pending |
+| AI-powered transaction categorization — Claude few-shot classification | ⬜ Pending |
+| Behavioral spending intelligence — velocity spikes, category drift | ⬜ Pending |
+| `GET /bills`, `GET /subscriptions`, `GET /insights/spending` endpoints | ⬜ Pending |
+| Bills page with urgency colors and next due dates | ⬜ Pending |
+| Bills Calendar — monthly view, color-coded by urgency | ⬜ Pending |
+| Subscriptions page with price creep badges and monthly total | ⬜ Pending |
+| Dashboard updated with upcoming bills + subscription cards | ⬜ Pending |
+| CI green on `main` | ⬜ Pending |
 
 ---
 
