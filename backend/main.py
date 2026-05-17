@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from routers import auth, plaid, transactions
+from routers import auth, bills, plaid, transactions
 
 load_dotenv()
 
@@ -31,6 +31,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(plaid.router)
 app.include_router(transactions.router)
+app.include_router(bills.router)
 
 
 @app.get("/health", tags=["system"])
