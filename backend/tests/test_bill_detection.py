@@ -14,8 +14,8 @@ os.environ.setdefault("PLAID_ENV", "sandbox")
 os.environ.setdefault("PLAID_TOKEN_ENCRYPTION_KEY", "a" * 64)
 
 from tasks.detect_bills import (  # noqa: E402
-    _compute_intervals,
     _classify_pattern,
+    _compute_intervals,
     _detect_bills_for_transactions,
 )
 
