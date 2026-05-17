@@ -71,20 +71,22 @@ develop
 
 ---
 
-### `feature/subscription-tracker`
+### `feature/subscription-tracker` ✅
 *Track active subscriptions and detect price creep*
 
 **Backend:**
-- [ ] Create `backend/tasks/detect_subscriptions.py`:
+- [x] Create `backend/tasks/detect_subscriptions.py`:
   - `detect_subscriptions_for_user(user_id)` Celery task
   - Identify merchants with consistent monthly charges (subset of bills)
   - Compute `price_change_pct` — compare avg amount vs 3 months ago
   - Flag subscriptions with > 5% price increase as "creeping"
   - Upsert into `subscriptions` table
-- [ ] Write `backend/routers/subscriptions.py` — `GET /subscriptions` endpoint
-- [ ] Register `subscriptions` router in `backend/main.py`
-- [ ] Write `backend/tests/test_subscription_detection.py` — unit tests for creep detection
-- [ ] **Merged → `phase/3-intelligence-layer`**
+- [x] Write `backend/routers/subscriptions.py` — `GET /subscriptions` endpoint (filters `is_active=True`, ordered by `avg_amount` desc)
+- [x] Register `subscriptions` router in `backend/main.py`
+- [x] Migration 009 — `UNIQUE(user_id, merchant)` on `subscriptions` table
+- [x] Chain `detect_subscriptions_for_user` after `detect_recurring_bills_for_user`
+- [x] Write `backend/tests/test_subscription_detection.py` — 13 unit tests, all passing
+- [x] **Merged → `phase/3-intelligence-layer`** — 39/39 tests green, 12 subscriptions detected from sandbox data
 
 ---
 
@@ -209,8 +211,8 @@ subscriptions (
 
 ## Definition of Done
 
-- [ ] Recurring bills detected from sandbox transaction history — at least 3 merchants identified
-- [ ] Subscriptions table populated with `price_change_pct` computed
+- [x] Recurring bills detected from sandbox transaction history — 12 merchants identified
+- [x] Subscriptions table populated with `price_change_pct` computed
 - [ ] `OTHER` transactions recategorized via Claude — category distribution improved
 - [ ] Bills page shows list with urgency colors and next due dates
 - [ ] Subscriptions page shows monthly total and price creep badges
