@@ -1,3 +1,4 @@
+# backend/tests/test_categorization.py
 import os
 
 os.environ.setdefault("JWT_SECRET", "test-secret-key-for-unit-tests-only")
@@ -81,8 +82,8 @@ def test_parse_categorization_response_valid_json():
 
 def test_parse_categorization_response_multiple_items():
     response = (
-        '[{"id": "1", "category": "TRANSPORTATION", "subcategory": "rideshare"},'
-        ' {"id": "2", "category": "FOOD_AND_DRINK", "subcategory": "coffee"}]'
+        '[{"id": "1", "category": "TRANSPORTATION", "subcategory": "rideshare"}, '
+        '{"id": "2", "category": "FOOD_AND_DRINK", "subcategory": "coffee"}]'
     )
     result = _parse_categorization_response(response)
     assert len(result) == 2
