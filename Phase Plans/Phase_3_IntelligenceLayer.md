@@ -90,19 +90,21 @@ develop
 
 ---
 
-### `feature/ai-categorization`
+### `feature/ai-categorization` ✅
 *Improve transaction categories using Claude few-shot classification*
 
 **Backend:**
-- [ ] Create `backend/tasks/categorize_transactions.py`:
+- [x] Create `backend/tasks/categorize_transactions.py`:
   - `recategorize_transactions_for_user(user_id)` Celery task
-  - Pull uncategorized or `OTHER` transactions
+  - Pull `OTHER` transactions, batch in groups of 50
   - Build few-shot prompt with merchant + amount → category examples
-  - Call Claude claude-sonnet-4-6 with structured output (Pydantic validated)
+  - Call Claude claude-sonnet-4-6, parse JSON response, validate against `VALID_CATEGORIES`
   - Update `transactions.category` and `transactions.subcategory`
-- [ ] Add `POST /transactions/recategorize` endpoint to trigger manually
-- [ ] Write `backend/tests/test_categorization.py` — mock Claude responses, test prompt structure
-- [ ] **Merged → `phase/3-intelligence-layer`**
+- [x] Add `POST /transactions/recategorize` endpoint to trigger manually
+- [x] Write `backend/tests/test_categorization.py` — 11 unit tests for all 3 pure functions
+- [x] Add `anthropic>=0.25.0` to `pyproject.toml`
+- [x] Register `tasks.categorize_transactions` in Celery include list
+- [x] **Merged → `phase/3-intelligence-layer`** — 50/50 tests green
 
 ---
 
@@ -213,7 +215,7 @@ subscriptions (
 
 - [x] Recurring bills detected from sandbox transaction history — 12 merchants identified
 - [x] Subscriptions table populated with `price_change_pct` computed
-- [ ] `OTHER` transactions recategorized via Claude — category distribution improved
+- [x] `OTHER` transactions recategorized via Claude — category distribution improved
 - [ ] Bills page shows list with urgency colors and next due dates
 - [ ] Subscriptions page shows monthly total and price creep badges
 - [ ] Dashboard shows upcoming bills + subscription spend cards
