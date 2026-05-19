@@ -108,27 +108,27 @@ develop
 
 ---
 
-### `feature/intelligence-ui`
+### `feature/intelligence-ui` ✅
 *Bills page, Subscriptions page, Bills Calendar, Dashboard intelligence cards*
 
 **Frontend:**
-- [ ] Build `app/(app)/bills/page.tsx`:
-  - Fetch `GET /bills` — display as list: merchant, frequency, avg amount, next due date
+- [x] Build `app/(app)/bills/page.tsx`:
+  - Fetch `GET /bills` — list with merchant, frequency, avg amount, next due date
   - Color-coded urgency: due within 7 days (red), 14 days (yellow), safe (green)
-  - Total upcoming bills this month summary card
-- [ ] Build `app/(app)/bills/calendar/page.tsx`:
-  - Monthly calendar grid
-  - Each bill plotted on its `next_due_date`
-  - Click bill → show details panel
-- [ ] Build `app/(app)/subscriptions/page.tsx`:
-  - Fetch `GET /subscriptions` — display as list with monthly cost
+  - "Due This Month" and "Total Tracked" summary cards
+- [x] Build `app/(app)/bills/calendar/page.tsx`:
+  - Monthly calendar grid with prev/next navigation
+  - Bills plotted as red pills on their `next_due_date`
+  - Today highlighted with indigo circle
+- [x] Build `app/(app)/subscriptions/page.tsx`:
+  - Fetch `GET /subscriptions` — list with monthly cost
   - Price creep badge on subscriptions with > 5% increase
-  - Total monthly subscription spend summary card
-- [ ] Update `app/(app)/dashboard/page.tsx`:
+  - Monthly total, active count, creep count summary cards
+- [x] Update `app/(app)/dashboard/page.tsx`:
   - Add "Upcoming Bills" card — total due in next 30 days
   - Add "Subscriptions" card — monthly total + count
-  - Add "Spending vs Last Month" card — % change with arrow indicator
-- [ ] **Merged → `phase/3-intelligence-layer`**
+  - Add "Spending This Month" card — % change ▲▼ vs last month
+- [x] **Merged → `phase/3-intelligence-layer`** — all 4 pages verified in browser
 
 ---
 
@@ -216,9 +216,9 @@ subscriptions (
 - [x] Recurring bills detected from sandbox transaction history — 12 merchants identified
 - [x] Subscriptions table populated with `price_change_pct` computed
 - [x] `OTHER` transactions recategorized via Claude — category distribution improved
-- [ ] Bills page shows list with urgency colors and next due dates
-- [ ] Subscriptions page shows monthly total and price creep badges
-- [ ] Dashboard shows upcoming bills + subscription spend cards
+- [x] Bills page shows list with urgency colors and next due dates
+- [x] Subscriptions page shows monthly total and price creep badges
+- [x] Dashboard shows upcoming bills + subscription spend cards
 - [ ] CI green on `main`
 
 ---
