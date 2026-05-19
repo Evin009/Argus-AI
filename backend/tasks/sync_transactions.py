@@ -104,4 +104,7 @@ def sync_transactions_for_user(user_id: str) -> dict:
             "id", item["id"]
         ).execute()
 
+    from tasks.detect_bills import detect_recurring_bills_for_user
+    detect_recurring_bills_for_user.delay(user_id)
+
     return {"user_id": user_id, "transactions_synced": total_added}

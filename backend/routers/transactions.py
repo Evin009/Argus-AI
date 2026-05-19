@@ -35,3 +35,10 @@ async def get_transactions(
 
     result = query.execute()
     return {"transactions": result.data, "total": result.count or 0}
+
+
+@router.post("/recategorize")
+async def recategorize_transactions(user_id: str = Depends(get_current_user)):
+    from tasks.categorize_transactions import recategorize_transactions_for_user
+    task = recategorize_transactions_for_user.delay(user_id)
+    return {"status": "categorizing", "task_id": task.id}
