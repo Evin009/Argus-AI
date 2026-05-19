@@ -54,77 +54,81 @@ develop
 
 ## Execution Checklist
 
-### `feature/bill-detection`
+### `feature/bill-detection` ✅
 *Detect recurring bills from transaction history*
 
 **Backend:**
-- [ ] Create `backend/tasks/detect_bills.py`:
+- [x] Create `backend/tasks/detect_bills.py`:
   - `detect_recurring_bills_for_user(user_id)` Celery task
   - Group transactions by merchant, compute median amount and interval
   - Classify as `monthly`, `weekly`, or `annual` based on date gaps
   - Upsert into `bills` table — merchant, recurrence_pattern, avg_amount, next_due_date
-- [ ] Write `backend/routers/bills.py` — `GET /bills` endpoint
-- [ ] Register `bills` router in `backend/main.py`
-- [ ] Chain `detect_recurring_bills_for_user` to fire after `sync_transactions_for_user` completes
-- [ ] Write `backend/tests/test_bill_detection.py` — unit tests for pattern detection logic
-- [ ] **Merged → `phase/3-intelligence-layer`**
+- [x] Write `backend/routers/bills.py` — `GET /bills` endpoint
+- [x] Register `bills` router in `backend/main.py`
+- [x] Chain `detect_recurring_bills_for_user` to fire after `sync_transactions_for_user` completes
+- [x] Write `backend/tests/test_bill_detection.py` — unit tests for pattern detection logic
+- [x] **Merged → `phase/3-intelligence-layer`**
 
 ---
 
-### `feature/subscription-tracker`
+### `feature/subscription-tracker` ✅
 *Track active subscriptions and detect price creep*
 
 **Backend:**
-- [ ] Create `backend/tasks/detect_subscriptions.py`:
+- [x] Create `backend/tasks/detect_subscriptions.py`:
   - `detect_subscriptions_for_user(user_id)` Celery task
   - Identify merchants with consistent monthly charges (subset of bills)
   - Compute `price_change_pct` — compare avg amount vs 3 months ago
   - Flag subscriptions with > 5% price increase as "creeping"
   - Upsert into `subscriptions` table
-- [ ] Write `backend/routers/subscriptions.py` — `GET /subscriptions` endpoint
-- [ ] Register `subscriptions` router in `backend/main.py`
-- [ ] Write `backend/tests/test_subscription_detection.py` — unit tests for creep detection
-- [ ] **Merged → `phase/3-intelligence-layer`**
+- [x] Write `backend/routers/subscriptions.py` — `GET /subscriptions` endpoint (filters `is_active=True`, ordered by `avg_amount` desc)
+- [x] Register `subscriptions` router in `backend/main.py`
+- [x] Migration 009 — `UNIQUE(user_id, merchant)` on `subscriptions` table
+- [x] Chain `detect_subscriptions_for_user` after `detect_recurring_bills_for_user`
+- [x] Write `backend/tests/test_subscription_detection.py` — 13 unit tests, all passing
+- [x] **Merged → `phase/3-intelligence-layer`** — 39/39 tests green, 12 subscriptions detected from sandbox data
 
 ---
 
-### `feature/ai-categorization`
+### `feature/ai-categorization` ✅
 *Improve transaction categories using Claude few-shot classification*
 
 **Backend:**
-- [ ] Create `backend/tasks/categorize_transactions.py`:
+- [x] Create `backend/tasks/categorize_transactions.py`:
   - `recategorize_transactions_for_user(user_id)` Celery task
-  - Pull uncategorized or `OTHER` transactions
+  - Pull `OTHER` transactions, batch in groups of 50
   - Build few-shot prompt with merchant + amount → category examples
-  - Call Claude claude-sonnet-4-6 with structured output (Pydantic validated)
+  - Call Claude claude-sonnet-4-6, parse JSON response, validate against `VALID_CATEGORIES`
   - Update `transactions.category` and `transactions.subcategory`
-- [ ] Add `POST /transactions/recategorize` endpoint to trigger manually
-- [ ] Write `backend/tests/test_categorization.py` — mock Claude responses, test prompt structure
-- [ ] **Merged → `phase/3-intelligence-layer`**
+- [x] Add `POST /transactions/recategorize` endpoint to trigger manually
+- [x] Write `backend/tests/test_categorization.py` — 11 unit tests for all 3 pure functions
+- [x] Add `anthropic>=0.25.0` to `pyproject.toml`
+- [x] Register `tasks.categorize_transactions` in Celery include list
+- [x] **Merged → `phase/3-intelligence-layer`** — 50/50 tests green
 
 ---
 
-### `feature/intelligence-ui`
+### `feature/intelligence-ui` ✅
 *Bills page, Subscriptions page, Bills Calendar, Dashboard intelligence cards*
 
 **Frontend:**
-- [ ] Build `app/(app)/bills/page.tsx`:
-  - Fetch `GET /bills` — display as list: merchant, frequency, avg amount, next due date
+- [x] Build `app/(app)/bills/page.tsx`:
+  - Fetch `GET /bills` — list with merchant, frequency, avg amount, next due date
   - Color-coded urgency: due within 7 days (red), 14 days (yellow), safe (green)
-  - Total upcoming bills this month summary card
-- [ ] Build `app/(app)/bills/calendar/page.tsx`:
-  - Monthly calendar grid
-  - Each bill plotted on its `next_due_date`
-  - Click bill → show details panel
-- [ ] Build `app/(app)/subscriptions/page.tsx`:
-  - Fetch `GET /subscriptions` — display as list with monthly cost
+  - "Due This Month" and "Total Tracked" summary cards
+- [x] Build `app/(app)/bills/calendar/page.tsx`:
+  - Monthly calendar grid with prev/next navigation
+  - Bills plotted as red pills on their `next_due_date`
+  - Today highlighted with indigo circle
+- [x] Build `app/(app)/subscriptions/page.tsx`:
+  - Fetch `GET /subscriptions` — list with monthly cost
   - Price creep badge on subscriptions with > 5% increase
-  - Total monthly subscription spend summary card
-- [ ] Update `app/(app)/dashboard/page.tsx`:
+  - Monthly total, active count, creep count summary cards
+- [x] Update `app/(app)/dashboard/page.tsx`:
   - Add "Upcoming Bills" card — total due in next 30 days
   - Add "Subscriptions" card — monthly total + count
-  - Add "Spending vs Last Month" card — % change with arrow indicator
-- [ ] **Merged → `phase/3-intelligence-layer`**
+  - Add "Spending This Month" card — % change ▲▼ vs last month
+- [x] **Merged → `phase/3-intelligence-layer`** — all 4 pages verified in browser
 
 ---
 
@@ -209,12 +213,12 @@ subscriptions (
 
 ## Definition of Done
 
-- [ ] Recurring bills detected from sandbox transaction history — at least 3 merchants identified
-- [ ] Subscriptions table populated with `price_change_pct` computed
-- [ ] `OTHER` transactions recategorized via Claude — category distribution improved
-- [ ] Bills page shows list with urgency colors and next due dates
-- [ ] Subscriptions page shows monthly total and price creep badges
-- [ ] Dashboard shows upcoming bills + subscription spend cards
+- [x] Recurring bills detected from sandbox transaction history — 12 merchants identified
+- [x] Subscriptions table populated with `price_change_pct` computed
+- [x] `OTHER` transactions recategorized via Claude — category distribution improved
+- [x] Bills page shows list with urgency colors and next due dates
+- [x] Subscriptions page shows monthly total and price creep badges
+- [x] Dashboard shows upcoming bills + subscription spend cards
 - [ ] CI green on `main`
 
 ---
