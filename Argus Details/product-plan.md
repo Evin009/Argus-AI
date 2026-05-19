@@ -67,8 +67,38 @@ This plan covers the full build of ArgusAI across 7 phases. Each phase builds on
 
 ---
 
+## Phase 3.5 — AI Intelligence Upgrade
+*Week 7 | Upgrades the intelligence layer from stats + classification into a reasoning financial analyst*
+
+**Goal:** Make the system reason like a senior financial analyst — interpret detected patterns, simulate forward implications, build a persistent model of each user's financial behavior, and produce structured actionable decisions.
+
+### Steps
+
+**Layer 1 — Per-Record Enrichment**
+1. Run DB migration — add `ai_enrichment JSONB` to `bills` and `subscriptions` tables; create `user_financial_profiles` table with RLS
+2. Build `enrich_detected_records` Celery task — one Claude call per sync, batches all bills and subscriptions; Claude annotates each with merchant context, confidence score, classification reasoning, duplicate flags, and cancel recommendations; writes back to `ai_enrichment` columns
+3. Chain `enrich_detected_records` to fire after `detect_subscriptions_for_user`
+
+**Layer 2 — Financial Analyst Reasoning Session**
+4. Build `synthesize_insights` Celery task — loads three memory types: working memory (current balances, enriched bills/subscriptions, last 90 days transactions), episodic memory (past `ai_insights` via pgvector similarity search), long-term profile (`user_financial_profiles.profile` JSONB)
+5. Construct analyst system prompt with financial analyst persona; apply Anthropic prompt caching on the static system prompt portion
+6. Claude reasons across the full financial picture — identifies signals, simulates forward implications, produces `analyst_decisions` array written to `ai_insights` with `insight_type: "analyst_decision"`
+7. After generating decisions, Claude writes back to `user_financial_profiles.profile` — appends new behavioral patterns, updates confidence scores on existing patterns, marks resolved issues, appends analyst notes
+8. Chain `synthesize_insights` to fire after `enrich_detected_records`
+
+**API + Frontend**
+9. Build `GET /insights` endpoint — returns `ai_insights` rows filtered by `insight_type=analyst_decision`, ordered by recency; supports `?signal_type=` and `?limit=` params
+10. Update `GET /bills` and `GET /subscriptions` to include `ai_enrichment` field in responses
+11. Build Intelligence Feed page (`app/(app)/intelligence/page.tsx`) — renders analyst decision cards grouped by `signal_type`, color-coded severity chips, reasoning + recommendation + simulation per card
+12. Add "Latest Intelligence" card to Dashboard — 2 most recent warning/critical decisions, links to feed
+13. Add enrichment drawer to Bills and Subscriptions pages — click any record to see Layer 1 analyst annotations
+
+**Deliverable:** Analyst reasoning after every sync, personalized profile growing over time, Intelligence Feed live, enriched bills and subscriptions
+
+---
+
 ## Phase 4 — AI Reports
-*Weeks 7–8 | Generates automated AI analysis*
+*Weeks 8–9 | Generates automated AI analysis*
 
 **Goal:** Surface anomalies, build RAG pipeline, generate monthly reports.
 

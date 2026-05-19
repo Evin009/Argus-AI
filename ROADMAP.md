@@ -1,6 +1,6 @@
 # ArgusAI — Project Roadmap
 
-> 14-week build plan across 7 phases. Each phase builds on the previous.
+> 16-week build plan across 8 phases. Each phase builds on the previous.
 
 ---
 
@@ -10,11 +10,12 @@
 |---|---|---|
 | Phase 1 — Foundation | ✅ Complete | 1–2 |
 | Phase 2 — Bank Data Pipeline | ✅ Complete | 3–4 |
-| Phase 3 — Intelligence Layer | ⬜ Not Started | 5–6 |
-| Phase 4 — AI Reports | ⬜ Not Started | 7–8 |
-| Phase 5 — Copilot + Simulations | ⬜ Not Started | 9–10 |
-| Phase 6 — New Features | ⬜ Not Started | 11–12 |
-| Phase 7 — Production Hardening | ⬜ Not Started | 13–14 |
+| Phase 3 — Intelligence Layer | 🔄 In Progress | 5–6 |
+| Phase 3.5 — AI Intelligence Upgrade | ⬜ Not Started | 7 |
+| Phase 4 — AI Reports | ⬜ Not Started | 8–9 |
+| Phase 5 — Copilot + Simulations | ⬜ Not Started | 10–11 |
+| Phase 6 — New Features | ⬜ Not Started | 12–13 |
+| Phase 7 — Production Hardening | ⬜ Not Started | 14–16 |
 
 ---
 
@@ -67,20 +68,39 @@
 
 ---
 
-## Phase 3 — Intelligence Layer ⬜
+## Phase 3 — Intelligence Layer 🔄
 **Goal:** Detect patterns, categorize spending, surface subscriptions and bills.
 
 | Deliverable | Status |
 |---|---|
-| Recurring bill detection engine — merchant + amount pattern matching | ⬜ Pending |
-| Subscription tracker + price creep detection (vs 3 months ago) | ⬜ Pending |
-| AI-powered transaction categorization — Claude few-shot classification | ⬜ Pending |
-| Behavioral spending intelligence — velocity spikes, category drift | ⬜ Pending |
-| `GET /bills`, `GET /subscriptions`, `GET /insights/spending` endpoints | ⬜ Pending |
-| Bills page with urgency colors and next due dates | ⬜ Pending |
-| Bills Calendar — monthly view, color-coded by urgency | ⬜ Pending |
-| Subscriptions page with price creep badges and monthly total | ⬜ Pending |
-| Dashboard updated with upcoming bills + subscription cards | ⬜ Pending |
+| Recurring bill detection engine — merchant + amount pattern matching | ✅ Done |
+| Subscription tracker + price creep detection (vs 3 months ago) | ✅ Done |
+| AI-powered transaction categorization — Claude few-shot classification | ✅ Done |
+| `GET /bills`, `GET /subscriptions` endpoints | ✅ Done |
+| Bills page with urgency colors and next due dates | ✅ Done |
+| Bills Calendar — monthly view, color-coded by urgency | ✅ Done |
+| Subscriptions page with price creep badges and monthly total | ✅ Done |
+| Dashboard updated with upcoming bills + subscription cards | ✅ Done |
+| CI green on `main` | ⬜ Pending |
+
+---
+
+## Phase 3.5 — AI Intelligence Upgrade ⬜
+**Goal:** Transform the intelligence layer from statistics + classification into a reasoning financial analyst with persistent memory.
+
+| Deliverable | Status |
+|---|---|
+| `user_financial_profiles` table + RLS | ⬜ Pending |
+| `bills.ai_enrichment` + `subscriptions.ai_enrichment` JSONB columns | ⬜ Pending |
+| `enrich_detected_records` Celery task — Layer 1, one Claude call per sync | ⬜ Pending |
+| `synthesize_insights` Celery task — Layer 2, analyst reasoning session | ⬜ Pending |
+| Analyst persona system prompt with prompt caching | ⬜ Pending |
+| Episodic memory — pgvector retrieval of past insights injected into analyst context | ⬜ Pending |
+| Long-term profile — Claude writes back behavioral patterns after each session | ⬜ Pending |
+| `GET /insights` endpoint — analyst decisions feed | ⬜ Pending |
+| Intelligence Feed page — `app/(app)/intelligence/page.tsx` | ⬜ Pending |
+| Dashboard "Latest Intelligence" card | ⬜ Pending |
+| Bills + subscriptions enrichment drawer | ⬜ Pending |
 | CI green on `main` | ⬜ Pending |
 
 ---
