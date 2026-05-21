@@ -1,21 +1,24 @@
 # ArgusAI — Project Roadmap
 
-> 16-week build plan across 8 phases. Each phase builds on the previous.
+> 22-week build plan across 9 phases. Each phase builds on the previous.
 
 ---
 
 ## Progress
 
-| Phase | Status | Weeks |
-|---|---|---|
-| Phase 1 — Foundation | ✅ Complete | 1–2 |
-| Phase 2 — Bank Data Pipeline | ✅ Complete | 3–4 |
-| Phase 3 — Intelligence Layer | 🔄 In Progress | 5–6 |
-| Phase 3.5 — AI Intelligence Upgrade | ⬜ Not Started | 7 |
-| Phase 4 — AI Reports | ⬜ Not Started | 8–9 |
-| Phase 5 — Copilot + Simulations | ⬜ Not Started | 10–11 |
-| Phase 6 — New Features | ⬜ Not Started | 12–13 |
-| Phase 7 — Production Hardening | ⬜ Not Started | 14–16 |
+| Phase | Title | Status | Weeks |
+|---|---|---|---|
+| Phase 1 | Foundation | ✅ Complete | 1–2 |
+| Phase 1.5 | Design System | ✅ Complete | 3–4 |
+| Phase 2 | Bank Data Pipeline | ✅ Complete | 5–6 |
+| Phase 3 | Intelligence Layer | 🔄 In Progress | 7–8 |
+| Phase 3.5 | AI Intelligence Upgrade | ⬜ Not Started | 9 |
+| Phase 4 | Continuous Intelligence & Memory | ⬜ Not Started | 10–11 |
+| Phase 5 | Daily Financial Pulse | ⬜ Not Started | 12–13 |
+| Phase 6 | Copilot & Advanced Simulations | ⬜ Not Started | 14–16 |
+| Phase 7 | Decision Intelligence | ⬜ Not Started | 17–18 |
+| Phase 8 | Platform Features | ⬜ Not Started | 19–20 |
+| Phase 9 | Production Hardening | ⬜ Not Started | 21–22 |
 
 ---
 
@@ -37,6 +40,19 @@
 | Frontend deployed to Vercel | ✅ Done |
 | Backend deployed to Railway | ✅ Done |
 | End-to-end auth flow verified on production | ✅ Done |
+
+---
+
+## Phase 1.5 — Design System ✅
+**Goal:** Consistent, polished UI foundation before any intelligence surfaces are built.
+
+| Deliverable | Status |
+|---|---|
+| Dark-mode design system — color tokens, typography scale, spacing | ✅ Done |
+| Reusable component library — cards, badges, stat tiles, drawers | ✅ Done |
+| Sidebar nav — icons, active states, section dividers | ✅ Done |
+| Dashboard shell — layout, empty states, skeleton loaders | ✅ Done |
+| Responsive layout verified across breakpoints | ✅ Done |
 
 ---
 
@@ -90,76 +106,149 @@
 
 | Deliverable | Status |
 |---|---|
-| `user_financial_profiles` table + RLS | ⬜ Pending |
-| `bills.ai_enrichment` + `subscriptions.ai_enrichment` JSONB columns | ⬜ Pending |
-| `enrich_detected_records` Celery task — Layer 1, one Claude call per sync | ⬜ Pending |
-| `synthesize_insights` Celery task — Layer 2, analyst reasoning session | ⬜ Pending |
-| Analyst persona system prompt with prompt caching | ⬜ Pending |
-| Episodic memory — pgvector retrieval of past insights injected into analyst context | ⬜ Pending |
-| Long-term profile — Claude writes back behavioral patterns after each session | ⬜ Pending |
-| `GET /insights` endpoint — analyst decisions feed | ⬜ Pending |
-| Intelligence Feed page — `app/(app)/intelligence/page.tsx` | ⬜ Pending |
-| Dashboard "Latest Intelligence" card | ⬜ Pending |
-| Bills + subscriptions enrichment drawer | ⬜ Pending |
+| Migration 010 — `ai_enrichment JSONB` on bills + subscriptions; `user_financial_profiles` table with RLS | ⬜ Pending |
+| `enrich_detected_records` Celery task — Layer 1, one Claude call per sync, annotates all bills + subscriptions | ⬜ Pending |
+| `synthesize_insights` Celery task — Layer 2, analyst reasoning session with three-tier memory | ⬜ Pending |
+| Analyst persona system prompt with Anthropic prompt caching | ⬜ Pending |
+| Episodic memory — last 5 `ai_insights` rows injected into analyst context | ⬜ Pending |
+| Long-term profile — Claude writes behavioral patterns to `user_financial_profiles` after every session | ⬜ Pending |
+| Updated Celery task chain: sync → detect_bills → detect_subscriptions → enrich → synthesize | ⬜ Pending |
+| `GET /insights` endpoint — analyst decisions feed with `?signal_type=` + `?limit=` filters | ⬜ Pending |
+| Intelligence Feed page — `app/(app)/intelligence/page.tsx` — cards grouped by signal type | ⬜ Pending |
+| Dashboard "Latest Intelligence" card — 2 most recent warning/critical decisions | ⬜ Pending |
+| Bills enrichment drawer — click any bill to see Layer 1 analyst annotations | ⬜ Pending |
+| Subscriptions enrichment drawer — click any subscription to see annotations + cancel recommendation | ⬜ Pending |
 | CI green on `main` | ⬜ Pending |
 
 ---
 
-## Phase 4 — AI Reports ⬜
-**Goal:** Surface anomalies, build RAG pipeline, generate monthly reports.
+## Phase 4 — Continuous Intelligence & Memory ⬜
+**Goal:** Anomaly detection, full RAG on insights history, financial memory timeline, and continuous briefing engine.
 
-- Anomaly detection (z-score outlier flagging, duplicate detection)
-- RAG retrieval pipeline (pgvector cosine search via `RAGRetriever`)
-- Monthly report generator — Celery task, Claude + RAG context, stored in `ai_insights`
-- Reports index + individual report pages
-
----
-
-## Phase 5 — Copilot + Simulations ⬜
-**Goal:** All AI intelligence systems live — Copilot, engines, Health Score, Risk Radar, simulators.
-
-- `CashflowEngine` — 30–60 day forward balance projection with confidence bands
-- `DebtSimulator` — Snowball vs. Avalanche with month-by-month payoff schedules
-- `HealthScoreEngine` — 0–100 composite score across 4 dimensions, updates daily
-- `RiskRadarEngine` — overdraft probability, utilization alerts, upcoming bill warnings
-- `ScenarioEngine` — re-runs cashflow with modified income/expense inputs
-- Goal-Based AI Savings Planner — target + date → monthly milestone roadmap
-- Multi-agent system (LangGraph — Supervisor + CashflowAgent + RiskAgent + DebtAgent)
-- `POST /copilot/chat` SSE streaming endpoint
-- All intelligence pages: Cashflow, Risk Radar, Health Score, Copilot, Goals, Behavioral Insights, Simulators
+| Deliverable | Status |
+|---|---|
+| Anomaly detection — z-score outlier flagging, duplicate charge detection, foreign transaction flags | ⬜ Pending |
+| RAG pipeline upgrade — pgvector similarity search on `ai_insights` for richer episodic memory | ⬜ Pending |
+| `Financial Memory Timeline` — auto-generated chronological ledger of significant financial events | ⬜ Pending |
+| Continuous Intelligence Briefing — brief fires after every significant event, not monthly schedule | ⬜ Pending |
+| Behavioral Spending Intelligence — velocity spikes, day-of-week patterns, impulse cluster detection | ⬜ Pending |
+| Financial Stress Index — pressure label (Low / Moderate / High / Critical) derived from balance ratio, days to next income, spending volatility | ⬜ Pending |
+| `GET /insights/memory` endpoint — paginated financial memory timeline | ⬜ Pending |
+| `GET /insights/stress` endpoint — current stress index with contributing factors | ⬜ Pending |
+| Memory Timeline page — `app/(app)/memory/page.tsx` | ⬜ Pending |
+| Behavioral Insights page — `app/(app)/behavioral/page.tsx` | ⬜ Pending |
+| Financial Stress Index card on Dashboard | ⬜ Pending |
+| CI green on `main` | ⬜ Pending |
 
 ---
 
-## Phase 6 — New Features ⬜
-**Goal:** Add three differentiating intelligence features.
+## Phase 5 — Daily Financial Pulse ⬜
+**Goal:** Features users open every morning — Safe to Spend, Weather Forecast, Pay Timing Intelligence, and Risk Radar.
 
-**Smart Payment Allocation**
-- `PaymentAllocationEngine` — priority-ordered allocation across cards, bills, savings with buffer floor
-- Integrated as `PaymentAgent` in multi-agent supervisor
-
-**Bonus Recommender**
-- `BonusSearchEngine` — Brave Search API + Claude to extract structured bonus offers
-- Filters institutions user already has, caches 24h
-- Integrated as `BonusAgent` in multi-agent supervisor
-
-**Credit Score**
-- Experian Connect API integration (sandbox → development)
-- Soft-pull credit report, score history, Claude-powered recommendations
-- Integrated as `CreditAgent` in multi-agent supervisor
+| Deliverable | Status |
+|---|---|
+| Safe to Spend Today engine — daily number after subtracting committed bills, savings goals, buffer reserve | ⬜ Pending |
+| Financial Weather Forecast — human-readable 7-day and 30-day risk narrative using weather metaphors | ⬜ Pending |
+| Pay Timing Intelligence — credit utilization optimizer (closing date vs. due date) + bill stacking detector | ⬜ Pending |
+| Budget Strategy from Bill Changes — adaptive budget recalculation when any bill changes + 3 absorption options | ⬜ Pending |
+| `RiskRadarEngine` — overdraft probability scoring, utilization alerts, upcoming bill warnings, fires into `ai_insights` | ⬜ Pending |
+| `GET /insights/safe-to-spend` — daily safe spend calculation with breakdown | ⬜ Pending |
+| `GET /insights/weather` — 30-day financial weather forecast | ⬜ Pending |
+| `GET /insights/pay-timing` — optimal pay dates + amounts per credit card | ⬜ Pending |
+| `GET /insights/risk` — Risk Radar alerts ordered by severity | ⬜ Pending |
+| Safe to Spend widget prominent on Dashboard — large number with breakdown | ⬜ Pending |
+| Weather Forecast page — `app/(app)/forecast/page.tsx` | ⬜ Pending |
+| Risk Radar page — `app/(app)/risk/page.tsx` | ⬜ Pending |
+| Pay Timing card on Dashboard | ⬜ Pending |
+| CI green on `main` | ⬜ Pending |
 
 ---
 
-## Phase 7 — Production Hardening ⬜
-**Goal:** Secure, monitored, rate-limited, load-tested, fully deployed. Tag `v1.0.0`.
+## Phase 6 — Copilot & Advanced Simulations ⬜
+**Goal:** Full AI copilot, all simulation engines, financial health scoring, and goal planning.
 
-- Security audit (RLS, auth, IDOR, SQL injection, Plaid token exposure)
-- Sync reliability indicator per account — last-synced timestamp + health badge (green/amber/red)
-- Per-user rate limiting (`slowapi` — 60/min standard, 10/min AI endpoints)
-- DB connection pooling via PgBouncer
-- Performance indexes on hot query paths
-- Load testing with Locust (100 concurrent users, P95 < 500ms)
-- Sentry (error tracking) + Axiom (logs)
-- Custom transactional email via SMTP (Resend/Postmark) — replace Supabase default with branded `noreply@argusai.com`
-- UI polish — loading states, empty states, error boundaries, accessibility
-- Full production smoke test
-- Tag `v1.0.0`
+| Deliverable | Status |
+|---|---|
+| `CashflowEngine` — 30–60 day forward balance projection with probability-weighted confidence bands | ⬜ Pending |
+| `HealthScoreEngine` — 0–100 composite score across 4 dimensions (Liquidity, Stability, Debt Load, Spending Volatility), updates daily | ⬜ Pending |
+| `DebtSimulator` — Snowball vs. Avalanche run inside cashflow engine — shows cash-safe strategy, not just math-optimal | ⬜ Pending |
+| `ScenarioEngine` — re-runs cashflow with modified income/expense sliders, real-time impact on Health Score + goals | ⬜ Pending |
+| Life Event Simulator — templates for marriage, child, house, job change, sabbatical, relocation, school | ⬜ Pending |
+| Obstacle-Aware Goal Planning — target + date → milestone roadmap with identified shortfall months + recovery plan | ⬜ Pending |
+| AI Decision Engine — `POST /copilot/decide` — structured affordability analysis with downstream simulation | ⬜ Pending |
+| LangGraph multi-agent system — Supervisor + CashflowAgent + RiskAgent + DebtAgent + GoalAgent | ⬜ Pending |
+| `POST /copilot/chat` SSE streaming endpoint wired to real agents + RAG | ⬜ Pending |
+| `GET /engines/cashflow` — 60-day balance curve with confidence bands | ⬜ Pending |
+| `GET /engines/health-score` — current score + dimension breakdown | ⬜ Pending |
+| `POST /engines/debt-sim` — Snowball vs. Avalanche schedule + cashflow safety analysis | ⬜ Pending |
+| `POST /engines/scenario` — re-run forecast with modified inputs | ⬜ Pending |
+| Cashflow page — `app/(app)/cashflow/page.tsx` — probability curve + confidence bands | ⬜ Pending |
+| Health Score page — `app/(app)/health/page.tsx` — score + 4-dimension breakdown | ⬜ Pending |
+| Debt Simulator page — `app/(app)/debt/page.tsx` | ⬜ Pending |
+| Scenario Simulator page — `app/(app)/simulator/page.tsx` | ⬜ Pending |
+| Life Event Simulator page — `app/(app)/life-events/page.tsx` | ⬜ Pending |
+| Goals page — `app/(app)/goals/page.tsx` — obstacle-aware milestone tracking | ⬜ Pending |
+| AI Copilot page — `app/(app)/copilot/page.tsx` — streaming chat | ⬜ Pending |
+| CI green on `main` | ⬜ Pending |
+
+---
+
+## Phase 7 — Decision Intelligence ⬜
+**Goal:** Close the loop between insight and action — journals, ROI scoring, negotiation intelligence, and payment routing.
+
+| Deliverable | Status |
+|---|---|
+| AI Decision Journal — log major financial commitments, 90–180 day impact tracking + check-in reports | ⬜ Pending |
+| Subscription ROI Scoring — infer usage from transaction patterns, compute cost-per-use, flag low-ROI subscriptions | ⬜ Pending |
+| Bill Negotiation + Alternative Detection — 3-stage: usage analysis → cheaper alternatives → negotiation script with timing | ⬜ Pending |
+| Payment Intelligence Layer — card routing optimizer (which card for which category) + credit card payment optimizer (closing date aware) | ⬜ Pending |
+| Smart Payment Allocation — paycheck split recommendation: cards, bills, savings, discretionary with buffer floor | ⬜ Pending |
+| `POST /decisions/journal` — log a financial decision | ⬜ Pending |
+| `GET /decisions/journal` — all logged decisions with downstream impact reports | ⬜ Pending |
+| `GET /subscriptions/roi` — subscriptions with ROI scores and cost-per-use | ⬜ Pending |
+| `GET /subscriptions/negotiate` — negotiation intelligence per subscription | ⬜ Pending |
+| `GET /insights/payment-routing` — card-to-category routing recommendations | ⬜ Pending |
+| `POST /insights/payment-plan` — paycheck allocation plan | ⬜ Pending |
+| Decision Journal page — `app/(app)/journal/page.tsx` — logged decisions + 90-day impact timeline | ⬜ Pending |
+| Bill Negotiation page — `app/(app)/negotiate/page.tsx` — ROI scores + alternatives + scripts | ⬜ Pending |
+| Payment Intelligence page — `app/(app)/payments/page.tsx` — card routing + paycheck split | ⬜ Pending |
+| ROI badges added to Subscriptions page | ⬜ Pending |
+| CI green on `main` | ⬜ Pending |
+
+---
+
+## Phase 8 — Platform Features ⬜
+**Goal:** Bonus discovery, credit score integration, and spending streak tracking.
+
+| Deliverable | Status |
+|---|---|
+| Bonus Recommender — Brave Search + Claude extracts current checking/card/savings bonuses tailored to user's profile | ⬜ Pending |
+| Credit Score Integration — Experian Connect soft-pull, score history, factor breakdown, Claude-powered improvement recommendations | ⬜ Pending |
+| Spending Streak Tracker — consecutive weeks under budget per category; stored as `insight_type = 'streak'` | ⬜ Pending |
+| `BonusAgent` added to multi-agent supervisor | ⬜ Pending |
+| `CreditAgent` added to multi-agent supervisor | ⬜ Pending |
+| `GET /bonuses` — live bonus offers filtered to user's profile | ⬜ Pending |
+| `GET /credit/score` + `GET /credit/history` + `POST /credit/connect` endpoints | ⬜ Pending |
+| Bonus Recommender page — `app/(app)/bonuses/page.tsx` | ⬜ Pending |
+| Credit Score page — `app/(app)/credit/page.tsx` — score + history + improvement plan | ⬜ Pending |
+| Streak badges visible on Dashboard and Behavioral Insights page | ⬜ Pending |
+| CI green on `main` | ⬜ Pending |
+
+---
+
+## Phase 9 — Production Hardening ⬜
+**Goal:** Secure, monitored, rate-limited, load-tested. Tag `v1.0.0`.
+
+| Deliverable | Status |
+|---|---|
+| Security audit — RLS on all tables, IDOR checks, SQL injection, Plaid token exposure | ⬜ Pending |
+| Per-user rate limiting — `slowapi`, 60/min standard, 10/min AI endpoints | ⬜ Pending |
+| DB connection pooling via PgBouncer | ⬜ Pending |
+| Performance indexes on hot query paths | ⬜ Pending |
+| Load testing with Locust — 100 concurrent users, P95 < 500ms | ⬜ Pending |
+| Sentry (error tracking) + Axiom (structured logs) | ⬜ Pending |
+| Custom branded email — Resend/Postmark via `noreply@argusai.com`, all Supabase auth templates customized | ⬜ Pending |
+| Sync reliability indicator per account — last-synced timestamp + health badge (green/amber/red) | ⬜ Pending |
+| UI polish — loading states, empty states, error boundaries, accessibility pass | ⬜ Pending |
+| Full production smoke test | ⬜ Pending |
+| Tag `v1.0.0` | ⬜ Pending |

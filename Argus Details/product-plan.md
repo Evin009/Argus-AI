@@ -2,218 +2,357 @@
 
 ## Overview
 
-This plan covers the full build of ArgusAI across 7 phases. Each phase builds on the last. Features are grouped by dependency — nothing is built until its foundation is ready.
+This plan covers the full build of ArgusAI across 9 phases. Each phase builds on the last. Features are grouped by dependency — nothing is built until its foundation is ready.
 
 **Tech Stack Summary**
 - Backend: FastAPI (Python 3.11+), Supabase PostgreSQL, Redis + Celery
-- AI: Claude Sonnet (Anthropic), LangGraph multi-agent, OpenAI embeddings
+- AI: Claude Sonnet 4.6 (Anthropic), LangGraph multi-agent, OpenAI text-embedding-3-small
 - Frontend: Next.js 14+, TypeScript, Tailwind CSS
 - Bank Data: Plaid API
-- Hosting: Vercel (frontend), Railway/Fly.io (backend)
+- Hosting: Vercel (frontend), Railway (backend + Celery worker)
 
 ---
 
-## Phase 1 — Foundation
-*Weeks 1–2 | Sets up the entire infrastructure*
+## Phase 1 — Foundation ✅
+*Weeks 1–2 | Infrastructure baseline*
 
-**Goal:** Get the project structure, database, auth, and CI/CD running.
+**Goal:** Running skeleton. Auth, DB, CI/CD, and local dev ready.
 
 ### Steps
-1. Initialize Supabase project — create all 8 DB tables with proper foreign keys and Row-Level Security policies
-2. Create FastAPI app (`backend/main.py`) with CORS middleware and health check endpoint
-3. Build auth middleware (`backend/middleware/auth.py`) — JWT verification via Supabase, `get_current_user` dependency used by all routes
-4. Create shared DB client (`backend/db/client.py`) — centralized Supabase client factory
+1. Initialize Supabase project — 8 DB tables with foreign keys and RLS policies
+2. Create FastAPI app with CORS middleware and health check endpoint
+3. Build auth middleware — JWT verification via Supabase, `get_current_user` dependency
+4. Create shared DB client — centralized Supabase client factory
 5. Scaffold Next.js 14+ frontend with TypeScript and Tailwind
-6. Build auth pages: Login, Sign Up, OAuth callback
-7. Set up GitHub Actions CI/CD — lint, test, deploy on merge to main
-8. Configure environment variables across local `.env` and Railway/Vercel secrets
+6. Build auth pages: Login, Sign Up, OAuth callback, verify-email
+7. Set up GitHub Actions CI — ruff lint + pytest, deploy on merge to `main`
+8. Configure environment variables across `.env`, Railway secrets, and Vercel
 
-**Deliverable:** Running server, working auth, deployed skeleton app
+**Deliverable:** Running server, working auth, deployed skeleton
 
 ---
 
-## Phase 2 — Bank Data Pipeline
-*Weeks 3–4 | Gets real financial data into the system*
+## Phase 1.5 — Design System ✅
+*Weeks 3–4 | UI foundation*
 
-**Goal:** Connect bank accounts via Plaid and store all transactions.
+**Goal:** Consistent, polished dark-mode design system before any intelligence surfaces are built.
 
 ### Steps
-1. Build Plaid Link integration — generate link token, handle OAuth redirect, exchange public token for access token
-2. Encrypt and store access tokens in `plaid_items` table (AES-256)
-3. Build transaction sync Celery task — call Plaid `/transactions/sync`, normalize data, upsert into `transactions` table (idempotent by `plaid_transaction_id`)
-4. Build embedding generation task — for each new transaction, call OpenAI `text-embedding-3-small`, store 1536-dim vector in `transactions.embedding`
-5. Create Supabase RPC function `match_transactions_by_embedding` for pgvector cosine search
-6. Build frontend: Bank linking flow, accounts overview page, transactions list
+1. Define color tokens, typography scale, and spacing system in Tailwind config
+2. Build reusable component library — cards, stat tiles, badges, drawers, skeleton loaders
+3. Build sidebar nav — icons, active states, section dividers, responsive collapse
+4. Build dashboard shell — grid layout, empty states, onboarding flow
+5. Verify responsive layout across mobile, tablet, and desktop breakpoints
+
+**Deliverable:** Design system live, all existing pages using shared components
+
+---
+
+## Phase 2 — Bank Data Pipeline ✅
+*Weeks 5–6 | Real financial data*
+
+**Goal:** Connect bank accounts via Plaid, sync and embed all transactions.
+
+### Steps
+1. Build Plaid Link integration — generate link token, handle OAuth redirect, exchange token
+2. Encrypt and store access tokens in `plaid_items` (AES-256)
+3. Build transaction sync Celery task — call Plaid `/transactions/sync`, normalize, upsert idempotent by `plaid_transaction_id`
+4. Build embedding generation task — `text-embedding-3-small`, store 1536-dim vector in `transactions.embedding`
+5. Create Supabase RPC `match_transactions_by_embedding` for pgvector cosine search
+6. Build frontend: Bank linking flow, accounts overview page, transactions table with pagination + filters
 
 **Deliverable:** User can link a bank, transactions sync automatically, embeddings stored
 
 ---
 
-## Phase 3 — Intelligence Layer
-*Weeks 5–6 | Turns raw transactions into insights*
+## Phase 3 — Intelligence Layer 🔄
+*Weeks 7–8 | Pattern detection and classification*
 
-**Goal:** Detect patterns, categorize spending, and surface subscriptions and bills.
+**Goal:** Detect recurring bills and subscriptions, categorize spending with AI.
 
 ### Steps
-1. Build recurring bill detection — analyze transaction history for same-merchant charges on consistent intervals, write detected bills to `bills` table
-2. Build subscription tracker — identify software/streaming/service charges, detect price creep vs. 3 months ago, write to `subscriptions` table
-3. Build AI categorization — Claude classifies each transaction into a category using few-shot prompting; update `transactions.category`
-4. Build behavioral spending intelligence — detect velocity spikes, day-of-week patterns, category-level drift from baseline
-5. Build Spending Streak Tracker — track consecutive weeks under budget per category; store as `insight_type = 'streak'` in `ai_insights`; surface in Dashboard and Behavioral Insights page
-6. Build Bill Due Date Calendar view — monthly calendar page (`/bills/calendar`) showing all upcoming bills color-coded by urgency (red <7 days, amber 8–14 days)
-7. Build frontend: Dashboard (spending summary), Bills page, Bills Calendar page, Subscriptions page
+1. Build recurring bill detection — group transactions by merchant, compute median intervals, classify as `monthly` / `weekly` / `annual`, upsert to `bills` table
+2. Build subscription tracker — subset bills to known service/software merchants, compute `price_change_pct` vs. 3 months ago, flag creeping subscriptions, upsert to `subscriptions` table
+3. Build AI categorization — Claude few-shot classification for `OTHER` transactions, batched in groups of 50, update `transactions.category` and `transactions.subcategory`
+4. Chain Celery tasks: `sync_transactions` → `detect_bills` → `detect_subscriptions` → `recategorize_transactions`
+5. Build `GET /bills` and `GET /subscriptions` endpoints
+6. Build Bills page — urgency color-coding (red <7 days, amber <14 days, green safe)
+7. Build Bills Calendar — monthly grid with bills plotted on `next_due_date`, today highlighted
+8. Build Subscriptions page — monthly total, active count, price creep badges
+9. Update Dashboard — upcoming bills total card, subscriptions spend card, spending vs. last month card
 
-**Deliverable:** Bills and subscriptions identified automatically, transactions categorized, spending streaks tracked, bill calendar live
+**Deliverable:** Bills and subscriptions identified automatically, transactions categorized, all pages verified in browser
 
 ---
 
-## Phase 3.5 — AI Intelligence Upgrade
-*Week 7 | Upgrades the intelligence layer from stats + classification into a reasoning financial analyst*
+## Phase 3.5 — AI Intelligence Upgrade ⬜
+*Week 9 | Reasoning analyst with persistent memory*
 
-**Goal:** Make the system reason like a senior financial analyst — interpret detected patterns, simulate forward implications, build a persistent model of each user's financial behavior, and produce structured actionable decisions.
+**Goal:** Transform detection output from statistics into analyst-quality reasoning that learns each user's financial behavior over time.
 
 ### Steps
+
+**Database**
+1. Write and apply `backend/migrations/010_phase_3_5_intelligence.sql`:
+   - `ALTER TABLE bills ADD COLUMN IF NOT EXISTS ai_enrichment JSONB`
+   - `ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS ai_enrichment JSONB`
+   - Create `user_financial_profiles` table (`user_id UNIQUE`, `profile JSONB`, `analyst_version`, `last_enriched_at`, `last_updated`)
+   - RLS policy on `user_financial_profiles` scoped to `auth.uid()`
 
 **Layer 1 — Per-Record Enrichment**
-1. Run DB migration — add `ai_enrichment JSONB` to `bills` and `subscriptions` tables; create `user_financial_profiles` table with RLS
-2. Build `enrich_detected_records` Celery task — one Claude call per sync, batches all bills and subscriptions; Claude annotates each with merchant context, confidence score, classification reasoning, duplicate flags, and cancel recommendations; writes back to `ai_enrichment` columns
-3. Chain `enrich_detected_records` to fire after `detect_subscriptions_for_user`
+2. Create `backend/tasks/enrich_detected_records.py`:
+   - `_SYSTEM_PROMPT` — enrichment persona (Anthropic prompt caching applied)
+   - `_build_enrichment_prompt(bills, subscriptions)` — batches all records into one Claude call
+   - `_parse_enrichment_response(response_text)` — returns `{"bills": [...], "subscriptions": [...]}`
+   - `enrich_detected_records_for_user(user_id)` Celery task — writes `ai_enrichment` JSON back to each record, updates `last_enriched_at`
+3. Chain: add `enrich_detected_records_for_user.delay(user_id)` at end of `detect_subscriptions_for_user`
+4. Write 8 unit tests for all 3 pure functions in `backend/tests/test_enrich_detected_records.py`
 
-**Layer 2 — Financial Analyst Reasoning Session**
-4. Build `synthesize_insights` Celery task — loads three memory types: working memory (current balances, enriched bills/subscriptions, last 90 days transactions), episodic memory (past `ai_insights` via pgvector similarity search), long-term profile (`user_financial_profiles.profile` JSONB)
-5. Construct analyst system prompt with financial analyst persona; apply Anthropic prompt caching on the static system prompt portion
-6. Claude reasons across the full financial picture — identifies signals, simulates forward implications, produces `analyst_decisions` array written to `ai_insights` with `insight_type: "analyst_decision"`
-7. After generating decisions, Claude writes back to `user_financial_profiles.profile` — appends new behavioral patterns, updates confidence scores on existing patterns, marks resolved issues, appends analyst notes
-8. Chain `synthesize_insights` to fire after `enrich_detected_records`
+**Layer 2 — Analyst Reasoning Session**
+5. Create `backend/tasks/synthesize_insights.py`:
+   - `_ANALYST_SYSTEM_PROMPT` — financial analyst persona (prompt cached)
+   - `_aggregate_transactions(transactions)` — groups last 90 days by category, computes monthly baseline and 30-day total
+   - `_build_analyst_brief(accounts, bills, subscriptions, tx_summary, past_insights, profile)` — assembles full context
+   - `_parse_synthesis_response(response_text)` — returns `{"decisions": [...], "updated_profile": {...}}`
+   - `synthesize_insights_for_user(user_id)` Celery task — loads three memory types (working + episodic + long-term profile), calls Claude, writes `analyst_decision` rows to `ai_insights`, upserts profile
+6. Chain: add `synthesize_insights_for_user.delay(user_id)` at end of `enrich_detected_records_for_user`
+7. Write 8 unit tests for all 3 pure functions in `backend/tests/test_synthesize_insights.py`
 
-**API + Frontend**
-9. Build `GET /insights` endpoint — returns `ai_insights` rows filtered by `insight_type=analyst_decision`, ordered by recency; supports `?signal_type=` and `?limit=` params
-10. Update `GET /bills` and `GET /subscriptions` to include `ai_enrichment` field in responses
-11. Build Intelligence Feed page (`app/(app)/intelligence/page.tsx`) — renders analyst decision cards grouped by `signal_type`, color-coded severity chips, reasoning + recommendation + simulation per card
-12. Add "Latest Intelligence" card to Dashboard — 2 most recent warning/critical decisions, links to feed
-13. Add enrichment drawer to Bills and Subscriptions pages — click any record to see Layer 1 analyst annotations
+**API**
+8. Create `backend/routers/insights.py` — `GET /insights` filtered by `insight_type=analyst_decision`, ordered by recency; supports `?limit=` (max 50) and `?signal_type=` params
+9. Register `insights` router in `backend/main.py`
+10. Add `"tasks.enrich_detected_records"` and `"tasks.synthesize_insights"` to Celery include list
 
-**Deliverable:** Analyst reasoning after every sync, personalized profile growing over time, Intelligence Feed live, enriched bills and subscriptions
+**Frontend**
+11. Build Intelligence Feed page `app/(app)/intelligence/page.tsx` — cards grouped by signal type (risk → behavioral → anomaly → subscription → opportunity), severity color chips, reasoning + recommendation + simulation per card
+12. Add Intelligence nav item to `app/(app)/layout.tsx` — after Subscriptions, before first divider
+13. Update Dashboard — add `AnalystDecision` type, fetch `GET /insights?limit=2`, render Latest Intelligence card (full-width, above Recent Transactions)
+14. Update Bills page — add `BillEnrichment` type, `selectedBill` state, clickable rows, enrichment drawer (merchant context, classification note, confidence, subscription candidate flag)
+15. Update Subscriptions page — add `SubscriptionEnrichment` type, `selectedSub` state, clickable rows, enrichment drawer (service category, price trend interpretation, duplicate flag, cancel recommendation)
 
----
-
-## Phase 4 — AI Reports
-*Weeks 8–9 | Generates automated AI analysis*
-
-**Goal:** Surface anomalies, build RAG pipeline, generate monthly reports.
-
-### Steps
-1. Build anomaly detection — statistical outlier detection on transaction amounts per category; flag duplicates, spikes, foreign charges
-2. Wire RAG retrieval pipeline — `RAGRetriever` class using pgvector cosine search to pull relevant transaction context for any query
-3. Build monthly report generator — Celery task that runs on the 1st of each month; Claude generates personalized summary using RAG context; stores in `ai_insights`
-4. Build frontend: Reports index page, individual monthly report view
-
-**Deliverable:** Anomalies flagged, RAG working, monthly reports generating automatically
+**Deliverable:** Analyst reasoning after every sync, personalized profile growing over time, Intelligence Feed live, enriched drawers on bills and subscriptions
 
 ---
 
-## Phase 5 — Copilot + Simulations
-*Weeks 9–10 | All AI intelligence systems live*
+## Phase 4 — Continuous Intelligence & Memory ⬜
+*Weeks 10–11 | Anomaly detection, memory timeline, behavioral intelligence, stress index*
 
-**Goal:** Activate the AI copilot and all simulation engines.
+**Goal:** Detect unusual patterns, build the user's financial memory, track behavioral signals, and surface a real-time pressure indicator.
 
 ### Steps
-1. Build `CashflowEngine` — 30–60 day forward balance projection using historical patterns and known bills; outputs daily balance curve with confidence bands
-2. Build `DebtSimulator` — Snowball vs. Avalanche calculation; month-by-month payoff schedule
-3. Build `HealthScoreEngine` — 0–100 score across 4 dimensions: Liquidity, Stability, Debt Load, Spending Volatility; updates daily
-4. Build `RiskRadarEngine` — overdraft probability model, credit utilization alerts, upcoming bill warnings; fires alerts into `ai_insights`
-5. Build `ScenarioEngine` — re-runs cashflow forecast with modified income/expense inputs for what-if simulations
-6. Wire all engines to agent tools in `tools.py` (replacing placeholders)
-7. Wire `supervisor.py` multi-agent graph — 3 specialist agents (CashflowAgent, RiskAgent, DebtAgent) routing to correct engine
-8. Build `POST /copilot/chat` SSE streaming endpoint (already scaffolded — wire to real agents)
-9. Build `Goal-Based Savings Planner` — user sets target + date, Claude generates monthly milestone roadmap
-10. Build frontend: Cashflow page, Risk Radar, Health Score, Copilot chat, Goals, Behavioral Insights, Debt Simulator, Scenario Simulator
+1. Build anomaly detection — z-score outlier detection per category (flag transactions > 2 SD from 90-day mean), duplicate charge detection (same merchant + amount within 3 days), foreign transaction flagging; write anomalies to `ai_insights` with `insight_type = 'anomaly'`
+2. Upgrade RAG pipeline — add pgvector similarity search on `ai_insights` to replace recency-only episodic memory; `synthesize_insights` now retrieves top-5 semantically relevant past decisions instead of just latest 5
+3. Build Financial Memory Timeline engine — on every sync, scan for significant financial events (new subscriptions, price increases, rent changes, spending spikes, goal milestones, debt payoffs); append events to a `financial_memory` table ordered by date
+4. Build Continuous Intelligence Briefing — after every sync, if a significant event occurred (large transaction, bill change, pattern crossing threshold), generate a brief and write to `ai_insights` with `insight_type = 'continuous_briefing'`; replaces monthly report cadence
+5. Build Behavioral Spending Intelligence — velocity spike detection (current 7-day spend > 130% of 7-day moving average), day-of-week pattern modeling (average spend by weekday over 90 days), impulse purchase cluster detection (3+ transactions at same merchant type within 48h); write behavioral signals to `ai_insights`
+6. Build Financial Stress Index engine — compute ratio of upcoming bills (14 days) to current balance, days until next income vs. current balance, 7-day spending volatility, accounts below safe threshold; output stress label (`LOW` / `MODERATE` / `HIGH` / `CRITICAL`) with contributing factors
+7. Create `financial_memory` DB table — `user_id`, `event_type`, `description`, `amount`, `occurred_at`, `created_at`; RLS scoped to user
+8. Build `GET /insights/memory` endpoint — paginated financial memory timeline, newest first
+9. Build `GET /insights/stress` endpoint — current stress index with breakdown of contributing factors
+10. Build `GET /insights/anomalies` endpoint — anomalies ordered by severity
+11. Build Memory Timeline page `app/(app)/memory/page.tsx` — chronological event feed with event type icons and amounts
+12. Build Behavioral Insights page `app/(app)/behavioral/page.tsx` — behavioral signals, velocity chart, day-of-week spend heatmap
+13. Add Financial Stress Index card to Dashboard — large label + contributing factors
 
-**Deliverable:** Full AI copilot working, all simulations live, health score updating daily
+**Deliverable:** Anomalies flagged, memory timeline auto-populated, behavioral intelligence active, stress index live on dashboard
 
 ---
 
-## Phase 6 — New Features
-*Weeks 11–12 | Payment Allocation, Bonus Recommender, Credit Score*
+## Phase 5 — Daily Financial Pulse ⬜
+*Weeks 12–13 | Safe to Spend, Weather Forecast, Pay Timing, Risk Radar*
 
-**Goal:** Add the three new planned features.
+**Goal:** The features users open every morning. Makes ArgusAI a daily habit rather than a monthly check-in.
+
+### Steps
+1. Build Safe to Spend Today engine — pull current balance, subtract all bills due in 14 days, subtract active savings goal contributions, subtract configurable buffer reserve; output single number + itemized breakdown; recompute nightly via Celery beat
+2. Build Financial Weather Forecast engine — generate 7-day and 30-day forward narrative using balance projection + bill schedule + spending velocity; classify each day/window into a weather-metaphor risk level (Clear / Mild Turbulence / Storm Warning); output structured forecast with plain-English summary per window
+3. Build Pay Timing Intelligence engine:
+   - *Credit utilization optimizer:* for each credit card, identify statement closing date (inferred from transaction history), compute payment amount needed to hit target utilization (default 8%), output `pay_by` date and `pay_amount`
+   - *Bill stacking detector:* find 3-day windows where total bills exceed projected balance; for stacked bills, identify which have grace periods and output priority-ordered payment schedule to avoid penalties
+4. Build Budget Strategy from Bill Changes engine — on every sync, compare current avg bill amounts to previous 30 days; if any bill increased > 2%, generate 3 absorption strategies (reduce category X, cancel unused subscription Y, delay goal by N weeks); write to `ai_insights` with `insight_type = 'budget_strategy'`
+5. Build `RiskRadarEngine` — daily overdraft probability (Monte Carlo over 10-day cashflow with spending volatility), credit utilization trend toward 30%, large bill due within 7 days with insufficient buffer; fire structured alerts to `ai_insights` with `insight_type = 'risk_alert'`
+6. Build `GET /insights/safe-to-spend` — current safe spend number with line-item breakdown
+7. Build `GET /insights/weather` — structured 30-day forecast with weather labels and narratives
+8. Build `GET /insights/pay-timing` — per-card pay date + amount recommendations
+9. Build `GET /insights/risk` — Risk Radar alerts ordered by severity
+10. Add Safe to Spend as the hero number on Dashboard — large display, tappable to see breakdown
+11. Build Weather Forecast page `app/(app)/forecast/page.tsx` — 7-day daily view + 30-day summary, weather icons
+12. Build Risk Radar page `app/(app)/risk/page.tsx` — alert cards grouped by severity with action steps
+13. Add Pay Timing card to Dashboard — next critical pay date for top credit card
+
+**Deliverable:** Safe to Spend live as hero metric, Weather Forecast page, Risk Radar active, Pay Timing recommendations surfaced
+
+---
+
+## Phase 6 — Copilot & Advanced Simulations ⬜
+*Weeks 14–16 | Full AI copilot, simulation engines, health scoring, goal planning*
+
+**Goal:** Activate all forward-looking intelligence systems — cashflow engine, simulators, health score, goal planner, and the multi-agent copilot.
 
 ### Steps
 
-**Feature A — Smart Payment Allocation**
-1. Build `PaymentAllocationEngine` — pure DB math, no LLM; priority-ordered allocation across credit cards, bills, and savings; enforces buffer floor
-2. Build `GET /payments/cards` — list all credit accounts with balance and utilization
-3. Build `POST /payments/plan` — run allocation engine, cache result 6h in `ai_insights`
-4. Add `get_payment_plan` tool to `tools.py`
-5. Add `PaymentAgent` to `supervisor.py` — routing keywords: pay, split, deposit, divide, allocate
+**Engines**
+1. Build `CashflowEngine` — pull 90 days of transaction history, model income regularity + bill schedule + category volatility; output probability-weighted daily balance curve for 60 days with P10/P50/P90 confidence bands; expose as `POST /engines/cashflow`
+2. Build `HealthScoreEngine` — compute 0–100 score across 4 dimensions: Liquidity (30%) = liquid assets ÷ monthly expenses, Stability (25%) = income consistency × (1 - expense volatility), Debt Load (25%) = credit utilization + debt-to-income, Spending Volatility (20%) = category variance vs. personal baseline; update nightly; expose as `GET /engines/health-score`
+3. Build `DebtSimulator` — Snowball vs. Avalanche schedules, run each through `CashflowEngine` to flag months where strategy leaves balance below buffer floor, propose modified schedule that maintains floor; expose as `POST /engines/debt-sim`
+4. Build `ScenarioEngine` — accept modified income/expense inputs, re-run cashflow projection, return updated Health Score, updated goal timelines, updated Risk Radar; expose as `POST /engines/scenario`
+5. Build Life Event Simulator — templates for 7 life events (marriage, child, house, job loss, sabbatical, relocation, school); each template injects standard cost/income adjustments into `ScenarioEngine`; expose as `POST /engines/life-event`
+6. Build Obstacle-Aware Goal Planning engine — user sets target amount + date; engine generates monthly contribution roadmap; re-runs cashflow to identify shortfall months caused by known upcoming expenses; outputs recovery adjustments; track progress in `goals` table; expose as `POST /goals` and `GET /goals`
+7. Build AI Decision Engine — `POST /copilot/decide` — queries balance, upcoming bills, goal progress, cashflow forecast; runs simulation with proposed purchase; returns structured affordability analysis with recommendation and wait-until date if purchase is not safe now
 
-**Feature B — Bonus Recommender**
+**Multi-Agent System**
+8. Build LangGraph supervisor graph — routes queries to: `CashflowAgent` (forecast, projection), `RiskAgent` (alerts, overdraft), `DebtAgent` (payoff strategy), `GoalAgent` (savings, milestones)
+9. Wire all engines as agent tools in `backend/agents/tools.py`
+10. Wire `POST /copilot/chat` SSE streaming endpoint to supervisor graph + RAG retrieval
+
+**Frontend**
+11. Build Cashflow page `app/(app)/cashflow/page.tsx` — probability curve chart + confidence band visualization + highest-risk day callout
+12. Build Health Score page `app/(app)/health/page.tsx` — score dial + 4-dimension breakdown + "how to improve" per dimension
+13. Build Debt Simulator page `app/(app)/debt/page.tsx` — side-by-side Snowball vs. Avalanche with cashflow-safe recommendation
+14. Build Scenario Simulator page `app/(app)/simulator/page.tsx` — income/expense sliders with real-time preview of cashflow, health score, and goal impact
+15. Build Life Event Simulator page `app/(app)/life-events/page.tsx` — event template picker, output forward financial impact
+16. Build Goals page `app/(app)/goals/page.tsx` — active goals, milestone progress, shortfall alerts, recovery actions
+17. Build AI Copilot page `app/(app)/copilot/page.tsx` — streaming chat interface, decision engine CTA
+
+**Deliverable:** All simulation engines live, multi-agent copilot working, health score updating daily, goals with obstacle-aware planning
+
+---
+
+## Phase 7 — Decision Intelligence ⬜
+*Weeks 17–18 | Journals, ROI scoring, negotiation intelligence, payment routing*
+
+**Goal:** Close the loop between insight and action — help users act on what ArgusAI tells them.
+
+### Steps
+
+**AI Decision Journal**
+1. Build `POST /decisions/journal` — accept decision type, amount, merchant, notes; store in new `decision_journal` table with `user_id`, `decision_type`, `amount`, `merchant`, `logged_at`, `check_in_due_at` (90 days after logging)
+2. Build 90/180-day check-in Celery task — on `check_in_due_at`, pull all transactions from logged date to now, compute downstream impact vs. expected (fixed cost change, goal impact, spending shift), write impact report to `decision_journal.impact_report JSONB`
+3. Build `GET /decisions/journal` — all logged decisions with impact reports where available
+4. Build Decision Journal page `app/(app)/journal/page.tsx` — logged decisions timeline, impact report cards on check-in completion
+
+**Subscription ROI Scoring**
+5. Extend `detect_subscriptions_for_user` — for each active subscription, infer usage from transaction patterns (order frequency for delivery services, streaming order history for video services, gym check-in proxies from location merchants); compute `cost_per_use` and `roi_score`; write to `subscriptions` table
+6. Build `GET /subscriptions/roi` — subscriptions ordered by ROI score (worst first) with usage evidence
+7. Add ROI score badges to Subscriptions page — color-coded (red = low ROI, green = high ROI)
+
+**Bill Negotiation + Alternative Detection**
+8. Build negotiation intelligence engine:
+   - *Stage 1 — Usage analysis:* pull ROI score from subscriptions table
+   - *Stage 2 — Alternative detection:* for subscriptions with `roi_score < 0.4`, search maintained alternatives database (static JSON + Brave Search for current pricing); return cheaper alternatives covering the same need
+   - *Stage 3 — Negotiation script:* for high-usage subscriptions priced above market, generate optimal call timing (last 3 days of billing cycle), what comparable customers pay, personalized script based on tenure and payment history
+9. Build `GET /subscriptions/negotiate` — per-subscription: stage reached, alternatives (if any), negotiation brief (if applicable)
+10. Build Bill Negotiation page `app/(app)/negotiate/page.tsx` — subscription list with stage indicator, alternatives panel, negotiation script drawer
+
+**Payment Intelligence Layer**
+11. Build Payment Intelligence engine:
+    - *Card routing:* for each major spending category, map to the credit card in user's wallet that maximizes rewards cashback (pull card rewards structures from a maintained mapping); output category → card routing table with estimated annual rewards gain
+    - *Credit card payment optimizer:* for each card, combine closing date (from pay timing engine) with current balance to compute optimal payment amount and dates to hit target utilization while preserving liquidity through the paycheck gap
+12. Build `GET /insights/payment-routing` — per-category card routing recommendations + estimated annual rewards
+13. Build Smart Payment Allocation engine — when paycheck deposits (inferred from transaction pattern), compute priority-ordered split: minimum payments on all cards first, then bills due within 14 days, then savings goal contribution, then discretionary; enforce configurable buffer floor so checking never drops below threshold
+14. Build `POST /insights/payment-plan` — run allocation plan for given income amount
+15. Build Payment Intelligence page `app/(app)/payments/page.tsx` — card routing table + paycheck allocation plan + credit payment optimizer
+
+**Deliverable:** Decision Journal active, ROI scoring on all subscriptions, negotiation intelligence live, payment routing and allocation recommendations surfaced
+
+---
+
+## Phase 8 — Platform Features ⬜
+*Weeks 19–20 | Bonus discovery, credit score, spending streaks*
+
+**Goal:** Broaden ArgusAI's value beyond daily accounts into credit optimization and financial opportunity discovery.
+
+### Steps
+
+**Bonus Recommender**
 1. Obtain Brave Search API key
-2. Build `BonusSearchEngine` — calls Brave Search, uses Claude to extract structured bonus data, filters out institutions user already has, caches 24h
-3. Add `search_financial_bonuses` tool to `tools.py`
-4. Add `BonusAgent` to `supervisor.py` — routing keywords: bonus, signup, reward, bank offer
+2. Build `BonusSearchEngine` — query Brave Search for current checking account bonuses, credit card signup bonuses, and HYSA offers; use Claude to extract structured bonus data (institution, offer type, bonus amount, requirements, expiry); filter out institutions the user already has; cache results 24h in `ai_insights`
+3. Build `GET /bonuses` — live bonus offers filtered to user's existing institutions
+4. Add `BonusAgent` to LangGraph supervisor — routing keywords: bonus, signup offer, bank reward, high-yield savings
+5. Build Bonus Recommender page `app/(app)/bonuses/page.tsx` — bonus cards with requirements and estimated value
 
-**Feature C — Credit Score**
-1. Run DB migration — create `credit_scores` table, add Experian columns to `users`
-2. Apply for Experian Connect API (use sandbox during development)
-3. Build `CreditEngine` — OAuth initiation, soft-pull credit report, score history queries, Claude-powered recommendations grounded in real DB data
-4. Build `POST /credit/connect`, `GET /credit/connect/callback`, `GET /credit/score`, `GET /credit/history` endpoints
-5. Add `get_credit_profile` tool to `tools.py`
-6. Add `CreditAgent` to `supervisor.py` — routing keywords: credit score, credit history, fico, improve credit
-7. Run routing conflict audit across all 6 agents — resolve any keyword overlaps
+**Credit Score Integration**
+6. Run DB migration — create `credit_scores` table (`user_id`, `score`, `pulled_at`, `factors JSONB`); add Experian OAuth columns to `users`
+7. Apply for Experian Connect API (sandbox during development)
+8. Build `CreditEngine` — OAuth initiation + callback, soft-pull credit report, score history, factor breakdown (payment history, utilization, age, mix, inquiries); generate Claude-powered improvement recommendations grounded in actual account data + Pay Timing Intelligence
+9. Build `POST /credit/connect`, `GET /credit/connect/callback`, `GET /credit/score`, `GET /credit/history` endpoints
+10. Add `CreditAgent` to LangGraph supervisor — routing keywords: credit score, FICO, improve credit, utilization
+11. Build Credit Score page `app/(app)/credit/page.tsx` — score + history chart + factor breakdown + improvement playbook
 
-**Deliverable:** All 3 new features live and integrated into the copilot
+**Spending Streak Tracker**
+12. Extend behavioral intelligence — track consecutive weeks where each category's spend stayed under its 90-day average; store streaks as `insight_type = 'streak'` in `ai_insights`
+13. Surface streak badges on Dashboard and Behavioral Insights page — current streak length + record streak
+
+**Deliverable:** Bonus recommender live with live web search, credit score integrated with improvement plan, spending streaks tracking and displayed
 
 ---
 
-## Phase 7 — Production Hardening
-*Weeks 13–14 | Ship-ready*
+## Phase 9 — Production Hardening ⬜
+*Weeks 21–22 | Secure, monitored, load-tested. Tag `v1.0.0`.*
 
 **Goal:** Make the product secure, fast, and stable for real users.
 
 ### Steps
-1. Security audit — verify RLS on all tables, check for injection vulnerabilities, confirm Plaid tokens never exposed in API responses
-2. Add per-user rate limiting on all AI endpoints
-3. Add DB connection pooling via PgBouncer
-4. Add performance indexes on hot query paths
-5. Load testing with Locust — simulate 100 concurrent users
-6. Set up Sentry (error tracking) and Axiom (logs)
-7. Configure custom SMTP provider (Resend or Postmark) — replace Supabase default sender with branded `noreply@argusai.com`; customize all auth email templates (confirm signup, password reset, magic link)
-8. Surface sync reliability indicator on Accounts page — last-synced timestamp + health badge per account (green <1hr, amber >6hr, red >24hr or failed)
-9. UI polish — loading states, empty states, error boundaries, accessibility pass
-10. Final smoke tests in production environment
+1. Security audit — verify RLS on all tables, check for IDOR vulnerabilities, SQL injection paths, Plaid token exposure in API responses, missing auth on any endpoint
+2. Add per-user rate limiting via `slowapi` — 60 req/min on standard endpoints, 10 req/min on all AI endpoints
+3. Add DB connection pooling via PgBouncer (Railway plugin or self-hosted)
+4. Add performance indexes on hot query paths — `transactions(user_id, timestamp)`, `ai_insights(user_id, insight_type, created_at)`, `bills(user_id, next_due_date)`
+5. Load test with Locust — 100 concurrent users simulating sync + copilot chat; target P95 < 500ms on non-AI paths
+6. Set up Sentry (error tracking with source maps on frontend) + Axiom (structured logs from FastAPI + Celery)
+7. Configure custom SMTP — Resend or Postmark via `noreply@argusai.com`; customize all Supabase auth email templates (confirm signup, password reset, magic link)
+8. Surface sync reliability indicator on Accounts page — last-synced timestamp + health badge per account (green = synced <1h, amber = >6h, red = >24h or failed)
+9. UI polish pass — loading skeletons on all data-dependent pages, empty states with actionable CTAs, error boundaries on every page, accessibility audit (keyboard nav, screen reader labels, color contrast)
+10. Full production smoke test — link account, trigger sync, verify bills detected, subscriptions identified, analyst decisions generated, copilot responds, health score updates
+11. Tag `v1.0.0`
 
-**Deliverable:** Production-ready, deployed, monitored
+**Deliverable:** Production-ready, fully monitored, load-tested, `v1.0.0` tagged
 
 ---
 
-## New Files Summary (Phase 6 additions)
+## New Files Summary (Phases 4–9)
 
-| File | Purpose |
-|---|---|
-| `backend/middleware/auth.py` | JWT auth dependency |
-| `backend/main.py` | FastAPI app entry |
-| `backend/db/client.py` | Supabase client factory |
-| `backend/engines/payment_allocation.py` | Payment allocation logic |
-| `backend/engines/bonus_search.py` | Brave Search + bonus filtering |
-| `backend/engines/credit_engine.py` | Experian Connect + score analysis |
-| `backend/routers/payments.py` | Payment endpoints |
-| `backend/routers/credit.py` | Credit score endpoints |
-| `backend/migrations/003_credit_scores.sql` | Credit scores table + RLS |
-| `backend/migrations/004_indexes.sql` | Performance indexes |
+| File | Phase | Purpose |
+|---|---|---|
+| `backend/tasks/enrich_detected_records.py` | 3.5 | Layer 1 per-record enrichment |
+| `backend/tasks/synthesize_insights.py` | 3.5 | Layer 2 analyst reasoning session |
+| `backend/routers/insights.py` | 3.5 | `GET /insights` endpoint |
+| `backend/tasks/anomaly_detection.py` | 4 | Z-score outlier + duplicate detection |
+| `backend/tasks/financial_memory.py` | 4 | Financial memory timeline population |
+| `backend/tasks/behavioral_intelligence.py` | 4 | Velocity, day-of-week, impulse detection |
+| `backend/engines/stress_index.py` | 4 | Financial Stress Index computation |
+| `backend/engines/safe_to_spend.py` | 5 | Safe to Spend daily computation |
+| `backend/engines/weather_forecast.py` | 5 | Financial Weather Forecast generation |
+| `backend/engines/pay_timing.py` | 5 | Credit utilization optimizer + bill stacking |
+| `backend/engines/budget_strategy.py` | 5 | Bill-change adaptive budget |
+| `backend/engines/risk_radar.py` | 5 | Overdraft probability + utilization alerts |
+| `backend/engines/cashflow_engine.py` | 6 | 60-day probability-weighted projection |
+| `backend/engines/health_score.py` | 6 | 0–100 composite health score |
+| `backend/engines/debt_simulator.py` | 6 | Snowball vs. Avalanche inside cashflow |
+| `backend/engines/scenario_engine.py` | 6 | What-if cashflow re-runs |
+| `backend/engines/life_events.py` | 6 | Life event templates + scenario injection |
+| `backend/engines/goal_planner.py` | 6 | Obstacle-aware milestone planning |
+| `backend/agents/supervisor.py` | 6 | LangGraph multi-agent graph |
+| `backend/agents/tools.py` | 6 | All agent tool definitions |
+| `backend/routers/copilot.py` | 6 | SSE chat + decision engine endpoints |
+| `backend/routers/engines.py` | 6 | Cashflow, health score, simulators |
+| `backend/routers/goals.py` | 6 | Goals CRUD |
+| `backend/engines/decision_journal.py` | 7 | 90-day impact tracking |
+| `backend/engines/subscription_roi.py` | 7 | Usage inference + cost-per-use |
+| `backend/engines/negotiation.py` | 7 | Alternatives DB + negotiation scripts |
+| `backend/engines/payment_intelligence.py` | 7 | Card routing + payment optimizer |
+| `backend/engines/payment_allocation.py` | 7 | Paycheck split recommendation |
+| `backend/engines/bonus_search.py` | 8 | Brave Search + bonus extraction |
+| `backend/engines/credit_engine.py` | 8 | Experian Connect + score analysis |
+| `backend/routers/bonuses.py` | 8 | `GET /bonuses` |
+| `backend/routers/credit.py` | 8 | Credit score endpoints |
 
-## New Dependencies (Phase 6)
+## New Environment Variables (Phases 4–9)
 
 ```
-thefuzz>=0.22.0           # fuzzy institution name matching
-python-Levenshtein>=0.25.0  # speeds up thefuzz
-python-dateutil>=2.9.0    # date math for due date calculations
-```
-
-## New Environment Variables (Phase 6)
-
-```
+# Phase 7
 PAYMENT_BUFFER_FLOOR_DEFAULT=500.0
+
+# Phase 8
 BRAVE_API_KEY=
 EXPERIAN_CLIENT_ID=
 EXPERIAN_CLIENT_SECRET=
