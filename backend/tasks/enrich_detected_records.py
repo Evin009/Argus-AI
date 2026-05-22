@@ -1,4 +1,12 @@
 import json
+import os
+import uuid
+from datetime import datetime, timezone
+
+import anthropic
+
+from celery_app import celery
+from db.client import get_supabase
 
 _SYSTEM_PROMPT = """You are ArgusAI's financial intelligence analyst. Your job is to enrich detected financial records with expert annotations.
 
@@ -82,4 +90,80 @@ def _parse_enrichment_response(response_text: str) -> dict:
     return {
         "bills": parsed.get("bills", []),
         "subscriptions": parsed.get("subscriptions", []),
+    }
+
+
+@celery.task(name="tasks.enrich_detected_records.enrich_detected_records_for_user")
+def enrich_detected_records_for_user(user_id: str) -> dict:
+    supabase = get_supabase()
+
+    bills_result = (
+        supabase.table("bills")
+        .select("id, merchant, avg_amount, recurrence_pattern, next_due_date")
+        .eq("user_id", user_id)
+        .execute()
+    )
+    subs_result = (
+        supabase.table("subscriptions")
+        .select("id, merchant, avg_amount, price_change_pct, billing_cycle")
+        .eq("user_id", user_id)
+        .eq("is_active", True)
+        .execute()
+    )
+
+    bills = bills_result.data or []
+    subscriptions = subs_result.data or []
+
+    if not bills and not subscriptions:
+        return {"user_id": user_id, "bills_enriched": 0, "subscriptions_enriched": 0}
+
+    client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+    prompt = _build_enrichment_prompt(bills, subscriptions)
+
+    try:
+        message = client.messages.create(
+            model="claude-sonnet-4-6",
+            max_tokens=4096,
+            system=[{
+                "type": "text",
+                "text": _SYSTEM_PROMPT,
+                "cache_control": {"type": "ephemeral"},
+            }],
+            messages=[{"role": "user", "content": prompt}],
+        )
+        response_text = message.content[0].text
+    except Exception:
+        return {"user_id": user_id, "bills_enriched": 0, "subscriptions_enriched": 0}
+
+    enrichment = _parse_enrichment_response(response_text)
+
+    bills_enriched = 0
+    for item in enrichment.get("bills", []):
+        bill_id = item.get("id")
+        if not bill_id or "enrichment" not in item:
+            continue
+        supabase.table("bills").update({"ai_enrichment": item["enrichment"]}).eq("id", bill_id).execute()
+        bills_enriched += 1
+
+    subs_enriched = 0
+    for item in enrichment.get("subscriptions", []):
+        sub_id = item.get("id")
+        if not sub_id or "enrichment" not in item:
+            continue
+        supabase.table("subscriptions").update({"ai_enrichment": item["enrichment"]}).eq("id", sub_id).execute()
+        subs_enriched += 1
+
+    now = datetime.now(timezone.utc).isoformat()
+    supabase.table("user_financial_profiles").upsert(
+        {"user_id": user_id, "last_enriched_at": now, "last_updated": now},
+        on_conflict="user_id",
+    ).execute()
+
+    from tasks.synthesize_insights import synthesize_insights_for_user
+    synthesize_insights_for_user.delay(user_id)
+
+    return {
+        "user_id": user_id,
+        "bills_enriched": bills_enriched,
+        "subscriptions_enriched": subs_enriched,
     }
