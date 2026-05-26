@@ -35,6 +35,19 @@ type Subscription = {
   avg_amount: number;
 };
 
+type AnalystDecision = {
+  id: string;
+  summary: string;
+  created_at: string;
+  structured_output_json: {
+    signal_type: string;
+    severity: "info" | "warning" | "critical";
+    title: string;
+    recommendation: string;
+    confidence: number;
+  };
+};
+
 function spendingThisMonth(transactions: Transaction[]): number {
   const now = new Date();
   return transactions
@@ -72,24 +85,27 @@ export default function DashboardPage() {
   const [allTransactions, setAllTransactions] = useState<Transaction[]>([]);
   const [bills, setBills] = useState<Bill[]>([]);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [insights, setInsights] = useState<AnalystDecision[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
       try {
-        const [acctsData, txnData, allTxnData, billsData, subsData] =
+        const [acctsData, txnData, allTxnData, billsData, subsData, insightsData] =
           await Promise.all([
             api.get<{ accounts: Account[] }>("/plaid/accounts"),
             api.get<{ transactions: Transaction[] }>("/transactions?limit=5"),
             api.get<{ transactions: Transaction[] }>("/transactions?limit=200"),
             api.get<{ bills: Bill[] }>("/bills"),
             api.get<{ subscriptions: Subscription[] }>("/subscriptions"),
+            api.get<AnalystDecision[]>("/insights?limit=2"),
           ]);
         setAccounts(acctsData.accounts);
         setTransactions(txnData.transactions);
         setAllTransactions(allTxnData.transactions);
         setBills(billsData.bills);
         setSubscriptions(subsData.subscriptions);
+        setInsights(insightsData);
       } catch (e) {
         console.error(e);
       } finally {
@@ -256,6 +272,50 @@ export default function DashboardPage() {
             {Math.abs(spendingChangePct).toFixed(1)}% vs last month
           </p>
         </div>
+      </div>
+
+      {/* Latest Intelligence */}
+      <div className="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden mb-4">
+        <div className="px-6 py-4 border-b border-gray-800 flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-white">Latest Intelligence</h2>
+          <Link href="/intelligence" className="text-xs text-indigo-400 hover:underline">
+            View all →
+          </Link>
+        </div>
+        {insights.length === 0 ? (
+          <div className="px-6 py-8 text-center">
+            <p className="text-sm text-gray-500">No analyst decisions yet.</p>
+            <p className="text-xs text-gray-600 mt-1">Sync accounts to trigger the intelligence pipeline.</p>
+          </div>
+        ) : (
+          <div className="divide-y divide-gray-800/50">
+            {insights.map((d) => {
+              const soj = d.structured_output_json ?? {};
+              const severityColor =
+                soj.severity === "critical"
+                  ? "text-red-400"
+                  : soj.severity === "warning"
+                  ? "text-yellow-400"
+                  : "text-blue-400";
+              return (
+                <Link
+                  key={d.id}
+                  href="/intelligence"
+                  className="px-6 py-4 flex items-start gap-3 hover:bg-gray-800/40 transition-colors block"
+                >
+                  <span className={`text-xs font-semibold uppercase mt-0.5 w-14 flex-shrink-0 ${severityColor}`}>
+                    {soj.severity}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-white truncate">{soj.title}</p>
+                    <p className="text-xs text-gray-500 mt-0.5 truncate">{soj.recommendation}</p>
+                  </div>
+                  <span className="text-xs text-gray-600 capitalize flex-shrink-0">{soj.signal_type}</span>
+                </Link>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       <div className="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
