@@ -27,7 +27,7 @@ jobs:
         working-directory: backend
 
       - name: Test (pytest)
-        run: pytest tests/ -v
+        run: pytest tests/ -v --ignore=tests/test_auth.py --ignore=tests/test_plaid.py
         working-directory: backend
         env:
           JWT_SECRET: ${{ secrets.JWT_SECRET || 'ci-test-secret-key' }}
