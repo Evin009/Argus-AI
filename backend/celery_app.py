@@ -15,6 +15,8 @@ celery = Celery(
         "tasks.detect_bills",
         "tasks.detect_subscriptions",
         "tasks.categorize_transactions",
+        "tasks.enrich_detected_records",
+        "tasks.synthesize_insights",
     ],
 )
 
