@@ -65,7 +65,7 @@ This plan covers the full build of ArgusAI across 9 phases. Each phase builds on
 
 ---
 
-## Phase 3 — Intelligence Layer 🔄
+## Phase 3 — Intelligence Layer ✅
 *Weeks 7–8 | Pattern detection and classification*
 
 **Goal:** Detect recurring bills and subscriptions, categorize spending with AI.
@@ -85,52 +85,67 @@ This plan covers the full build of ArgusAI across 9 phases. Each phase builds on
 
 ---
 
-## Phase 3.5 — AI Intelligence Upgrade ⬜
-*Week 9 | Reasoning analyst with persistent memory*
+## Phase 3.5 — AI Intelligence Upgrade ✅ Complete
+*Week 9 | Reasoning analyst with persistent semantic memory*
 
-**Goal:** Transform detection output from statistics into analyst-quality reasoning that learns each user's financial behavior over time.
+**Goal:** Transform detection output from statistics into analyst-quality reasoning that learns each user's financial behavior over time — using a LangGraph multi-agent pipeline and pgvector RAG for semantic episodic memory.
+
+### Architecture
+
+```
+detect_subscriptions → run_intelligence_pipeline (Celery)
+                              ↓
+                    LangGraph StateGraph
+                 EnrichmentNode → AnalystNode → MemoryNode
+```
+
+**State** flows as `IntelligenceState` TypedDict. Each node returns only the keys it modifies; LangGraph merges automatically.
 
 ### Steps
 
 **Database**
-1. Write and apply `backend/migrations/010_phase_3_5_intelligence.sql`:
+1. Apply `backend/migrations/010_phase_3_5_intelligence.sql`:
    - `ALTER TABLE bills ADD COLUMN IF NOT EXISTS ai_enrichment JSONB`
    - `ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS ai_enrichment JSONB`
-   - Create `user_financial_profiles` table (`user_id UNIQUE`, `profile JSONB`, `analyst_version`, `last_enriched_at`, `last_updated`)
-   - RLS policy on `user_financial_profiles` scoped to `auth.uid()`
+   - Create `user_financial_profiles` table (`user_id UNIQUE`, `profile JSONB`, `analyst_version`, `last_enriched_at`, `last_updated`) with RLS
+2. Apply `backend/migrations/011_ai_insights_embedding.sql`:
+   - `ALTER TABLE ai_insights ADD COLUMN IF NOT EXISTS embedding vector(1536)`
+   - Create `ivfflat` index on embedding (cosine ops, lists=100)
+   - Create `match_insights_by_embedding(query_embedding, match_threshold, match_count, p_user_id)` RPC
 
-**Layer 1 — Per-Record Enrichment**
-2. Create `backend/tasks/enrich_detected_records.py`:
-   - `_SYSTEM_PROMPT` — enrichment persona (Anthropic prompt caching applied)
-   - `_build_enrichment_prompt(bills, subscriptions)` — batches all records into one Claude call
-   - `_parse_enrichment_response(response_text)` — returns `{"bills": [...], "subscriptions": [...]}`
-   - `enrich_detected_records_for_user(user_id)` Celery task — writes `ai_enrichment` JSON back to each record, updates `last_enriched_at`
-3. Chain: add `enrich_detected_records_for_user.delay(user_id)` at end of `detect_subscriptions_for_user`
-4. Write 8 unit tests for all 3 pure functions in `backend/tests/test_enrich_detected_records.py`
+**Agents package (`backend/agents/`)**
+3. Create `state.py` — `IntelligenceState` TypedDict (user_id, accounts, bills, subscriptions, tx_summary, relevant_past_insights, profile, enrichment_result, decisions, updated_profile)
+4. Create `enrichment_agent.py` — `enrichment_node(state)`: one Claude call, annotates all bills + subscriptions with `ai_enrichment`, merges enriched data back into state; early-returns empty result when no bills or subscriptions exist
+5. Create `analyst_agent.py` — `analyst_node(state)`: reads `state["relevant_past_insights"]` (includes similarity scores from RAG — not a DB query), calls Claude with full financial brief, returns `{"decisions": [...], "updated_profile": {...}}`
+6. Create `memory_agent.py` — `memory_node(state)`: embeds each decision title via OpenAI text-embedding-3-small, inserts to `ai_insights` with embedding (silently skips embedding on failure — row still written), upserts profile to `user_financial_profiles`
+7. Create `graph.py` — compiled `StateGraph` module-level singleton `intelligence_graph`
 
-**Layer 2 — Analyst Reasoning Session**
-5. Create `backend/tasks/synthesize_insights.py`:
-   - `_ANALYST_SYSTEM_PROMPT` — financial analyst persona (prompt cached)
-   - `_aggregate_transactions(transactions)` — groups last 90 days by category, computes monthly baseline and 30-day total
-   - `_build_analyst_brief(accounts, bills, subscriptions, tx_summary, past_insights, profile)` — assembles full context
-   - `_parse_synthesis_response(response_text)` — returns `{"decisions": [...], "updated_profile": {...}}`
-   - `synthesize_insights_for_user(user_id)` Celery task — loads three memory types (working + episodic + long-term profile), calls Claude, writes `analyst_decision` rows to `ai_insights`, upserts profile
-6. Chain: add `synthesize_insights_for_user.delay(user_id)` at end of `enrich_detected_records_for_user`
-7. Write 8 unit tests for all 3 pure functions in `backend/tests/test_synthesize_insights.py`
+**Pipeline task**
+8. Create `backend/tasks/run_intelligence_pipeline.py`:
+   - `_build_rag_query_text(accounts, bills, subscriptions)` — pure function building text summary of current financial state for embedding
+   - `_retrieve_relevant_insights(user_id, query_text, threshold=0.6, count=5)` — embeds query, calls `match_insights_by_embedding` RPC, returns `[]` on any exception
+   - `run_intelligence_pipeline_for_user(user_id)` Celery task — fetches accounts/bills/subscriptions/transactions/profile, computes tx_summary, runs RAG (fallback to recency if no embeddings yet), invokes graph, returns `{"user_id": ..., "decisions_written": N}`
+9. Update `celery_app.py` include list — replace `enrich_detected_records` and `synthesize_insights` with `run_intelligence_pipeline`
+10. Update `detect_subscriptions_for_user` — call `run_intelligence_pipeline_for_user.delay(user_id)`
 
 **API**
-8. Create `backend/routers/insights.py` — `GET /insights` filtered by `insight_type=analyst_decision`, ordered by recency; supports `?limit=` (max 50) and `?signal_type=` params
-9. Register `insights` router in `backend/main.py`
-10. Add `"tasks.enrich_detected_records"` and `"tasks.synthesize_insights"` to Celery include list
+11. Create `backend/routers/insights.py` — `GET /insights` filtered by `insight_type=analyst_decision`, ordered by recency; supports `?limit=` (max 50) and `?signal_type=` params
+12. Register `insights` router in `backend/main.py`
+
+**Tests**
+13. Update imports in `test_enrich_detected_records.py` → `agents.enrichment_agent`
+14. Update imports in `test_synthesize_insights.py` → `agents.analyst_agent`
+15. Write `test_agents.py` — 10 tests: enrichment_node (3), analyst_node (3), memory_node (3), graph smoke test (1)
+16. Write `test_run_intelligence_pipeline.py` — 5 tests: RAG helpers (4), pipeline task (1)
 
 **Frontend**
-11. Build Intelligence Feed page `app/(app)/intelligence/page.tsx` — cards grouped by signal type (risk → behavioral → anomaly → subscription → opportunity), severity color chips, reasoning + recommendation + simulation per card
-12. Add Intelligence nav item to `app/(app)/layout.tsx` — after Subscriptions, before first divider
-13. Update Dashboard — add `AnalystDecision` type, fetch `GET /insights?limit=2`, render Latest Intelligence card (full-width, above Recent Transactions)
-14. Update Bills page — add `BillEnrichment` type, `selectedBill` state, clickable rows, enrichment drawer (merchant context, classification note, confidence, subscription candidate flag)
-15. Update Subscriptions page — add `SubscriptionEnrichment` type, `selectedSub` state, clickable rows, enrichment drawer (service category, price trend interpretation, duplicate flag, cancel recommendation)
+17. Build Intelligence Feed page `app/(app)/intelligence/page.tsx` — cards grouped by signal type (risk → behavioral → anomaly → subscription → opportunity), severity color chips, reasoning + recommendation + simulation per card
+18. Add Intelligence nav item to `app/(app)/layout.tsx` — after Subscriptions, before first divider
+19. Update Dashboard — add `AnalystDecision` type, fetch `GET /insights?limit=2`, render Latest Intelligence card (full-width, above Recent Transactions)
+20. Update Bills page — add `BillEnrichment` type, `selectedBill` state, clickable rows, enrichment drawer
+21. Update Subscriptions page — add `SubscriptionEnrichment` type, `selectedSub` state, clickable rows, enrichment drawer
 
-**Deliverable:** Analyst reasoning after every sync, personalized profile growing over time, Intelligence Feed live, enriched drawers on bills and subscriptions
+**Deliverable:** Analyst reasoning after every sync, personalized profile growing over time, semantic episodic memory via pgvector RAG, Intelligence Feed live, enriched drawers on bills and subscriptions
 
 ---
 
@@ -141,7 +156,7 @@ This plan covers the full build of ArgusAI across 9 phases. Each phase builds on
 
 ### Steps
 1. Build anomaly detection — z-score outlier detection per category (flag transactions > 2 SD from 90-day mean), duplicate charge detection (same merchant + amount within 3 days), foreign transaction flagging; write anomalies to `ai_insights` with `insight_type = 'anomaly'`
-2. Upgrade RAG pipeline — add pgvector similarity search on `ai_insights` to replace recency-only episodic memory; `synthesize_insights` now retrieves top-5 semantically relevant past decisions instead of just latest 5
+2. ~~Upgrade RAG pipeline~~ — **built in Phase 3.5**: pgvector similarity search on `ai_insights` is already live via `match_insights_by_embedding()` RPC; `run_intelligence_pipeline` retrieves top-5 semantically relevant past decisions via cosine similarity. Phase 4 should extend this with anomaly embeddings and memory timeline entries.
 3. Build Financial Memory Timeline engine — on every sync, scan for significant financial events (new subscriptions, price increases, rent changes, spending spikes, goal milestones, debt payoffs); append events to a `financial_memory` table ordered by date
 4. Build Continuous Intelligence Briefing — after every sync, if a significant event occurred (large transaction, bill change, pattern crossing threshold), generate a brief and write to `ai_insights` with `insight_type = 'continuous_briefing'`; replaces monthly report cadence
 5. Build Behavioral Spending Intelligence — velocity spike detection (current 7-day spend > 130% of 7-day moving average), day-of-week pattern modeling (average spend by weekday over 90 days), impulse purchase cluster detection (3+ transactions at same merchant type within 48h); write behavioral signals to `ai_insights`
@@ -201,7 +216,7 @@ This plan covers the full build of ArgusAI across 9 phases. Each phase builds on
 7. Build AI Decision Engine — `POST /copilot/decide` — queries balance, upcoming bills, goal progress, cashflow forecast; runs simulation with proposed purchase; returns structured affordability analysis with recommendation and wait-until date if purchase is not safe now
 
 **Multi-Agent System**
-8. Build LangGraph supervisor graph — routes queries to: `CashflowAgent` (forecast, projection), `RiskAgent` (alerts, overdraft), `DebtAgent` (payoff strategy), `GoalAgent` (savings, milestones)
+8. Build LangGraph supervisor graph — routes queries to: `CashflowAgent` (forecast, projection), `RiskAgent` (alerts, overdraft), `DebtAgent` (payoff strategy), `GoalAgent` (savings, milestones). **Note:** The `backend/agents/` package and LangGraph `StateGraph` pattern are already established from Phase 3.5 — extend the same package rather than starting from scratch.
 9. Wire all engines as agent tools in `backend/agents/tools.py`
 10. Wire `POST /copilot/chat` SSE streaming endpoint to supervisor graph + RAG retrieval
 
@@ -313,8 +328,13 @@ This plan covers the full build of ArgusAI across 9 phases. Each phase builds on
 
 | File | Phase | Purpose |
 |---|---|---|
-| `backend/tasks/enrich_detected_records.py` | 3.5 | Layer 1 per-record enrichment |
-| `backend/tasks/synthesize_insights.py` | 3.5 | Layer 2 analyst reasoning session |
+| `backend/migrations/011_ai_insights_embedding.sql` | 3.5 | pgvector embedding column + ivfflat index + match_insights_by_embedding() RPC |
+| `backend/agents/state.py` | 3.5 | `IntelligenceState` TypedDict |
+| `backend/agents/enrichment_agent.py` | 3.5 | Enrichment node — annotates bills + subscriptions |
+| `backend/agents/analyst_agent.py` | 3.5 | Analyst node — reasoning session with RAG memory |
+| `backend/agents/memory_agent.py` | 3.5 | Memory node — embeds decisions, upserts profile |
+| `backend/agents/graph.py` | 3.5 | Compiled LangGraph `StateGraph` singleton |
+| `backend/tasks/run_intelligence_pipeline.py` | 3.5 | Celery entry point wrapping graph + RAG retrieval |
 | `backend/routers/insights.py` | 3.5 | `GET /insights` endpoint |
 | `backend/tasks/anomaly_detection.py` | 4 | Z-score outlier + duplicate detection |
 | `backend/tasks/financial_memory.py` | 4 | Financial memory timeline population |

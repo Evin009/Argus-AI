@@ -11,8 +11,8 @@
 | Phase 1 | Foundation | ✅ Complete | 1–2 |
 | Phase 1.5 | Design System | ✅ Complete | 3–4 |
 | Phase 2 | Bank Data Pipeline | ✅ Complete | 5–6 |
-| Phase 3 | Intelligence Layer | 🔄 In Progress | 7–8 |
-| Phase 3.5 | AI Intelligence Upgrade | ⬜ Not Started | 9 |
+| Phase 3 | Intelligence Layer | ✅ Complete | 7–8 |
+| Phase 3.5 | AI Intelligence Upgrade | ✅ Complete | 9 |
 | Phase 4 | Continuous Intelligence & Memory | ⬜ Not Started | 10–11 |
 | Phase 5 | Daily Financial Pulse | ⬜ Not Started | 12–13 |
 | Phase 6 | Copilot & Advanced Simulations | ⬜ Not Started | 14–16 |
@@ -84,7 +84,7 @@
 
 ---
 
-## Phase 3 — Intelligence Layer 🔄
+## Phase 3 — Intelligence Layer ✅
 **Goal:** Detect patterns, categorize spending, surface subscriptions and bills.
 
 | Deliverable | Status |
@@ -97,28 +97,30 @@
 | Bills Calendar — monthly view, color-coded by urgency | ✅ Done |
 | Subscriptions page with price creep badges and monthly total | ✅ Done |
 | Dashboard updated with upcoming bills + subscription cards | ✅ Done |
-| CI green on `main` | ⬜ Pending |
+| CI green on `main` | ✅ Done |
 
 ---
 
-## Phase 3.5 — AI Intelligence Upgrade ⬜
-**Goal:** Transform the intelligence layer from statistics + classification into a reasoning financial analyst with persistent memory.
+## Phase 3.5 — AI Intelligence Upgrade ✅
+**Goal:** Transform the intelligence layer from statistics + classification into a reasoning financial analyst with persistent semantic memory.
 
 | Deliverable | Status |
 |---|---|
-| Migration 010 — `ai_enrichment JSONB` on bills + subscriptions; `user_financial_profiles` table with RLS | ⬜ Pending |
-| `enrich_detected_records` Celery task — Layer 1, one Claude call per sync, annotates all bills + subscriptions | ⬜ Pending |
-| `synthesize_insights` Celery task — Layer 2, analyst reasoning session with three-tier memory | ⬜ Pending |
-| Analyst persona system prompt with Anthropic prompt caching | ⬜ Pending |
-| Episodic memory — last 5 `ai_insights` rows injected into analyst context | ⬜ Pending |
-| Long-term profile — Claude writes behavioral patterns to `user_financial_profiles` after every session | ⬜ Pending |
-| Updated Celery task chain: sync → detect_bills → detect_subscriptions → enrich → synthesize | ⬜ Pending |
-| `GET /insights` endpoint — analyst decisions feed with `?signal_type=` + `?limit=` filters | ⬜ Pending |
-| Intelligence Feed page — `app/(app)/intelligence/page.tsx` — cards grouped by signal type | ⬜ Pending |
-| Dashboard "Latest Intelligence" card — 2 most recent warning/critical decisions | ⬜ Pending |
-| Bills enrichment drawer — click any bill to see Layer 1 analyst annotations | ⬜ Pending |
-| Subscriptions enrichment drawer — click any subscription to see annotations + cancel recommendation | ⬜ Pending |
-| CI green on `main` | ⬜ Pending |
+| Migration 010 — `ai_enrichment JSONB` on bills + subscriptions; `user_financial_profiles` table with RLS | ✅ Done |
+| Migration 011 — `embedding vector(1536)` on `ai_insights`; `ivfflat` index; `match_insights_by_embedding()` pgvector RPC | ✅ Done |
+| `backend/agents/` package — `IntelligenceState` TypedDict, enrichment node, analyst node, memory node, compiled `StateGraph` | ✅ Done |
+| `run_intelligence_pipeline` Celery task — single entry point: fetch data, RAG retrieval, invoke LangGraph graph | ✅ Done |
+| Semantic episodic memory — current context embedded → pgvector cosine search → top-5 relevant past decisions (cold-start recency fallback) | ✅ Done |
+| Long-term profile — MemoryNode writes behavioral patterns to `user_financial_profiles` after every session | ✅ Done |
+| Analyst persona system prompt with Anthropic prompt caching | ✅ Done |
+| Updated Celery task chain: sync → detect_bills → detect_subscriptions → run_intelligence_pipeline | ✅ Done |
+| `GET /insights` endpoint — analyst decisions feed with `?signal_type=` + `?limit=` filters | ✅ Done |
+| Intelligence Feed page — `app/(app)/intelligence/page.tsx` — cards grouped by signal type | ✅ Done |
+| Dashboard "Latest Intelligence" card — 2 most recent warning/critical decisions | ✅ Done |
+| Bills enrichment drawer — click any bill to see analyst annotations | ✅ Done |
+| Subscriptions enrichment drawer — click any subscription to see annotations + cancel recommendation | ✅ Done |
+| 80 backend tests passing (15 new agent + pipeline tests added) | ✅ Done |
+| CI green on `main` | ✅ Done |
 
 ---
 
@@ -128,7 +130,7 @@
 | Deliverable | Status |
 |---|---|
 | Anomaly detection — z-score outlier flagging, duplicate charge detection, foreign transaction flags | ⬜ Pending |
-| RAG pipeline upgrade — pgvector similarity search on `ai_insights` for richer episodic memory | ⬜ Pending |
+| RAG pipeline upgrade — pgvector similarity search on `ai_insights` for richer episodic memory | ✅ Built in Phase 3.5 |
 | `Financial Memory Timeline` — auto-generated chronological ledger of significant financial events | ⬜ Pending |
 | Continuous Intelligence Briefing — brief fires after every significant event, not monthly schedule | ⬜ Pending |
 | Behavioral Spending Intelligence — velocity spikes, day-of-week patterns, impulse cluster detection | ⬜ Pending |
