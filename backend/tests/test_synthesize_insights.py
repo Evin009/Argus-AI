@@ -3,7 +3,7 @@ from datetime import date, timedelta
 
 import pytest
 
-from tasks.synthesize_insights import (
+from agents.analyst_agent import (
     _aggregate_transactions,
     _build_analyst_brief,
     _parse_synthesis_response,

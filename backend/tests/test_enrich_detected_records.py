@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from tasks.enrich_detected_records import (
+from agents.enrichment_agent import (
     _build_enrichment_prompt,
     _parse_enrichment_response,
 )
