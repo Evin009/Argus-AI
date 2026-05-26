@@ -65,7 +65,7 @@ This plan covers the full build of ArgusAI across 9 phases. Each phase builds on
 
 ---
 
-## Phase 3 — Intelligence Layer 🔄
+## Phase 3 — Intelligence Layer ✅
 *Weeks 7–8 | Pattern detection and classification*
 
 **Goal:** Detect recurring bills and subscriptions, categorize spending with AI.
@@ -85,7 +85,7 @@ This plan covers the full build of ArgusAI across 9 phases. Each phase builds on
 
 ---
 
-## Phase 3.5 — AI Intelligence Upgrade ✅
+## Phase 3.5 — AI Intelligence Upgrade ✅ Complete
 *Week 9 | Reasoning analyst with persistent semantic memory*
 
 **Goal:** Transform detection output from statistics into analyst-quality reasoning that learns each user's financial behavior over time — using a LangGraph multi-agent pipeline and pgvector RAG for semantic episodic memory.

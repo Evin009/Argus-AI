@@ -11,8 +11,8 @@
 | Phase 1 | Foundation | ✅ Complete | 1–2 |
 | Phase 1.5 | Design System | ✅ Complete | 3–4 |
 | Phase 2 | Bank Data Pipeline | ✅ Complete | 5–6 |
-| Phase 3 | Intelligence Layer | 🔄 In Progress | 7–8 |
-| Phase 3.5 | AI Intelligence Upgrade | 🔄 In Progress | 9 |
+| Phase 3 | Intelligence Layer | ✅ Complete | 7–8 |
+| Phase 3.5 | AI Intelligence Upgrade | ✅ Complete | 9 |
 | Phase 4 | Continuous Intelligence & Memory | ⬜ Not Started | 10–11 |
 | Phase 5 | Daily Financial Pulse | ⬜ Not Started | 12–13 |
 | Phase 6 | Copilot & Advanced Simulations | ⬜ Not Started | 14–16 |
@@ -84,7 +84,7 @@
 
 ---
 
-## Phase 3 — Intelligence Layer 🔄
+## Phase 3 — Intelligence Layer ✅
 **Goal:** Detect patterns, categorize spending, surface subscriptions and bills.
 
 | Deliverable | Status |
@@ -97,11 +97,11 @@
 | Bills Calendar — monthly view, color-coded by urgency | ✅ Done |
 | Subscriptions page with price creep badges and monthly total | ✅ Done |
 | Dashboard updated with upcoming bills + subscription cards | ✅ Done |
-| CI green on `main` | ⬜ Pending |
+| CI green on `main` | ✅ Done |
 
 ---
 
-## Phase 3.5 — AI Intelligence Upgrade 🔄
+## Phase 3.5 — AI Intelligence Upgrade ✅
 **Goal:** Transform the intelligence layer from statistics + classification into a reasoning financial analyst with persistent semantic memory.
 
 | Deliverable | Status |
@@ -120,7 +120,7 @@
 | Bills enrichment drawer — click any bill to see analyst annotations | ✅ Done |
 | Subscriptions enrichment drawer — click any subscription to see annotations + cancel recommendation | ✅ Done |
 | 80 backend tests passing (15 new agent + pipeline tests added) | ✅ Done |
-| CI green on `main` | ⬜ Pending |
+| CI green on `main` | ✅ Done |
 
 ---
 
