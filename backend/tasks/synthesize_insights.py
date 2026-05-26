@@ -1,6 +1,13 @@
 import json
+import os
+import uuid
 from collections import defaultdict
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
+
+import anthropic
+
+from celery_app import celery
+from db.client import get_supabase
 
 _ANALYST_SYSTEM_PROMPT = """You are ArgusAI's financial intelligence analyst. You have access to a user's complete financial picture.
 
@@ -116,3 +123,113 @@ def _parse_synthesis_response(response_text: str) -> dict:
         "decisions": parsed.get("decisions", []),
         "updated_profile": parsed.get("updated_profile", {}),
     }
+
+
+@celery.task(name="tasks.synthesize_insights.synthesize_insights_for_user")
+def synthesize_insights_for_user(user_id: str) -> dict:
+    supabase = get_supabase()
+
+    accts = (
+        supabase.table("accounts")
+        .select("account_type, balance, credit_limit")
+        .eq("user_id", user_id)
+        .execute()
+    )
+    account_ids_result = (
+        supabase.table("accounts")
+        .select("id")
+        .eq("user_id", user_id)
+        .execute()
+    )
+    account_ids = [a["id"] for a in account_ids_result.data or []]
+
+    bills_result = (
+        supabase.table("bills")
+        .select("merchant, avg_amount, next_due_date, ai_enrichment")
+        .eq("user_id", user_id)
+        .execute()
+    )
+    subs_result = (
+        supabase.table("subscriptions")
+        .select("merchant, avg_amount, price_change_pct, ai_enrichment")
+        .eq("user_id", user_id)
+        .eq("is_active", True)
+        .execute()
+    )
+
+    txn_result = (
+        supabase.table("transactions")
+        .select("category, amount, timestamp")
+        .in_("account_id", account_ids)
+        .order("timestamp", desc=True)
+        .limit(500)
+        .execute()
+    ) if account_ids else type("R", (), {"data": []})()
+
+    past_insights = (
+        supabase.table("ai_insights")
+        .select("summary, created_at")
+        .eq("user_id", user_id)
+        .eq("insight_type", "analyst_decision")
+        .order("created_at", desc=True)
+        .limit(5)
+        .execute()
+    ).data or []
+
+    profile_result = (
+        supabase.table("user_financial_profiles")
+        .select("profile")
+        .eq("user_id", user_id)
+        .execute()
+    )
+    profile = profile_result.data[0]["profile"] if profile_result.data else {}
+
+    tx_summary = _aggregate_transactions(txn_result.data or [])
+    brief = _build_analyst_brief(
+        accounts=accts.data or [],
+        bills=bills_result.data or [],
+        subscriptions=subs_result.data or [],
+        tx_summary=tx_summary,
+        past_insights=past_insights,
+        profile=profile,
+    )
+
+    client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+    try:
+        message = client.messages.create(
+            model="claude-sonnet-4-6",
+            max_tokens=8096,
+            system=[{
+                "type": "text",
+                "text": _ANALYST_SYSTEM_PROMPT,
+                "cache_control": {"type": "ephemeral"},
+            }],
+            messages=[{"role": "user", "content": brief}],
+        )
+        response_text = message.content[0].text
+    except Exception:
+        return {"user_id": user_id, "decisions_written": 0}
+
+    result = _parse_synthesis_response(response_text)
+
+    now = datetime.now(timezone.utc).isoformat()
+    decisions_written = 0
+    for decision in result.get("decisions", []):
+        supabase.table("ai_insights").insert({
+            "id": str(uuid.uuid4()),
+            "user_id": user_id,
+            "insight_type": "analyst_decision",
+            "summary": decision.get("title", ""),
+            "structured_output_json": decision,
+            "created_at": now,
+        }).execute()
+        decisions_written += 1
+
+    updated_profile = result.get("updated_profile")
+    if updated_profile:
+        supabase.table("user_financial_profiles").upsert(
+            {"user_id": user_id, "profile": updated_profile, "last_updated": now},
+            on_conflict="user_id",
+        ).execute()
+
+    return {"user_id": user_id, "decisions_written": decisions_written}
