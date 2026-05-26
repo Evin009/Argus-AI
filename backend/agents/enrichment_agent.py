@@ -6,9 +6,11 @@ import anthropic
 from agents.state import IntelligenceState
 from db.client import get_supabase
 
-_SYSTEM_PROMPT = """You are ArgusAI's financial intelligence analyst. Your job is to enrich detected financial records with expert annotations.
+_SYSTEM_PROMPT = """You are ArgusAI's financial intelligence analyst.
+Your job is to enrich detected financial records with expert annotations.
 
-For each bill and subscription provided, return structured enrichment that helps users understand their financial picture. Be specific and direct — no generic answers.
+For each bill and subscription provided, return structured enrichment that helps users
+understand their financial picture. Be specific and direct — no generic answers.
 
 Respond ONLY with valid JSON in the exact shape requested. No explanation, no markdown."""
 
@@ -122,12 +124,22 @@ def enrichment_node(state: IntelligenceState) -> dict:
     for item in enrichment.get("bills", []):
         bill_id = item.get("id")
         if bill_id and "enrichment" in item:
-            supabase.table("bills").update({"ai_enrichment": item["enrichment"]}).eq("id", bill_id).execute()
+            (
+                supabase.table("bills")
+                .update({"ai_enrichment": item["enrichment"]})
+                .eq("id", bill_id)
+                .execute()
+            )
 
     for item in enrichment.get("subscriptions", []):
         sub_id = item.get("id")
         if sub_id and "enrichment" in item:
-            supabase.table("subscriptions").update({"ai_enrichment": item["enrichment"]}).eq("id", sub_id).execute()
+            (
+                supabase.table("subscriptions")
+                .update({"ai_enrichment": item["enrichment"]})
+                .eq("id", sub_id)
+                .execute()
+            )
 
     enrichment_by_bill_id = {
         e["id"]: e["enrichment"]
@@ -140,8 +152,12 @@ def enrichment_node(state: IntelligenceState) -> dict:
         if "id" in e and "enrichment" in e
     }
 
-    enriched_bills = [{**b, "ai_enrichment": enrichment_by_bill_id.get(b["id"])} for b in bills]
-    enriched_subs = [{**s, "ai_enrichment": enrichment_by_sub_id.get(s["id"])} for s in subscriptions]
+    enriched_bills = [
+        {**b, "ai_enrichment": enrichment_by_bill_id.get(b["id"])} for b in bills
+    ]
+    enriched_subs = [
+        {**s, "ai_enrichment": enrichment_by_sub_id.get(s["id"])} for s in subscriptions
+    ]
 
     return {
         "enrichment_result": enrichment,

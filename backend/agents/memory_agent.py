@@ -1,6 +1,6 @@
 import os
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from openai import OpenAI
 
@@ -23,7 +23,7 @@ def memory_node(state: IntelligenceState) -> dict:
     updated_profile = state.get("updated_profile", {})
 
     supabase = get_supabase()
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
 
     for decision in decisions:
         title = decision.get("title", "")

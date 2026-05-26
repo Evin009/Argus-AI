@@ -1,10 +1,7 @@
 import json
-from datetime import date, timedelta
 from unittest.mock import MagicMock, patch
 
-import pytest
-
-from agents.analyst_agent import analyst_node, _build_analyst_brief
+from agents.analyst_agent import analyst_node
 from agents.enrichment_agent import enrichment_node
 from agents.memory_agent import memory_node
 from agents.state import IntelligenceState
@@ -111,7 +108,11 @@ def test_analyst_node_returns_decisions():
     with patch("agents.analyst_agent.anthropic.Anthropic", return_value=mock_client):
         result = analyst_node(_base_state(
             accounts=[{"account_type": "checking", "balance": 1000.0, "credit_limit": None}],
-            tx_summary={"FOOD_AND_DRINK": {"monthly_baseline": 200.0, "last_30_total": 280.0, "change_pct": 40.0}},
+            tx_summary={
+                "FOOD_AND_DRINK": {
+                    "monthly_baseline": 200.0, "last_30_total": 280.0, "change_pct": 40.0
+                }
+            },
         ))
 
     assert len(result["decisions"]) == 1

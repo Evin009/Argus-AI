@@ -24,5 +24,8 @@ async def get_insights(
     )
     data = result.data or []
     if signal_type:
-        data = [r for r in data if (r.get("structured_output_json") or {}).get("signal_type") == signal_type]
+        data = [
+            r for r in data
+            if (r.get("structured_output_json") or {}).get("signal_type") == signal_type
+        ]
     return data

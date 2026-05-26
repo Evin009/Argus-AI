@@ -51,9 +51,10 @@ def test_retrieve_relevant_insights_returns_empty_on_error():
 
 def test_pipeline_task_returns_decisions_written():
     mock_supabase = MagicMock()
-    mock_supabase.table.return_value.select.return_value.eq.return_value.execute.return_value.data = []
-    mock_supabase.table.return_value.select.return_value.eq.return_value.eq.return_value.execute.return_value.data = []
-    mock_supabase.table.return_value.select.return_value.eq.return_value.in_.return_value.order.return_value.limit.return_value.execute.return_value.data = []
+    eq = mock_supabase.table.return_value.select.return_value.eq.return_value
+    eq.execute.return_value.data = []
+    eq.eq.return_value.execute.return_value.data = []
+    eq.in_.return_value.order.return_value.limit.return_value.execute.return_value.data = []
 
     mock_graph = MagicMock()
     mock_graph.invoke.return_value = {

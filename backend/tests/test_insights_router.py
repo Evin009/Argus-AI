@@ -1,7 +1,5 @@
-import json
 from unittest.mock import MagicMock, patch
 
-import pytest
 from fastapi.testclient import TestClient
 
 from main import app
@@ -30,7 +28,8 @@ _DECISION = {
 
 def _mock_supabase(rows: list[dict]):
     mock = MagicMock()
-    mock.table.return_value.select.return_value.eq.return_value.eq.return_value.order.return_value.limit.return_value.execute.return_value.data = rows
+    chain = mock.table.return_value.select.return_value.eq.return_value.eq.return_value
+    chain.order.return_value.limit.return_value.execute.return_value.data = rows
     return mock
 
 
@@ -56,7 +55,13 @@ def test_get_insights_limit_capped_at_50():
 
 
 def test_get_insights_signal_type_filter():
-    risk_decision = {**_DECISION, "structured_output_json": {**_DECISION["structured_output_json"], "signal_type": "risk"}}
+    risk_decision = {
+        **_DECISION,
+        "structured_output_json": {
+            **_DECISION["structured_output_json"],
+            "signal_type": "risk",
+        },
+    }
     rows = [_DECISION, risk_decision]
     with patch("routers.insights.get_supabase", return_value=_mock_supabase(rows)):
         resp = client.get("/insights?signal_type=behavioral")
@@ -74,7 +79,13 @@ def test_get_insights_empty():
 
 
 def test_get_insights_no_signal_type_returns_all():
-    risk_decision = {**_DECISION, "structured_output_json": {**_DECISION["structured_output_json"], "signal_type": "risk"}}
+    risk_decision = {
+        **_DECISION,
+        "structured_output_json": {
+            **_DECISION["structured_output_json"],
+            "signal_type": "risk",
+        },
+    }
     rows = [_DECISION, risk_decision]
     with patch("routers.insights.get_supabase", return_value=_mock_supabase(rows)):
         resp = client.get("/insights")

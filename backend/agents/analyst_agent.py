@@ -7,9 +7,11 @@ import anthropic
 
 from agents.state import IntelligenceState
 
-_ANALYST_SYSTEM_PROMPT = """You are ArgusAI's financial intelligence analyst. You have access to a user's complete financial picture.
+_ANALYST_SYSTEM_PROMPT = """You are ArgusAI's financial intelligence analyst.
+You have access to a user's complete financial picture.
 
-Reason like a senior financial analyst: identify what matters, simulate forward implications, and produce structured actionable decisions.
+Reason like a senior financial analyst: identify what matters,
+simulate forward implications, and produce structured actionable decisions.
 
 Rules:
 - Never describe data — interpret it
@@ -72,7 +74,11 @@ def _build_analyst_brief(
             {
                 "title": i.get("summary"),
                 "created_at": i.get("created_at"),
-                "similarity": round(i.get("similarity", 0), 3) if i.get("similarity") is not None else None,
+                "similarity": (
+                    round(i.get("similarity", 0), 3)
+                    if i.get("similarity") is not None
+                    else None
+                ),
             }
             for i in past_insights
         ],
@@ -81,10 +87,25 @@ def _build_analyst_brief(
     return (
         f"Today: {today}\n\n"
         f"USER FINANCIAL PROFILE (long-term memory):\n{json.dumps(profile, indent=2)}\n\n"
-        f"RELEVANT PAST DECISIONS (semantic memory — ranked by relevance to current situation):\n{recent_memory}\n\n"
-        f"CURRENT ACCOUNTS:\n{json.dumps([{'type': a.get('account_type'), 'balance': a.get('balance'), 'credit_limit': a.get('credit_limit')} for a in accounts], indent=2)}\n\n"
-        f"UPCOMING BILLS:\n{json.dumps([{'merchant': b.get('merchant'), 'amount': b.get('avg_amount'), 'due': b.get('next_due_date'), 'enrichment': b.get('ai_enrichment')} for b in bills], indent=2)}\n\n"
-        f"ACTIVE SUBSCRIPTIONS:\n{json.dumps([{'merchant': s.get('merchant'), 'amount': s.get('avg_amount'), 'price_change_pct': s.get('price_change_pct'), 'enrichment': s.get('ai_enrichment')} for s in subscriptions], indent=2)}\n\n"
+        f"RELEVANT PAST DECISIONS"
+        f" (semantic memory — ranked by relevance to current situation):"
+        f"\n{recent_memory}\n\n"
+        f"CURRENT ACCOUNTS:\n{json.dumps([
+            {'type': a.get('account_type'), 'balance': a.get('balance'),
+             'credit_limit': a.get('credit_limit')}
+            for a in accounts
+        ], indent=2)}\n\n"
+        f"UPCOMING BILLS:\n{json.dumps([
+            {'merchant': b.get('merchant'), 'amount': b.get('avg_amount'),
+             'due': b.get('next_due_date'), 'enrichment': b.get('ai_enrichment')}
+            for b in bills
+        ], indent=2)}\n\n"
+        f"ACTIVE SUBSCRIPTIONS:\n{json.dumps([
+            {'merchant': s.get('merchant'), 'amount': s.get('avg_amount'),
+             'price_change_pct': s.get('price_change_pct'),
+             'enrichment': s.get('ai_enrichment')}
+            for s in subscriptions
+        ], indent=2)}\n\n"
         f"SPENDING SUMMARY (last 90 days by category):\n{json.dumps(tx_summary, indent=2)}\n\n"
         f"Generate 3-5 analyst decisions AND an updated user profile.\n\n"
         f"Return this exact JSON shape:\n"

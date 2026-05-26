@@ -48,9 +48,18 @@ def test_aggregate_skips_bad_timestamps():
 
 def test_build_analyst_brief_includes_all_sections():
     accounts = [{"account_type": "checking", "balance": 1000.0, "credit_limit": None}]
-    bills = [{"merchant": "Rent", "avg_amount": 1200.0, "next_due_date": "2026-06-01", "ai_enrichment": None}]
-    subs = [{"merchant": "Netflix", "avg_amount": 15.99, "price_change_pct": 0.0, "ai_enrichment": None}]
-    tx_summary = {"FOOD_AND_DRINK": {"monthly_baseline": 200.0, "last_30_total": 280.0, "change_pct": 40.0}}
+    bills = [
+        {
+            "merchant": "Rent", "avg_amount": 1200.0,
+            "next_due_date": "2026-06-01", "ai_enrichment": None,
+        }
+    ]
+    subs = [
+        {"merchant": "Netflix", "avg_amount": 15.99, "price_change_pct": 0.0, "ai_enrichment": None}
+    ]
+    tx_summary = {
+        "FOOD_AND_DRINK": {"monthly_baseline": 200.0, "last_30_total": 280.0, "change_pct": 40.0}
+    }
     brief = _build_analyst_brief(accounts, bills, subs, tx_summary, [], {})
     assert "Rent" in brief
     assert "Netflix" in brief
