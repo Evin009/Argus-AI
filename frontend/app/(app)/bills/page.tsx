@@ -7,6 +7,13 @@ import { useEffect, useState } from "react";
 
 import { api } from "@/lib/api";
 
+type BillEnrichment = {
+  ai_confidence: number;
+  merchant_context: string;
+  classification_note: string;
+  is_subscription_candidate: boolean;
+};
+
 type Bill = {
   id: string;
   merchant: string;
@@ -14,6 +21,7 @@ type Bill = {
   avg_amount: number;
   next_due_date: string;
   last_seen: string;
+  ai_enrichment: BillEnrichment | null;
 };
 
 function daysUntil(dateStr: string): number {
@@ -42,6 +50,7 @@ function urgencyLabel(dateStr: string): string {
 export default function BillsPage() {
   const [bills, setBills] = useState<Bill[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedBill, setSelectedBill] = useState<Bill | null>(null);
 
   useEffect(() => {
     api
@@ -112,9 +121,20 @@ export default function BillsPage() {
         ) : (
           <div className="divide-y divide-gray-800/50">
             {bills.map((bill) => (
-              <div key={bill.id} className="px-6 py-4 flex items-center justify-between">
+              <button
+                key={bill.id}
+                onClick={() => setSelectedBill(bill)}
+                className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-800/40 transition-colors text-left"
+              >
                 <div>
-                  <p className="text-sm text-white">{bill.merchant}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm text-white">{bill.merchant}</p>
+                    {bill.ai_enrichment && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-indigo-900/40 text-indigo-400 border border-indigo-800/40">
+                        AI
+                      </span>
+                    )}
+                  </div>
                   <p className="text-xs text-gray-500 mt-0.5">
                     {bill.recurrence_pattern.charAt(0).toUpperCase() +
                       bill.recurrence_pattern.slice(1)}{" "}
@@ -135,11 +155,104 @@ export default function BillsPage() {
                     })}
                   </p>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         )}
       </div>
+
+      {/* Enrichment drawer */}
+      {selectedBill && (
+        <div className="fixed inset-0 z-50 flex justify-end">
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setSelectedBill(null)}
+          />
+          <div className="relative w-full max-w-sm bg-gray-900 border-l border-gray-800 h-full overflow-y-auto flex flex-col">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-gray-800">
+              <div>
+                <p className="text-sm font-semibold text-white">{selectedBill.merchant}</p>
+                <p className="text-xs text-gray-500 mt-0.5 capitalize">
+                  {selectedBill.recurrence_pattern} bill
+                </p>
+              </div>
+              <button
+                onClick={() => setSelectedBill(null)}
+                className="text-gray-500 hover:text-white transition-colors"
+              >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="px-6 py-5 space-y-5">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-gray-800/60 rounded-xl p-4">
+                  <p className="text-xs text-gray-500 mb-1">Avg Amount</p>
+                  <p className="text-lg font-bold text-white">
+                    ${selectedBill.avg_amount.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                  </p>
+                </div>
+                <div className="bg-gray-800/60 rounded-xl p-4">
+                  <p className="text-xs text-gray-500 mb-1">Next Due</p>
+                  <p className="text-lg font-bold text-white">
+                    {new Date(selectedBill.next_due_date).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                    })}
+                  </p>
+                </div>
+              </div>
+
+              {selectedBill.ai_enrichment ? (
+                <>
+                  <div>
+                    <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">AI Analysis</p>
+                    <div className="space-y-3">
+                      <div className="bg-gray-800/40 rounded-xl p-4">
+                        <p className="text-xs text-gray-500 mb-1">Merchant Context</p>
+                        <p className="text-sm text-gray-200">{selectedBill.ai_enrichment.merchant_context}</p>
+                      </div>
+                      <div className="bg-gray-800/40 rounded-xl p-4">
+                        <p className="text-xs text-gray-500 mb-1">Classification Note</p>
+                        <p className="text-sm text-gray-200">{selectedBill.ai_enrichment.classification_note}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-gray-500 mb-1">AI Confidence</p>
+                      <div className="flex items-center gap-2">
+                        <div className="w-24 h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-indigo-500 rounded-full"
+                            style={{ width: `${selectedBill.ai_enrichment.ai_confidence * 100}%` }}
+                          />
+                        </div>
+                        <span className="text-xs text-gray-400">
+                          {Math.round(selectedBill.ai_enrichment.ai_confidence * 100)}%
+                        </span>
+                      </div>
+                    </div>
+                    {selectedBill.ai_enrichment.is_subscription_candidate && (
+                      <span className="text-xs px-2.5 py-1 rounded-full bg-purple-900/40 text-purple-300 border border-purple-800/40">
+                        Subscription candidate
+                      </span>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <div className="bg-gray-800/40 rounded-xl p-5 text-center">
+                  <p className="text-sm text-gray-500">No AI enrichment yet.</p>
+                  <p className="text-xs text-gray-600 mt-1">Enrichment runs after the next sync.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

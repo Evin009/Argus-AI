@@ -93,4 +93,7 @@ def detect_subscriptions_for_user(user_id: str) -> dict:
             sub, on_conflict="user_id,merchant"
         ).execute()
 
+    from tasks.run_intelligence_pipeline import run_intelligence_pipeline_for_user
+    run_intelligence_pipeline_for_user.delay(user_id)
+
     return {"user_id": user_id, "subscriptions_detected": len(subs)}
