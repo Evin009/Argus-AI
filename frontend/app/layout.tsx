@@ -1,33 +1,33 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, Manrope, Playfair_Display } from "next/font/google";
+import { Instrument_Serif, Hanken_Grotesk, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
+const instrumentSerif = Instrument_Serif({
+  variable: "--font-instrument-serif",
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+  weight: "400",
+  display: "swap",
+});
+
+const hankenGrotesk = Hanken_Grotesk({
+  variable: "--font-hanken-grotesk",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
   display: "swap",
 });
 
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
+const ibmPlexMono = IBM_Plex_Mono({
+  variable: "--font-ibm-plex-mono",
   subsets: ["latin"],
-  style: ["italic"],
-  weight: ["400", "700"],
-  display: "swap",
-});
-
-const manrope = Manrope({
-  variable: "--font-manrope",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "ArgusAI — Your finances, one step ahead.",
+  title: "Argus — Your money, watched.",
   description:
-    "ArgusAI predicts cashflow, detects risk before it happens, and gives you an AI that reasons about your real money — not generic advice.",
+    "Argus predicts cashflow, detects risk before it happens, and gives you an AI that reasons about your real money.",
 };
 
 export default function RootLayout({
@@ -36,9 +36,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${spaceGrotesk.variable} ${manrope.variable} ${playfair.variable} h-full antialiased`}
+      className={`${instrumentSerif.variable} ${hankenGrotesk.variable} ${ibmPlexMono.variable} h-full`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full">{children}</body>
     </html>
   );
 }

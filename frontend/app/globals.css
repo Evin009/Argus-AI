@@ -1,118 +1,232 @@
 @import "tailwindcss";
 
-/* ─── ArgusAI Design Tokens ───────────────────────────────────────── */
+/* ─── ArgusAI Design Tokens ─────────────────────────────────────── */
 :root {
-  --background:        #101415;
-  --surface:           #1c2021;
-  --surface-low:       #181c1d;
-  --surface-lowest:    #0b0f10;
-  --surface-high:      #272b2c;
-  --surface-bright:    #363a3b;
+  /* Canvas */
+  --surface-0: #0E0C0A;
+  --surface-1: #181410;
+  --surface-2: #201C17;
+  --surface-3: rgba(255,255,255,0.08);
 
-  --on-background:     #e0e3e4;
-  --on-surface:        #e0e3e4;
-  --on-muted:          #9a8f86;
+  /* Text */
+  --paper: #F0EAE0;
+  --on-dark-900: #F0EAE0;
+  --on-dark-600: #B0A898;
+  --on-dark-400: #7A7168;
 
-  --border:            #4e453e;
+  /* Copper accent (sampled from Argus logo) */
+  --copper:      #BE7740;
+  --amber-300:   #D89A5C;
+  --amber-400:   #C8824A;
+  --amber-500:   #BE7740;
+  --amber-600:   #A86838;
+  --amber-700:   #8A5429;
+  --amber-tint-dark: rgba(190,119,64,0.10);
+  --accent-red:  #A8412B;
+  --grad-accent: linear-gradient(140deg, #C8824A 0%, #BE7740 58%, #A8412B 100%);
 
-  --accent:            #ecbca7;
-  --accent-light:      #fde4d0;
-  --accent-on:         #3c2e20;
-  --accent-container:  #634131;
+  /* Semantic */
+  --positive-bright: #4ADE80;
+  --negative-bright: #F87171;
+  --info:  #60A5FA;
+  --taupe: #A8956E;
 
-  --positive:          #22c55e;
-  --warning:           #f59e0b;
-  --danger:            #ef4444;
-  --neutral:           #3b82f6;
+  /* Radii */
+  --r-sm:   6px;
+  --r-md:   10px;
+  --r-lg:   14px;
+  --r-xl:   18px;
+  --r-pill: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.5), 0 2px 6px rgba(0,0,0,0.3);
 }
 
 @theme inline {
-  --color-background:        var(--background);
-  --color-surface:           var(--surface);
-  --color-surface-low:       var(--surface-low);
-  --color-surface-lowest:    var(--surface-lowest);
-  --color-surface-high:      var(--surface-high);
-  --color-surface-bright:    var(--surface-bright);
+  --color-canvas:   var(--surface-0);
+  --color-surface:  var(--surface-1);
+  --color-inset:    var(--surface-2);
+  --color-border:   var(--surface-3);
+  --color-paper:    var(--paper);
+  --color-muted:    var(--on-dark-400);
+  --color-copper:   var(--copper);
+  --color-red:      var(--accent-red);
+  --color-positive: var(--positive-bright);
+  --color-negative: var(--negative-bright);
+  --color-info:     var(--info);
 
-  --color-on-background:     var(--on-background);
-  --color-on-surface:        var(--on-surface);
-  --color-on-muted:          var(--on-muted);
-
-  --color-border:            var(--border);
-
-  --color-accent:            var(--accent);
-  --color-accent-light:      var(--accent-light);
-  --color-accent-on:         var(--accent-on);
-  --color-accent-container:  var(--accent-container);
-
-  --color-positive:          var(--positive);
-  --color-warning:           var(--warning);
-  --color-danger:            var(--danger);
-  --color-neutral:           var(--neutral);
-
-  --font-display: var(--font-space-grotesk), "Space Grotesk", sans-serif;
-  --font-body:    var(--font-manrope), "Manrope", sans-serif;
-  --font-serif:   var(--font-playfair), "Playfair Display", serif;
+  --font-display: var(--font-instrument-serif), "Instrument Serif", serif;
+  --font-sans:    var(--font-hanken-grotesk),  "Hanken Grotesk", sans-serif;
+  --font-mono:    var(--font-ibm-plex-mono),   "IBM Plex Mono", monospace;
 }
 
-/* ─── Base ─────────────────────────────────────────────────────────── */
+/* ─── Base ──────────────────────────────────────────────────────── */
 body {
-  background-color: var(--background);
-  color: var(--on-background);
-  font-family: var(--font-manrope), "Manrope", sans-serif;
+  background-color: var(--surface-0);
+  color: var(--paper);
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ─── shadcn/ui Semantic Variables ─────────────────────────────────── */
-/* Maps shadcn's expected token names to ArgusAI brand tokens           */
+/* ─── Light mode ─────────────────────────────────────────────────── */
+body.light {
+  --surface-0: #ECE3D2;
+  --surface-1: #FCF8F0;
+  --surface-2: #F2E8D7;
+  --surface-3: rgba(20,17,13,0.12);
+  --paper:          #1C1815;
+  --on-dark-900:    #1C1815;
+  --on-dark-600:    #4A433B;
+  --on-dark-400:    #6B6052;
+}
+body.light .arg-panel { box-shadow: var(--shadow-md); }
+
+/* ─── Film grain (copper/accent surfaces only) ───────────────────── */
+.grain { position: relative; isolation: isolate; }
+.grain > * { position: relative; z-index: 1; }
+.grain::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  opacity: 0.42;
+  background-size: 130px 130px, 145px 145px;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='130' height='130'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.15' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0.85 0 0 0 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='145' height='145'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.3' numOctaves='3' stitchTiles='stitch' seed='7'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.8 0 0 0 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)'/%3E%3C/svg%3E");
+}
+body.light .grain::after {
+  opacity: 0.55; mix-blend-mode: multiply; background-size: 150px 150px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.75 0 0 0 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ─── Tabular numerals ────────────────────────────────────────────── */
+.figure { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+
+/* ─── Scrollbar ───────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: var(--r-pill); }
+::-webkit-scrollbar-thumb:hover { background: var(--on-dark-400); }
+
+/* ─── Skeleton pulse ─────────────────────────────────────────────── */
+@keyframes argPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+.skeleton { animation: argPulse 1.5s ease-in-out infinite; }
+
+/* ─── Dashboard grid ─────────────────────────────────────────────── */
+.arg-grid {
+  display: grid;
+  grid-template-columns: minmax(320px, 1fr) minmax(290px, 1.12fr) minmax(330px, 1.28fr);
+  gap: 14px;
+}
+.arg-col { display: flex; flex-direction: column; gap: 14px; }
+
+/* ─── TopNav tabs (horizontal scroll on narrow viewports) ─────────── */
+.arg-topnav-tabs {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.arg-topnav-tabs::-webkit-scrollbar { display: none; }
+
+/* ─── Focus visible ──────────────────────────────────────────────── */
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--amber-400);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+
+/* ─── Dark card gradient tokens ──────────────────────────────────── */
 :root {
-  --radius: 0.5rem;
-  --card:                  var(--surface);
-  --card-foreground:       var(--on-surface);
-  --popover:               var(--surface);
-  --popover-foreground:    var(--on-surface);
-  --primary:               var(--accent-light);
-  --primary-foreground:    var(--accent-on);
-  --secondary:             var(--surface-high);
-  --secondary-foreground:  var(--on-surface);
-  --muted:                 var(--surface-low);
-  --muted-foreground:      var(--on-muted);
-  --destructive:           var(--danger);
-  --destructive-foreground: var(--on-surface);
-  --input:                 var(--border);
-  --ring:                  var(--accent);
+  --card-dark-from: #2A251D;
+  --card-dark-to:   #14110D;
 }
 
-/* ─── Scrollbar ─────────────────────────────────────────────────────── */
-::-webkit-scrollbar        { width: 5px; }
-::-webkit-scrollbar-track  { background: var(--surface-lowest); }
-::-webkit-scrollbar-thumb  { background: var(--border); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--on-muted); }
-
-/* ─── Aurora Animations ─────────────────────────────────────────────── */
-@keyframes aurora-1 {
-  0%, 100% { transform: translate(0, 0) scale(1);   opacity: 0.20; }
-  33%       { transform: translate(60px, -40px) scale(1.08); opacity: 0.28; }
-  66%       { transform: translate(-30px, 20px) scale(0.93); opacity: 0.14; }
+/* ─── Reduced motion ─────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .spending-bar-fill { transition: none !important; }
+  .skeleton { animation: none; opacity: 0.5; }
+  .card-in, .greeting-in, .banner-in { animation: none; opacity: 1; transform: none; }
 }
 
-@keyframes aurora-2 {
-  0%, 100% { transform: translate(0, 0) scale(1);    opacity: 0.14; }
-  50%       { transform: translate(-80px, 60px) scale(1.18); opacity: 0.22; }
+/* ─── Easing constants ───────────────────────────────────────────── */
+:root {
+  --ease-out-expo: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
 }
 
-@keyframes aurora-3 {
-  0%, 100% { transform: translate(0, 0) scale(1);   opacity: 0.10; }
-  40%       { transform: translate(40px, -60px) scale(0.88); opacity: 0.17; }
-  80%       { transform: translate(-20px, 30px) scale(1.08); opacity: 0.08; }
+/* ─── Press states ───────────────────────────────────────────────── */
+.pressable {
+  transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.pressable:active {
+  transform: scale(0.97);
 }
 
-.aurora-blob-1 { animation: aurora-1 14s ease-in-out infinite; }
-.aurora-blob-2 { animation: aurora-2 18s ease-in-out infinite; animation-delay: -5s; }
-.aurora-blob-3 { animation: aurora-3 22s ease-in-out infinite; animation-delay: -9s; }
+/* Gradient CTA — deeper shadow lift on hover */
+.pressable-cta {
+  transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), box-shadow 200ms ease-out;
+}
+.pressable-cta:active {
+  transform: scale(0.97);
+}
+@media (hover: hover) and (pointer: fine) {
+  .pressable-cta:hover {
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 10px 32px rgba(168,65,43,0.46) !important;
+  }
+}
 
-/* ─── Utility ───────────────────────────────────────────────────────── */
-.text-shadow-hero {
-  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.8), 0 2px 4px rgba(0, 0, 0, 0.5);
+/* ─── Tooltip entrance ───────────────────────────────────────────── */
+@keyframes tooltipSlideIn {
+  from { opacity: 0; transform: translateY(-50%) translateX(-6px); }
+  to   { opacity: 1; transform: translateY(-50%) translateX(0); }
+}
+.tooltip-enter {
+  animation: tooltipSlideIn 140ms cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+/* ─── Dashboard card stagger ─────────────────────────────────────── */
+@keyframes cardFadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.card-in {
+  opacity: 0;
+  animation: cardFadeUp 320ms cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+/* ─── Greeting + banner entrance ─────────────────────────────────── */
+@keyframes greetFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.greeting-in {
+  animation: greetFadeIn 400ms ease-out forwards;
+}
+
+@keyframes bannerSlideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.banner-in {
+  animation: bannerSlideDown 260ms cubic-bezier(0.23, 1, 0.32, 1) forwards;
+  animation-delay: 80ms;
+  opacity: 0;
+}
+
+/* ─── Activity row hover ─────────────────────────────────────────── */
+.activity-row {
+  transition: background 120ms ease-out;
+  border-radius: var(--r-md);
+}
+@media (hover: hover) and (pointer: fine) {
+  .activity-row:hover {
+    background: rgba(255, 255, 255, 0.04);
+  }
 }
