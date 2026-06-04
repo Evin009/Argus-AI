@@ -89,7 +89,7 @@ function RailBtn({
     width: 44, height: 44, borderRadius: "var(--r-md)", border: "none",
     cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
     position: "relative", background: active ? "var(--surface-2)" : "transparent",
-    color: active ? "var(--amber-400)" : hovered ? "var(--on-dark-600)" : "var(--on-dark-400)",
+    color: active ? "var(--copper)" : hovered ? "var(--on-dark-600)" : "var(--on-dark-400)",
     transition: "background 150ms cubic-bezier(0.23,1,0.32,1), color 150ms cubic-bezier(0.23,1,0.32,1), transform 160ms cubic-bezier(0.23,1,0.32,1)",
     textDecoration: "none",
   };
@@ -97,7 +97,7 @@ function RailBtn({
   const indicator = active ? (
     <span style={{
       position: "absolute", left: -14, top: "50%", transform: "translateY(-50%)",
-      width: 3, height: 18, borderRadius: 3, background: "var(--amber-400)",
+      width: 3, height: 18, borderRadius: 3, background: "var(--copper)",
     }} />
   ) : null;
 
@@ -187,7 +187,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               style={{
                 width: 30, height: 30, borderRadius: "50%", border: "none", cursor: "pointer",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                background: theme === mode ? "var(--amber-500)" : "transparent",
+                background: theme === mode ? "var(--copper)" : "transparent",
                 color: theme === mode ? "#fff" : "var(--on-dark-400)",
                 transition: "background .15s, color .15s",
               }}
