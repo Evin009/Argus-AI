@@ -2,7 +2,7 @@
 
 **Every other finance app is a mirror. ArgusAI is a window.**
 
-Mint, Rocket Money, Monarch — they all show you what you already spent and call that insight. ArgusAI watches your money the way a senior financial analyst would: continuously, proactively, and with memory of who you are. It predicts what's coming, fires decisions before you ask, and gets smarter about your specific financial behavior every single day.
+Mint, Rocket Money, Monarch — they show you what you already spent. ArgusAI watches your money the way a senior financial analyst would: continuously, proactively, and with memory of who you are. It predicts what is coming, warns before problems happen, and gets smarter about your specific financial behavior every single day.
 
 ---
 
@@ -11,56 +11,64 @@ Mint, Rocket Money, Monarch — they all show you what you already spent and cal
 | Everyone Else | ArgusAI |
 |---|---|
 | Shows past spending | Simulates the next 60 days |
-| Alerts after overdrafts | Warns 5–10 days before |
-| Generic budget advice | Decisions grounded in your real numbers |
+| Alerts after overdrafts | Warns before they happen |
+| Generic advice | Decisions grounded in your real numbers |
 | No memory between sessions | Learns your behavior over time |
-| Monthly reports | Intelligence fires after every sync |
+| App you open | System that watches you |
 
 ---
 
-## Feature Tiers
+## Features
 
-### Tier 1 — Core Foundation
-Everything runs on this. Bank linking via Plaid, real-time transaction sync, AI categorization, recurring bill detection, and subscription tracking with price creep detection.
+### Tier 1 — Daily Intelligence
+- **Safe to Spend Today** — one number updated every morning. Your real spending power after all committed bills, goals, and buffer are subtracted. Not your balance.
+- **Smart Payment Calendar** — unified calendar with brand logos, dropdown filters, and AI-recommended payment dates that are goal-aware.
 
-### Tier 2 — Daily Intelligence
-The features you open every morning.
-- **Safe to Spend Today** — your real spending power after everything committed is subtracted. Not your balance.
-- **Financial Weather Forecast** — 7 and 30-day risk narrative. *Clear. Mild turbulence. Storm warning.*
-- **Financial Stress Index** — how much pressure are you under *right now*, regardless of your overall health score.
-- **Pay Timing Intelligence** — exactly when and how much to pay each card to optimize credit utilization before your closing date.
-- **Budget Strategy from Bill Changes** — when any bill increases, ArgusAI immediately generates three ways to absorb it.
-- **Financial Memory Timeline** — a chronological story of your financial life, auto-generated.
+### Tier 2 — Know Yourself
+- **Argus Guardian** — ambient intelligence outside the app. Chrome extension intercepts financial decisions at checkout and fires a visual verdict before you spend. Post-purchase: immediate recovery plan.
+- **Financial Profile Page** — three levels deep. Spending breakdown, habit streaks, subscription grid, utilization gauge, biggest spend day. Drill into any category, then into any merchant.
+- **Merchant Intelligence** — per-merchant spending history page, dynamically generated. Charts, frequency heatmap, cost trend, Argus insight. Only exists for merchants you actually use.
+- **AI Copilot** — on-demand financial analyst. Responds with charts, tables, and visual verdicts — never paragraphs. Side panel via Cmd+K on any screen. Voice-enabled.
 
-### Tier 3 — Predictive Intelligence
-Running in the background before you ask a question.
-- **Proactive Analyst Decisions** — after every sync, a Claude-powered analyst reviews your full picture and generates 3–5 structured decisions without you asking.
-- **Behavioral Spending Intelligence** — learns your personal spending rhythm and flags when you deviate.
-- **Continuous Intelligence Briefing** — briefs fire when something worth knowing happens, not on a monthly schedule.
-- **Anomaly Detection** — duplicate charges, spending spikes, foreign transactions flagged with severity scores.
+### Tier 3 — Simulation & Planning
+- **Cashflow Prediction Engine** — 30–60 day forward balance curve with confidence bands. Risk windows highlighted. Scrub any day for projected balance.
+- **Financial Health Score** — 0–100 across four dimensions. Updates daily. Gamified with streak tracking, dimension challenges, and milestone animations.
+- **Scenario Simulator** — income and expense sliders that update cashflow curve, health score, debt payoff date, and goal timeline simultaneously in real time. Custom and Life Events tabs.
+- **Obstacle-Aware Goal Planning** — visual goal cards with Guardian ambient alerts. Recovery plan fires automatically when goal falls behind — three specific options, user picks one, plan updates, Guardian monitors.
 
-### Tier 4 — Simulation & Planning
-Model your financial future before committing to it.
-- **Cashflow Prediction Engine** — probability-weighted 60-day balance curve with confidence bands.
-- **Dynamic Financial Health Score** — 0–100 across four dimensions: Liquidity, Stability, Debt Load, Spending Volatility. Updates daily.
-- **Debt + Cashflow Integrated Simulator** — Snowball vs. Avalanche run *inside* the cashflow engine, not in isolation.
-- **Life Event Simulator** — model a new child, home purchase, job change, or sabbatical before you commit.
-- **Cashflow Scenario Simulator** — move income/expense sliders and see the real-time impact on your forecast, health score, and goals.
-- **Obstacle-Aware Goal Planning** — savings roadmap that identifies the specific months you'll fall short and adjusts.
-- **AI Financial Copilot** — conversational agent with full tool-calling access. Ask anything, get answers grounded in your actual data.
-- **AI Decision Engine** — "Can I afford this $1,400 laptop?" → structured affordability analysis with a simulation.
+### Tier 4 — Decision Intelligence
+- **Subscription Alternative Detection** — detects unused subscriptions, shows a cheaper alternative, one-tap cancel. Annual saving calculated automatically.
+- **Card Routing** — visual card chip per spending category showing which connected card maximizes rewards. Guardian notifies at point of purchase.
+- **Credit Intelligence Hub** — Apple Wallet-style card stack. Per-card utilization, active offers, unused benefits. Total spending power across all cards. Bonus Recommender and credit score integrated.
 
-### Tier 5 — Decision Intelligence
-Turns insight into action.
-- **AI Decision Journal** — log major commitments and get a 90-day check-in on their actual downstream impact.
-- **Subscription ROI Scoring** — infers usage from transaction patterns and calculates cost-per-use for every subscription.
-- **Bill Negotiation + Alternative Detection** — usage analysis → cheaper alternatives → personalized negotiation script. You keep 100% of any savings.
-- **Payment Intelligence Layer** — which card to use for which category to maximize rewards, and exactly how much to pay before your closing date.
-- **Smart Payment Allocation** — when your paycheck lands, ArgusAI recommends exactly how to split it.
+---
 
-### Tier 6 — Ecosystem
-- **Bonus Recommender** — finds current checking, credit card, and HYSA bonuses tailored to your profile using live web search.
-- **Credit Score Integration** — Experian soft-pull, score history, and a full improvement playbook tied to your Pay Timing data.
+## AI Architecture
+
+All financial math runs in Python code. The LLM explains results — it never computes them.
+
+```
+User Query / Guardian Trigger
+        │
+        ▼
+Tiered RAG Memory
+├── Hot layer      → pgvector cosine search (last 90 days)
+├── Distilled      → monthly AI summaries in ai_insights
+└── Profile        → user_financial_profiles (static facts)
+        │
+        ▼
+LangGraph Supervisor
+├── CashflowAgent  → 60-day balance forecast
+├── RiskAgent      → overdraft probability, proactive alerts
+├── DebtAgent      → payoff strategy
+├── GoalAgent      → savings milestones, shortfall detection
+└── CreditAgent    → score analysis + improvement plan
+        │
+        ▼
+Schema-validated JSON → SSE stream → visual response
+```
+
+AI traits running invisibly behind every feature: behavioral fingerprint, anomaly detection, velocity tracking, pattern recognition. Never user-facing — felt in every output.
 
 ---
 
@@ -68,45 +76,47 @@ Turns insight into action.
 
 | Layer | Technology |
 |---|---|
-| Frontend | Next.js 14+ (TypeScript), Tailwind CSS, shadcn/ui, Framer Motion |
-| Backend | FastAPI (Python 3.12) |
-| Database | Supabase — PostgreSQL + pgvector + Realtime + Row-Level Security |
+| Frontend | Next.js 14+ (TypeScript), Tailwind CSS, Framer Motion |
+| Backend | FastAPI (Python 3.11+) |
+| Database | Supabase — PostgreSQL + pgvector + RLS |
 | Auth | Supabase Auth — JWT, Google OAuth, refresh token rotation |
-| AI | Claude Sonnet 4.6 (Anthropic) + LangGraph multi-agent |
+| AI | Claude Sonnet 4.6 + LangGraph multi-agent |
 | RAG | Custom retrieval pipeline over Supabase pgvector |
 | Embeddings | OpenAI text-embedding-3-small |
 | Cache / Jobs | Redis + Celery |
 | Bank Data | Plaid API |
-| Hosting | Vercel (frontend) + Railway (backend + Celery worker) |
+| Logos | Clearbit Logo API |
+| Credit | Experian Connect (soft pull) |
+| Search | Brave Search API (bonuses, alternatives) |
+| Hosting | Vercel (frontend) + Railway (backend + Celery) |
 | Monitoring | Sentry + Axiom |
 | CI/CD | GitHub Actions |
 
 ---
 
-## AI Architecture
+## Desktop Enhancements
 
-Every Copilot response is grounded in retrieved data — no hallucinated financial figures. Queries are embedded, matched against your transaction history via pgvector cosine search, and routed to the right specialist agent.
+Eight product-level enhancements that separate ArgusAI from every competitor:
 
-```
-User Query
-    │
-    ▼
-RAG Retrieval  ──  pgvector (transactions + past insights)
-    │
-    ▼
-LangGraph Supervisor
-    ├── CashflowAgent  →  60-day balance forecast
-    ├── RiskAgent      →  overdraft probability, proactive alerts
-    ├── DebtAgent      →  Snowball vs. Avalanche simulation
-    ├── GoalAgent      →  savings milestones, shortfall detection
-    ├── BonusAgent     →  bank and card bonus discovery
-    └── CreditAgent    →  Experian profile + improvement plan
-    │
-    ▼
-Schema-validated JSON  →  SSE stream to user
-```
+- **Argus Guardian Chrome Extension** — intercepts decisions at checkout in real time
+- **First Insight Engineering** — specific, true, surprising insight on day one
+- **Merchant Logo Database** — Clearbit logos everywhere, no generic icons
+- **Proactive Recovery Plans** — every negative signal comes with an immediate specific fix
+- **Notification Design Obsession** — specific, visual, consistently right
+- **Specificity Standard** — merchant + amount + date required or insight does not ship
+- **Voice Interface** — floating system overlay, quick answers without opening the app
+- **Copilot Side Panel** — Cmd+K on any screen, context-aware, conversation persists
 
-The analyst layer runs separately after every sync — not just when you ask. It loads three tiers of memory (current data, recent decisions, long-term behavioral profile) and generates structured decisions that grow more personalized with each session.
+---
+
+## Platform Strategy
+
+| Phase | Platform |
+|---|---|
+| 1 — Now | Web App — all features, full dashboard |
+| 2 — Next | Chrome Extension — Argus Guardian |
+| 3 — Later | Desktop App — voice overlay, menu bar, native notifications |
+| 4 — Future | Mobile — iOS/Android, push notifications, Apple Pay intercept, Apple Watch |
 
 ---
 
@@ -117,21 +127,22 @@ The analyst layer runs separately after every sync — not just when you ask. It
 | Phase 1 | Foundation | ✅ Complete |
 | Phase 1.5 | Design System | ✅ Complete |
 | Phase 2 | Bank Data Pipeline | ✅ Complete |
-| Phase 3 | Intelligence Layer | 🔄 In Progress |
-| Phase 3.5 | AI Intelligence Upgrade | ⬜ Up Next |
-| Phase 4 | Continuous Intelligence & Memory | ⬜ |
-| Phase 5 | Daily Financial Pulse | ⬜ |
-| Phase 6 | Copilot & Advanced Simulations | ⬜ |
-| Phase 7 | Decision Intelligence | ⬜ |
-| Phase 8 | Platform Features | ⬜ |
-| Phase 9 | Production Hardening | ⬜ |
+| Phase 3 | Intelligence Layer | ✅ Complete |
+| Phase 3.5 | AI Intelligence Upgrade | ✅ Complete |
+| Phase 4 | Schema Fixes + Onboarding | ⬜ Up Next |
+| Phase 5 | Daily Intelligence | ⬜ |
+| Phase 6 | Financial Profile + Copilot | ⬜ |
+| Phase 7 | Simulation & Planning | ⬜ |
+| Phase 8 | Decision Intelligence | ⬜ |
+| Phase 9 | Argus Guardian Extension | ⬜ |
+| Phase 10 | Desktop App | ⬜ |
+| Phase 11 | Production Hardening | ⬜ |
 
-Full phase plans are in [Phase Plans/](Phase%20Plans/) and the complete roadmap is in [ROADMAP.md](ROADMAP.md).
+Full implementation plan: [Argus Details/product-plan.md](Argus%20Details/product-plan.md)
+Full product detail: [Argus Details/product-detail.md](Argus%20Details/product-detail.md)
 
 ---
 
 ## Scope
 
 ArgusAI is a **read-only intelligence layer** over your existing accounts. It does not invest money, initiate transfers, pull hard credit inquiries, or provide licensed financial advice. All AI outputs include appropriate disclaimers.
-
-Full architecture, data models, and security requirements are in [CLAUDE.md](CLAUDE.md).
