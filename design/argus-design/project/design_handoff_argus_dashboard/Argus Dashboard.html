@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Argus — Dashboard</title>
+<link rel="stylesheet" href="colors_and_type.css">
+<link rel="stylesheet" href="components.css">
+<style>
+  html, body { margin: 0; min-height: 100%; background: var(--surface-0); }
+  * { box-sizing: border-box; }
+  ::selection { background: var(--amber-400); color: var(--ink-900); }
+
+  /* ---- COPPER ACCENT (EXACT sampled from logo: core #BD763E) — remaps the amber ramp ---- */
+  body {
+    --amber-300: #D89A5C;   /* logo highlight copper */
+    --amber-400: #C8824A;   /* accent text / icons on dark */
+    --amber-500: #BE7740;   /* EXACT logo copper (sampled) */
+    --amber-600: #A86838;   /* primary action fill (logo mode tone) */
+    --amber-700: #8A5429;   /* hover */
+    --amber-tint-dark: rgba(190,119,64,0.10);
+    --copper: #BE7740;              /* EXACT logo copper */
+    --accent-red: #A8412B;          /* brick red companion to copper */
+    /* copper-dominant: holds the exact logo copper, red only at the far corner */
+    --grad-accent: linear-gradient(140deg, #C8824A 0%, var(--copper) 58%, var(--accent-red) 100%);
+    --surface-0: #0E0C0A;   /* deep logo black canvas */
+  }
+
+  /* ---- film grain ON BOXES only (matches logo texture) — punchy, dense, dual-tone ---- */
+  .grain { position: relative; isolation: isolate; }
+  .grain > * { position: relative; z-index: 1; }   /* lift content ABOVE the grain */
+  .grain::after {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+    opacity: 0.42;
+    background-size: 130px 130px, 145px 145px;
+    /* layer 1: bright specks · layer 2: dark specks — together = gritty metal grain */
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='130' height='130'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.15' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0.85 0 0 0 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='145' height='145'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.3' numOctaves='3' stitchTiles='stitch' seed='7'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.8 0 0 0 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)'/%3E%3C/svg%3E");
+  }
+  body.light .grain::after { opacity: 0.55; mix-blend-mode: multiply;
+    background-size: 150px 150px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.75 0 0 0 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ---- LIGHT MODE: remap surface + on-dark tokens to warm cream ---- */
+  body.light {
+    --surface-0: #ECE3D2;
+    --surface-1: #FCF8F0;
+    --surface-2: #F2E8D7;
+    --surface-3: rgba(20,17,13,0.12);
+    --paper: #1C1815;        /* now primary text on cards */
+    --on-dark-900: #1C1815;
+    --on-dark-600: #4A433B;
+    --on-dark-400: #6B6052;
+  }
+  body.light .arg-panel { box-shadow: var(--shadow-md); }
+  body.light .arg-chrome { box-shadow: var(--shadow-sm); }
+
+  .arg-shell { min-height: 100vh; display: flex; gap: 14px; padding: 14px;
+    max-width: 1560px; margin: 0 auto; align-items: stretch; }
+  .arg-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+
+  /* compact single-frame grid (Finexy layout) */
+  .arg-grid {
+    display: grid;
+    grid-template-columns: minmax(320px, 1fr) minmax(290px, 1.12fr) minmax(330px, 1.28fr);
+    grid-template-rows: auto auto;
+    gap: 14px; align-items: stretch;
+  }
+  .arg-grid > .span2 { grid-column: span 2; }
+  .arg-col { display: flex; flex-direction: column; gap: 14px; }
+
+  @media (max-width: 1080px) {
+    .arg-grid { grid-template-columns: 1fr 1fr; }
+    .arg-grid > * , .arg-grid > .span2 { grid-column: span 2 !important; }
+  }
+
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 10px; }
+  @keyframes argFade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
+<body class="on-dark">
+<div id="root"></div>
+<script type="text/babel" src="Atoms.jsx"></script>
+<script type="text/babel" src="Chrome.jsx"></script>
+<script type="text/babel" src="Cards.jsx"></script>
+<script type="text/babel" data-presets="react">
+function App() {
+  const [theme, setTheme] = useState(() => localStorage.getItem("argus-theme") || "dark");
+  useEffect(() => {
+    document.body.classList.toggle("light", theme === "light");
+    localStorage.setItem("argus-theme", theme);
+  }, [theme]);
+  useEffect(() => { if (window.lucide) window.lucide.createIcons(); });
+
+  return (
+    <div className="arg-shell" data-screen-label="Argus Dashboard">
+      <LeftRail theme={theme} onToggleTheme={setTheme} />
+      <div className="arg-main">
+        <div className="arg-chrome"><TopNav onAsk={() => {}} /></div>
+
+        {/* greeting */}
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 16, padding: "2px 4px 0" }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <h1 style={{ margin: 0, fontFamily: "var(--font-display)", fontSize: 38, lineHeight: 1.02, color: "var(--paper)" }}>Good morning, <em style={{ fontStyle: "italic" }}>Jordan</em></h1>
+          </div>
+        </div>
+
+        <InsightBanner />
+
+        {/* Finexy-style compact grid */}
+        <div className="arg-grid">
+          <BalanceCard />
+          <StatCluster />
+          <SpendingWheel />
+          <div className="arg-col">
+            <SpendingLimit />
+            <MyCards />
+          </div>
+          <SubscriptionCalendar />
+          <RecentActivities />
+        </div>
+      </div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

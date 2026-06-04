@@ -1,0 +1,171 @@
+/* =====================================================================
+   ARGUS — colors_and_type.css
+   Single source of truth for color + type tokens.
+   Import this in any Argus surface:  <link rel="stylesheet" href="colors_and_type.css">
+   Fonts are loaded from Google Fonts (substitutes — see README font note).
+   ===================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700;0,800&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root {
+  /* ---------------------------------------------------------------
+     1. WARM NEUTRAL SCALE  (from supplied palette, extended)
+     --------------------------------------------------------------- */
+  --paper:        #F6EFE2;  /* primary light canvas — warm cream */
+  --paper-raised: #FCF8F0;  /* raised cards on cream */
+  --cream:        #F3E7D6;  /* palette swatch 1 */
+  --sand:         #E7D8BF;  /* soft tan fill */
+  --tan:          #D8C5AD;  /* palette swatch 2 */
+  --taupe:        #A68A6D;  /* palette swatch 3 — muted brown */
+  --taupe-soft:   #C9B79A;  /* lighter taupe for borders/lines */
+
+  /* Warm inks (text on light) */
+  --ink-900: #14110D;  /* near-black, warm — darkest */
+  --ink-800: #1C1815;  /* primary text */
+  --ink-700: #332D26;
+  --ink-600: #4A433B;  /* secondary text */
+  --ink-500: #6B6052;  /* tertiary / captions */
+  --ink-400: #877B6B;  /* muted / placeholder */
+
+  /* Dark surfaces (app + hero sections) — warm near-black */
+  --surface-0: #14110D;  /* dark canvas */
+  --surface-1: #1E1A14;  /* dark card */
+  --surface-2: #2A251D;  /* raised dark card / hover */
+  --surface-3: #38322A;  /* dark border / divider */
+  --on-dark-900: #F6EFE2; /* primary text on dark */
+  --on-dark-600: #C9BFAE; /* secondary text on dark */
+  --on-dark-400: #8C8270; /* muted text on dark */
+
+  /* ---------------------------------------------------------------
+     2. ACCENT — AMBER / GOLD
+     --------------------------------------------------------------- */
+  --amber-700: #92560F;  /* deep — text on cream where needed */
+  --amber-600: #B6701A;  /* PRIMARY accent / buttons on light */
+  --amber-500: #CE8521;  /* hover / mid */
+  --amber-400: #E2A23C;  /* bright — accents on dark */
+  --amber-300: #F0BE63;  /* glow / highlight */
+  --amber-tint:#F2E2C5;  /* soft amber fill on light */
+  --amber-tint-dark: #3A2C13; /* amber fill on dark */
+
+  /* ---------------------------------------------------------------
+     3. SEMANTIC — FINANCE  (warm-toned, accessible)
+     --------------------------------------------------------------- */
+  --positive:      #3F7D55;  /* gains / income — forest green */
+  --positive-bright:#5FB97E; /* on dark */
+  --positive-tint: #E1EDE2;
+  --negative:      #B5462F;  /* spend / loss — warm brick */
+  --negative-bright:#E0795E; /* on dark */
+  --negative-tint: #F4E2DB;
+  --warning:       #C26A1C;  /* overdraft / alert — burnt orange */
+  --warning-tint:  #F7E5CF;
+  --info:          #4A6B82;  /* neutral info — slate blue */
+  --info-tint:     #E2EAEF;
+
+  /* ---------------------------------------------------------------
+     4. BORDERS / LINES / SHADOWS
+     --------------------------------------------------------------- */
+  --line:        rgba(20,17,13,0.10);  /* hairline on light */
+  --line-strong: rgba(20,17,13,0.16);
+  --line-dark:   rgba(246,239,226,0.10);/* hairline on dark */
+  --focus-ring:  rgba(182,112,26,0.45); /* amber focus */
+
+  --shadow-sm: 0 1px 2px rgba(46,33,15,0.06), 0 1px 1px rgba(46,33,15,0.04);
+  --shadow-md: 0 4px 14px rgba(46,33,15,0.08), 0 2px 5px rgba(46,33,15,0.05);
+  --shadow-lg: 0 18px 48px rgba(46,33,15,0.14), 0 6px 16px rgba(46,33,15,0.08);
+  --shadow-dark: 0 18px 48px rgba(0,0,0,0.45), 0 4px 12px rgba(0,0,0,0.3);
+
+  /* ---------------------------------------------------------------
+     5. RADII
+     --------------------------------------------------------------- */
+  --r-xs: 6px;
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;   /* default card */
+  --r-xl: 22px;   /* large surface */
+  --r-2xl: 30px;
+  --r-pill: 999px;
+
+  /* ---------------------------------------------------------------
+     6. SPACING SCALE  (4px base)
+     --------------------------------------------------------------- */
+  --s-1: 4px;   --s-2: 8px;   --s-3: 12px;  --s-4: 16px;
+  --s-5: 20px;  --s-6: 24px;  --s-8: 32px;  --s-10: 40px;
+  --s-12: 48px; --s-16: 64px; --s-20: 80px; --s-24: 96px;
+
+  /* ---------------------------------------------------------------
+     7. TYPE FAMILIES
+     --------------------------------------------------------------- */
+  --font-display: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Hanken Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* fluid display sizes */
+  --t-display: clamp(56px, 8vw, 104px);
+  --t-h1: clamp(40px, 5.2vw, 68px);
+  --t-h2: clamp(30px, 3.6vw, 44px);
+  --t-h3: clamp(23px, 2.4vw, 30px);
+  --t-h4: 20px;
+}
+
+/* =====================================================================
+   SEMANTIC TYPE CLASSES
+   ===================================================================== */
+.display {
+  font-family: var(--font-display);
+  font-size: var(--t-display);
+  line-height: 0.98;
+  letter-spacing: -0.015em;
+  font-weight: 400;
+  color: var(--ink-900);
+}
+.display em, .h1 em, .h2 em, .h3 em { font-style: italic; font-weight: 400; }
+
+.h1 { font-family: var(--font-display); font-size: var(--t-h1); line-height: 1.02; letter-spacing: -0.01em; font-weight: 400; color: var(--ink-900); }
+.h2 { font-family: var(--font-display); font-size: var(--t-h2); line-height: 1.06; letter-spacing: -0.005em; font-weight: 400; color: var(--ink-900); }
+.h3 { font-family: var(--font-display); font-size: var(--t-h3); line-height: 1.12; font-weight: 400; color: var(--ink-900); }
+.h4 { font-family: var(--font-sans); font-size: var(--t-h4); line-height: 1.3; font-weight: 700; letter-spacing: -0.01em; color: var(--ink-800); }
+
+/* Eyebrow / label — mono, uppercase, tracked */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--amber-700);
+}
+.label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-500);
+}
+
+/* Body */
+.body-lg { font-family: var(--font-sans); font-size: 19px; line-height: 1.6; font-weight: 400; color: var(--ink-600); }
+.body    { font-family: var(--font-sans); font-size: 16px; line-height: 1.6; font-weight: 400; color: var(--ink-600); }
+.body-sm { font-family: var(--font-sans); font-size: 14px; line-height: 1.55; font-weight: 400; color: var(--ink-500); }
+.caption { font-family: var(--font-sans); font-size: 12.5px; line-height: 1.45; font-weight: 500; color: var(--ink-400); }
+
+/* Financial figures — sans, tabular, sleek */
+.figure {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-900);
+}
+.mono-data {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+/* Utility tone helpers */
+.pos { color: var(--positive); }
+.neg { color: var(--negative); }
+.muted { color: var(--ink-500); }
+.on-dark { color: var(--on-dark-900); }
