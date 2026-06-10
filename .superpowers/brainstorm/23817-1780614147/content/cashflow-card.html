@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cashflow Preview Card</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --surface-0: #0E0C0A;
+    --surface-1: #181410;
+    --surface-2: #201C17;
+    --surface-3: #2A2318;
+    --amber-400: #C8824A;
+    --amber-500: #BE7740;
+    --amber-600: #A86838;
+    --on-dark-900: rgba(240,234,224,0.92);
+    --on-dark-600: rgba(240,234,224,0.55);
+    --on-dark-400: rgba(240,234,224,0.35);
+    --on-dark-200: rgba(240,234,224,0.10);
+    --positive: #4ADE80;
+    --negative: #F87171;
+    --warn: #FBBF24;
+    --r-lg: 14px;
+    --r-xl: 18px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--surface-0);
+    font-family: 'Hanken Grotesk', sans-serif;
+    color: var(--on-dark-900);
+    min-height: 100vh;
+    padding: 40px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+  }
+  .page-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--on-dark-400);
+  }
+  .variants {
+    display: flex;
+    gap: 24px;
+    width: 100%;
+    max-width: 880px;
+    align-items: flex-start;
+  }
+  .variant-wrap { display: flex; flex-direction: column; gap: 10px; flex: 1; }
+  .variant-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--on-dark-400);
+    text-align: center;
+  }
+
+  /* card */
+  .card {
+    background: var(--surface-1);
+    border: 1px solid var(--on-dark-200);
+    border-radius: var(--r-xl);
+    padding: 22px 24px 20px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 1px 0 0 rgba(240,234,224,0.04) inset, 0 8px 40px rgba(0,0,0,0.6);
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: rgba(190,119,64,0.3); }
+  .card.selected { border-color: var(--amber-500); box-shadow: 0 0 0 1px var(--amber-500), 0 8px 32px rgba(0,0,0,0.5); }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, #A86838 40%, #BE7740 60%, transparent);
+    opacity: 0.5;
+  }
+  .selected-badge {
+    display: none;
+    position: absolute;
+    top: 12px; right: 12px;
+    background: var(--amber-500);
+    color: #0E0C0A;
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 2px 7px; border-radius: 999px;
+  }
+  .card.selected .selected-badge { display: block; }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .eyebrow {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--on-dark-400);
+  }
+  .timeframe {
+    font-size: 11px;
+    color: var(--on-dark-400);
+    font-family: 'IBM Plex Mono', monospace;
+    background: var(--surface-2);
+    border: 1px solid var(--on-dark-200);
+    border-radius: 999px;
+    padding: 2px 9px;
+  }
+
+  /* sparkline area */
+  .chart-area {
+    margin-bottom: 16px;
+    position: relative;
+  }
+
+  /* projected balance row */
+  .balance-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .proj-amount {
+    font-family: 'Instrument Serif', serif;
+    font-size: 32px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--on-dark-900);
+  }
+  .proj-label {
+    font-size: 12px;
+    color: var(--on-dark-400);
+  }
+
+  /* risk signal */
+  .risk-signal {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(248,113,113,0.06);
+    border: 1px solid rgba(248,113,113,0.15);
+    border-radius: var(--r-lg);
+    padding: 9px 12px;
+    margin-bottom: 14px;
+  }
+  .risk-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--negative);
+    box-shadow: 0 0 6px var(--negative);
+    flex-shrink: 0;
+  }
+  .risk-text { font-size: 12px; color: var(--on-dark-600); }
+  .risk-text strong { color: var(--negative); font-weight: 500; }
+
+  /* no risk state */
+  .clear-signal {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(74,222,128,0.05);
+    border: 1px solid rgba(74,222,128,0.15);
+    border-radius: var(--r-lg);
+    padding: 9px 12px;
+    margin-bottom: 14px;
+  }
+  .clear-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--positive);
+    box-shadow: 0 0 6px var(--positive);
+    flex-shrink: 0;
+  }
+  .clear-text { font-size: 12px; color: var(--on-dark-600); }
+
+  .footer-row { display: flex; align-items: center; justify-content: space-between; }
+  .updated { font-size: 11.5px; color: var(--on-dark-400); }
+  .tap-link { font-size: 12px; font-weight: 500; color: var(--amber-500); }
+
+  .note {
+    font-size: 12px;
+    color: var(--on-dark-400);
+    text-align: center;
+    max-width: 600px;
+    line-height: 1.7;
+  }
+</style>
+</head>
+<body>
+
+<p class="page-title">Cashflow Prediction — Dashboard Card Variants</p>
+
+<div class="variants">
+
+  <!-- VARIANT A: Risk present -->
+  <div class="variant-wrap">
+    <div class="variant-label">A — With Risk Signal</div>
+    <div class="card" onclick="pick(this,'a')">
+      <div class="selected-badge">Selected</div>
+
+      <div class="card-header">
+        <span class="eyebrow">Cashflow</span>
+        <span class="timeframe">30 days</span>
+      </div>
+
+      <!-- sparkline with risk dip highlighted -->
+      <div class="chart-area">
+        <svg width="100%" height="80" viewBox="0 0 360 80" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="line-grad-a" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#C8824A"/>
+              <stop offset="62%" stop-color="#C8824A"/>
+              <stop offset="63%" stop-color="#F87171"/>
+              <stop offset="100%" stop-color="#F87171"/>
+            </linearGradient>
+            <!-- area fill under curve -->
+            <linearGradient id="area-grad-a" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#C8824A" stop-opacity="0.15"/>
+              <stop offset="100%" stop-color="#C8824A" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="area-grad-risk" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#F87171" stop-opacity="0.12"/>
+              <stop offset="100%" stop-color="#F87171" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+
+          <!-- area fill — normal portion -->
+          <path d="M0,40 C30,36 60,32 90,28 C120,24 140,22 170,24 C200,26 220,30 226,52"
+            fill="url(#area-grad-a)" stroke="none"/>
+
+          <!-- area fill — risk portion -->
+          <path d="M226,52 C232,62 240,68 260,72 C280,70 300,60 330,48 C345,42 352,40 360,38"
+            fill="url(#area-grad-risk)" stroke="none"/>
+
+          <!-- risk zone background -->
+          <rect x="210" y="0" width="100" height="80" fill="rgba(248,113,113,0.04)" rx="4"/>
+
+          <!-- curve line — normal -->
+          <path d="M0,40 C30,36 60,32 90,28 C120,24 140,22 170,24 C200,26 220,30 226,52"
+            fill="none" stroke="#C8824A" stroke-width="2" stroke-linecap="round"/>
+
+          <!-- curve line — risk dip -->
+          <path d="M226,52 C232,62 240,68 260,72 C280,70 300,60 330,48 C345,42 352,40 360,38"
+            fill="none" stroke="#F87171" stroke-width="2" stroke-linecap="round" stroke-dasharray="0"/>
+
+          <!-- risk dip marker dot -->
+          <circle cx="260" cy="72" r="4" fill="#F87171" opacity="0.9"/>
+          <circle cx="260" cy="72" r="8" fill="#F87171" opacity="0.15"/>
+
+          <!-- today marker -->
+          <line x1="0" y1="0" x2="0" y2="80" stroke="rgba(240,234,224,0.15)" stroke-width="1" stroke-dasharray="3 3"/>
+        </svg>
+      </div>
+
+      <div class="balance-row">
+        <div class="proj-amount">$620</div>
+        <div class="proj-label">projected by month end</div>
+      </div>
+
+      <div class="risk-signal">
+        <div class="risk-dot"></div>
+        <div class="risk-text">Balance dips to <strong>$180</strong> around Mar 27</div>
+      </div>
+
+      <div class="footer-row">
+        <span class="updated">30-day forecast</span>
+        <span class="tap-link">Full view →</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- VARIANT B: No risk — clean state -->
+  <div class="variant-wrap">
+    <div class="variant-label">B — No Risk (Clean State)</div>
+    <div class="card" onclick="pick(this,'b')">
+      <div class="selected-badge">Selected</div>
+
+      <div class="card-header">
+        <span class="eyebrow">Cashflow</span>
+        <span class="timeframe">30 days</span>
+      </div>
+
+      <!-- clean upward sparkline -->
+      <div class="chart-area">
+        <svg width="100%" height="80" viewBox="0 0 360 80" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="area-grad-b" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#C8824A" stop-opacity="0.15"/>
+              <stop offset="100%" stop-color="#C8824A" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+
+          <!-- area fill -->
+          <path d="M0,55 C40,50 80,44 120,38 C160,32 200,26 240,22 C280,18 320,16 360,14 L360,80 L0,80Z"
+            fill="url(#area-grad-b)" stroke="none"/>
+
+          <!-- curve line -->
+          <path d="M0,55 C40,50 80,44 120,38 C160,32 200,26 240,22 C280,18 320,16 360,14"
+            fill="none" stroke="#C8824A" stroke-width="2" stroke-linecap="round"/>
+
+          <!-- end dot -->
+          <circle cx="360" cy="14" r="3.5" fill="#C8824A" opacity="0.9"/>
+          <circle cx="360" cy="14" r="7" fill="#C8824A" opacity="0.15"/>
+        </svg>
+      </div>
+
+      <div class="balance-row">
+        <div class="proj-amount" style="background: linear-gradient(140deg,#C8824A,#BE7740); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">$1,840</div>
+        <div class="proj-label">projected by month end</div>
+      </div>
+
+      <div class="clear-signal">
+        <div class="clear-dot"></div>
+        <div class="clear-text">No risk windows detected in the next 30 days</div>
+      </div>
+
+      <div class="footer-row">
+        <span class="updated">30-day forecast</span>
+        <span class="tap-link">Full view →</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p class="note">Left: risk present — curve dips red in the danger zone, dot marks the low point, signal below. Right: no risk — clean upward curve, green clear signal. Projected balance uses copper gradient when healthy, plain when at risk.</p>
+
+<script>
+  function pick(el, choice) {
+    document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+</script>
+
+</body>
+</html>

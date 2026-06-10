@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Health Score V2</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --surface-0: #0E0C0A;
+    --surface-1: #181410;
+    --surface-2: #201C17;
+    --surface-3: #2A2318;
+    --amber-400: #C8824A;
+    --amber-500: #BE7740;
+    --amber-600: #A86838;
+    --on-dark-900: rgba(240,234,224,0.92);
+    --on-dark-600: rgba(240,234,224,0.55);
+    --on-dark-400: rgba(240,234,224,0.35);
+    --on-dark-200: rgba(240,234,224,0.10);
+    --positive: #4ADE80;
+    --negative: #F87171;
+    --r-lg: 14px;
+    --r-xl: 18px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--surface-0);
+    font-family: 'Hanken Grotesk', sans-serif;
+    color: var(--on-dark-900);
+    min-height: 100vh;
+    padding: 40px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+  }
+  .page-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--on-dark-400);
+  }
+
+  .card {
+    background: var(--surface-1);
+    border: 1px solid var(--on-dark-200);
+    border-radius: var(--r-xl);
+    padding: 22px 24px 20px;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    max-width: 320px;
+    box-shadow:
+      0 1px 0 0 rgba(240,234,224,0.04) inset,
+      0 8px 40px rgba(0,0,0,0.6);
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, #A86838 40%, #BE7740 60%, transparent);
+    opacity: 0.5;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--on-dark-400);
+  }
+  .delta-chip {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(74,222,128,0.1);
+    border: 1px solid rgba(74,222,128,0.2);
+    border-radius: 999px;
+    padding: 3px 9px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--positive);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  /* rings */
+  .rings-section {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+
+  /* legend row */
+  .legend-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+  .legend-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+  }
+  .legend-pip {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+  .legend-name {
+    font-size: 10px;
+    color: var(--on-dark-400);
+    text-align: center;
+    line-height: 1.3;
+  }
+  .legend-val {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--on-dark-600);
+    font-weight: 500;
+  }
+  .legend-val.weak { color: var(--negative); }
+
+  .divider { height: 1px; background: var(--on-dark-200); margin-bottom: 14px; }
+
+  .callout {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(248,113,113,0.06);
+    border: 1px solid rgba(248,113,113,0.15);
+    border-radius: var(--r-lg);
+    padding: 9px 12px;
+    margin-bottom: 14px;
+  }
+  .callout-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--negative);
+    box-shadow: 0 0 6px var(--negative);
+    flex-shrink: 0;
+  }
+  .callout-text {
+    font-size: 12px;
+    color: var(--on-dark-600);
+    line-height: 1.4;
+    flex: 1;
+  }
+  .callout-text strong { color: var(--on-dark-900); font-weight: 500; }
+
+  .footer-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .updated { font-size: 11.5px; color: var(--on-dark-400); }
+  .tap-link {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--amber-500);
+  }
+
+  .note {
+    font-size: 12px;
+    color: var(--on-dark-400);
+    text-align: center;
+    max-width: 380px;
+    line-height: 1.7;
+  }
+</style>
+</head>
+<body>
+
+<p class="page-title">Financial Health Score — Dashboard Card</p>
+
+<div class="card">
+
+  <div class="card-header">
+    <span class="eyebrow">Health Score</span>
+    <div class="delta-chip">↑ 3 this week</div>
+  </div>
+
+  <!-- rings -->
+  <div class="rings-section">
+    <svg width="210" height="210" viewBox="0 0 210 210">
+      <defs>
+        <!-- copper gradient for ring 1 -->
+        <linearGradient id="g-copper" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#D89A5C"/>
+          <stop offset="100%" stop-color="#A8412B"/>
+        </linearGradient>
+
+        <!-- glow filters -->
+        <filter id="f1" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="3" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="f2" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="2.5" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="f3" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="2.5" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="f4" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="2.5" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+
+        <!-- radial gradient for center backdrop -->
+        <radialGradient id="bg-grad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#0E0C0A" stop-opacity="1"/>
+          <stop offset="70%" stop-color="#0E0C0A" stop-opacity="0.95"/>
+          <stop offset="100%" stop-color="#0E0C0A" stop-opacity="0"/>
+        </radialGradient>
+
+        <!-- text gradient for score -->
+        <linearGradient id="score-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#D89A5C"/>
+          <stop offset="100%" stop-color="#C8824A"/>
+        </linearGradient>
+      </defs>
+
+      <!-- TRACKS (dim background rings) -->
+      <!-- r=94: Liquidity -->
+      <circle cx="105" cy="105" r="94" fill="none" stroke="rgba(200,130,74,0.1)" stroke-width="13"/>
+      <!-- r=74: Stability -->
+      <circle cx="105" cy="105" r="74" fill="none" stroke="rgba(251,191,36,0.1)" stroke-width="13"/>
+      <!-- r=54: Debt Load -->
+      <circle cx="105" cy="105" r="54" fill="none" stroke="rgba(96,165,250,0.1)" stroke-width="13"/>
+      <!-- r=34: Spending Volatility -->
+      <circle cx="105" cy="105" r="34" fill="none" stroke="rgba(248,113,113,0.1)" stroke-width="13"/>
+
+      <!-- FILLS -->
+      <!-- Liquidity 85%: circ=590.6 → 85%=501.9 -->
+      <circle cx="105" cy="105" r="94" fill="none" stroke="url(#g-copper)" stroke-width="13"
+        stroke-dasharray="501.9 88.7" stroke-linecap="round"
+        transform="rotate(-90 105 105)" filter="url(#f1)"/>
+
+      <!-- Stability 78%: circ=465 → 78%=362.7 -->
+      <circle cx="105" cy="105" r="74" fill="none" stroke="#FBBF24" stroke-width="13"
+        stroke-dasharray="362.7 102.3" stroke-linecap="round"
+        transform="rotate(-90 105 105)" filter="url(#f2)"/>
+
+      <!-- Debt Load 71%: circ=339.3 → 71%=240.9 -->
+      <circle cx="105" cy="105" r="54" fill="none" stroke="#60A5FA" stroke-width="13"
+        stroke-dasharray="240.9 98.4" stroke-linecap="round"
+        transform="rotate(-90 105 105)" filter="url(#f3)"/>
+
+      <!-- Spending Volatility 48%: circ=213.6 → 48%=102.5 -->
+      <circle cx="105" cy="105" r="34" fill="none" stroke="#F87171" stroke-width="13"
+        stroke-dasharray="102.5 111.1" stroke-linecap="round"
+        transform="rotate(-90 105 105)" filter="url(#f4)"/>
+
+      <!-- CENTER STAGE — dark radial backdrop for score clarity -->
+      <circle cx="105" cy="105" r="18" fill="#0E0C0A"/>
+      <circle cx="105" cy="105" r="22" fill="url(#bg-grad)" opacity="0.9"/>
+
+      <!-- SCORE TEXT -->
+      <text x="105" y="98"
+        text-anchor="middle"
+        font-family="Instrument Serif, serif"
+        font-size="36"
+        font-weight="400"
+        fill="url(#score-grad)"
+        letter-spacing="-0.5">72</text>
+      <text x="105" y="113"
+        text-anchor="middle"
+        font-family="Hanken Grotesk, sans-serif"
+        font-size="9"
+        fill="rgba(240,234,224,0.35)"
+        letter-spacing="1.5"
+        font-weight="500">/ 100</text>
+    </svg>
+  </div>
+
+  <!-- 4-column legend -->
+  <div class="legend-row">
+    <div class="legend-item">
+      <div class="legend-pip" style="background:#C8824A;box-shadow:0 0 6px rgba(200,130,74,0.7)"></div>
+      <div class="legend-name">Liquidity</div>
+      <div class="legend-val">85</div>
+    </div>
+    <div class="legend-item">
+      <div class="legend-pip" style="background:#FBBF24;box-shadow:0 0 6px rgba(251,191,36,0.6)"></div>
+      <div class="legend-name">Stability</div>
+      <div class="legend-val">78</div>
+    </div>
+    <div class="legend-item">
+      <div class="legend-pip" style="background:#60A5FA;box-shadow:0 0 6px rgba(96,165,250,0.6)"></div>
+      <div class="legend-name">Debt Load</div>
+      <div class="legend-val">71</div>
+    </div>
+    <div class="legend-item">
+      <div class="legend-pip" style="background:#F87171;box-shadow:0 0 6px rgba(248,113,113,0.7)"></div>
+      <div class="legend-name">Volatility</div>
+      <div class="legend-val weak">48</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="callout">
+    <div class="callout-dot"></div>
+    <div class="callout-text"><strong>Spending Volatility</strong> is pulling your score down</div>
+  </div>
+
+  <div class="footer-row">
+    <span class="updated">Updated daily</span>
+    <span class="tap-link">Full view →</span>
+  </div>
+
+</div>
+
+<p class="note">Larger rings, clear center stage with dark backdrop, score in Instrument Serif with gradient. 4-column legend below. Glowing ring caps per dimension color.</p>
+
+</body>
+</html>

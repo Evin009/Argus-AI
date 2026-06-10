@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Breakdown Components</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --surface-0: #0E0C0A;
+    --surface-1: #181410;
+    --surface-2: #201C17;
+    --surface-3: #2A2318;
+    --amber-400: #C8824A;
+    --amber-500: #BE7740;
+    --amber-600: #A86838;
+    --amber-700: #8A5429;
+    --on-dark-900: rgba(240,234,224,0.92);
+    --on-dark-600: rgba(240,234,224,0.55);
+    --on-dark-400: rgba(240,234,224,0.35);
+    --on-dark-200: rgba(240,234,224,0.10);
+    --positive: #4ADE80;
+    --info: #60A5FA;
+    --warn: #FBBF24;
+    --r-md: 10px;
+    --r-lg: 14px;
+    --r-xl: 18px;
+    --grad-accent: linear-gradient(140deg, #C8824A 0%, #BE7740 58%, #A8412B 100%);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--surface-0);
+    font-family: 'Hanken Grotesk', sans-serif;
+    color: var(--on-dark-900);
+    min-height: 100vh;
+    padding: 36px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 36px;
+  }
+  .page-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--on-dark-400);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+    max-width: 1000px;
+  }
+  .col { display: flex; flex-direction: column; gap: 10px; }
+  .col-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--on-dark-400);
+    text-align: center;
+  }
+
+  /* shared card shell */
+  .card {
+    background: var(--surface-1);
+    border: 1px solid var(--on-dark-200);
+    border-radius: var(--r-xl);
+    padding: 20px 22px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: rgba(190,119,64,0.35); }
+  .card.selected { border-color: var(--amber-500); box-shadow: 0 0 0 1px var(--amber-500), 0 8px 32px rgba(0,0,0,0.5); }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--amber-600) 40%, var(--amber-500) 60%, transparent);
+    opacity: 0.5;
+  }
+  .selected-badge {
+    display: none;
+    position: absolute;
+    top: 12px; right: 12px;
+    background: var(--amber-500);
+    color: #0E0C0A;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 999px;
+  }
+  .card.selected .selected-badge { display: block; }
+
+  /* top of card — same across all */
+  .card-top { margin-bottom: 16px; }
+  .eyebrow {
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--on-dark-400);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .live-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--positive);
+    box-shadow: 0 0 5px var(--positive);
+    display: inline-block;
+  }
+  .main-num {
+    font-family: 'Instrument Serif', serif;
+    font-size: 42px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    background: var(--grad-accent);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 3px;
+  }
+  .delta { font-size: 12px; font-weight: 500; color: var(--positive); margin-bottom: 8px; }
+  .avail { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--on-dark-400); }
+  .avail span { color: var(--on-dark-600); }
+  .divider { height: 1px; background: var(--on-dark-200); margin: 14px 0 12px; }
+  .section-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--on-dark-400);
+    margin-bottom: 10px;
+  }
+
+  /* ─── OPTION A: Stacked proportion bar ─── */
+  .stack-bar {
+    height: 8px;
+    border-radius: 999px;
+    display: flex;
+    overflow: hidden;
+    gap: 2px;
+    margin-bottom: 14px;
+  }
+  .stack-segment {
+    height: 100%;
+    border-radius: 999px;
+    transition: opacity 0.2s;
+  }
+  .seg-spend { background: var(--grad-accent); flex: 840; }
+  .seg-bills { background: rgba(248,113,113,0.7); flex: 980; }
+  .seg-goal  { background: rgba(96,165,250,0.7); flex: 300; }
+  .seg-buf   { background: rgba(240,234,224,0.2); flex: 220; }
+
+  .stack-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .legend-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .legend-left {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12.5px;
+    color: var(--on-dark-600);
+  }
+  .legend-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .legend-amt {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--on-dark-600);
+  }
+
+  /* ─── OPTION B: Inline proportion rows ─── */
+  .prop-list { display: flex; flex-direction: column; gap: 10px; }
+  .prop-row { display: flex; flex-direction: column; gap: 4px; }
+  .prop-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12.5px;
+    color: var(--on-dark-600);
+  }
+  .prop-name { display: flex; align-items: center; gap: 7px; }
+  .prop-icon {
+    width: 18px; height: 18px;
+    border-radius: 5px;
+    background: var(--surface-3);
+    border: 1px solid var(--on-dark-200);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px;
+    flex-shrink: 0;
+  }
+  .prop-track {
+    height: 3px;
+    background: var(--on-dark-200);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .prop-fill {
+    height: 100%;
+    border-radius: 999px;
+  }
+  .prop-amt {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--on-dark-600);
+  }
+
+  /* ─── OPTION C: Donut ring + rows ─── */
+  .donut-wrap {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 4px;
+  }
+  svg.donut { flex-shrink: 0; }
+  .donut-rows { flex: 1; display: flex; flex-direction: column; gap: 7px; }
+  .donut-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--on-dark-600);
+  }
+  .donut-label { display: flex; align-items: center; gap: 6px; }
+  .donut-pip {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .donut-amt {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--on-dark-600);
+  }
+
+  .note {
+    font-size: 11.5px;
+    color: var(--on-dark-400);
+    text-align: center;
+    max-width: 700px;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+
+<p class="page-title">Breakdown — 3 Component Directions</p>
+
+<div class="grid">
+
+  <!-- ── OPTION A: Stacked bar ── -->
+  <div class="col">
+    <div class="col-label">A — Stacked Proportion Bar</div>
+    <div class="card" onclick="pick(this,'a')">
+      <div class="selected-badge">Selected</div>
+      <div class="card-top">
+        <div class="eyebrow">Safe to Spend <div class="live-dot"></div></div>
+        <div class="main-num">$840</div>
+        <div class="delta">↑ $120 from yesterday</div>
+        <div class="avail">Available: <span>$2,340</span></div>
+      </div>
+      <div class="divider"></div>
+      <div class="section-label">Where it went</div>
+
+      <!-- stacked bar -->
+      <div class="stack-bar">
+        <div class="stack-segment seg-spend" title="Safe to spend"></div>
+        <div class="stack-segment seg-bills" title="Bills"></div>
+        <div class="stack-segment seg-goal"  title="Goals"></div>
+        <div class="stack-segment seg-buf"   title="Buffer"></div>
+      </div>
+
+      <div class="stack-legend">
+        <div class="legend-row">
+          <div class="legend-left"><div class="legend-dot" style="background:var(--amber-500)"></div>Safe to spend</div>
+          <div class="legend-amt" style="color:var(--amber-400)">$840</div>
+        </div>
+        <div class="legend-row">
+          <div class="legend-left"><div class="legend-dot" style="background:rgba(248,113,113,0.8)"></div>Bills due</div>
+          <div class="legend-amt">−$980</div>
+        </div>
+        <div class="legend-row">
+          <div class="legend-left"><div class="legend-dot" style="background:rgba(96,165,250,0.8)"></div>Goal contribution</div>
+          <div class="legend-amt">−$300</div>
+        </div>
+        <div class="legend-row">
+          <div class="legend-left"><div class="legend-dot" style="background:rgba(240,234,224,0.25)"></div>Buffer reserve</div>
+          <div class="legend-amt">−$220</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── OPTION B: Inline proportion rows ── -->
+  <div class="col">
+    <div class="col-label">B — Per-Row Fill Bars</div>
+    <div class="card" onclick="pick(this,'b')">
+      <div class="selected-badge">Selected</div>
+      <div class="card-top">
+        <div class="eyebrow">Safe to Spend <div class="live-dot"></div></div>
+        <div class="main-num">$840</div>
+        <div class="delta">↑ $120 from yesterday</div>
+        <div class="avail">Available: <span>$2,340</span></div>
+      </div>
+      <div class="divider"></div>
+      <div class="section-label">Committed</div>
+
+      <div class="prop-list">
+        <div class="prop-row">
+          <div class="prop-meta">
+            <div class="prop-name"><div class="prop-icon">📋</div> Bills due in 14 days</div>
+            <div class="prop-amt">−$980</div>
+          </div>
+          <div class="prop-track"><div class="prop-fill" style="width:42%;background:rgba(248,113,113,0.7)"></div></div>
+        </div>
+        <div class="prop-row">
+          <div class="prop-meta">
+            <div class="prop-name"><div class="prop-icon">🎯</div> Goal contribution</div>
+            <div class="prop-amt">−$300</div>
+          </div>
+          <div class="prop-track"><div class="prop-fill" style="width:13%;background:rgba(96,165,250,0.7)"></div></div>
+        </div>
+        <div class="prop-row">
+          <div class="prop-meta">
+            <div class="prop-name"><div class="prop-icon">🛡</div> Buffer reserve</div>
+            <div class="prop-amt">−$220</div>
+          </div>
+          <div class="prop-track"><div class="prop-fill" style="width:9%;background:rgba(240,234,224,0.25)"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── OPTION C: Donut + rows ── -->
+  <div class="col">
+    <div class="col-label">C — Mini Donut Ring</div>
+    <div class="card" onclick="pick(this,'c')">
+      <div class="selected-badge">Selected</div>
+      <div class="card-top">
+        <div class="eyebrow">Safe to Spend <div class="live-dot"></div></div>
+        <div class="main-num">$840</div>
+        <div class="delta">↑ $120 from yesterday</div>
+        <div class="avail">Available: <span>$2,340</span></div>
+      </div>
+      <div class="divider"></div>
+      <div class="section-label">Breakdown</div>
+
+      <div class="donut-wrap">
+        <!-- SVG donut: total 2340. spend=840, bills=980, goal=300, buf=220 -->
+        <!-- circumference of r=36 = 226.2 -->
+        <svg class="donut" width="90" height="90" viewBox="0 0 90 90">
+          <circle cx="45" cy="45" r="36" fill="none" stroke="rgba(240,234,224,0.08)" stroke-width="10"/>
+          <!-- spend: 840/2340 = 36% = 81.4 -->
+          <circle cx="45" cy="45" r="36" fill="none" stroke="url(#grad)" stroke-width="10"
+            stroke-dasharray="81.4 144.8" stroke-dashoffset="0" stroke-linecap="round" transform="rotate(-90 45 45)"/>
+          <!-- bills: 980/2340 = 41.9% = 94.7 -->
+          <circle cx="45" cy="45" r="36" fill="none" stroke="rgba(248,113,113,0.75)" stroke-width="10"
+            stroke-dasharray="94.7 131.5" stroke-dashoffset="-81.4" stroke-linecap="round" transform="rotate(-90 45 45)"/>
+          <!-- goal: 300/2340 = 12.8% = 29 -->
+          <circle cx="45" cy="45" r="36" fill="none" stroke="rgba(96,165,250,0.75)" stroke-width="10"
+            stroke-dasharray="28 198.2" stroke-dashoffset="-176.1" stroke-linecap="round" transform="rotate(-90 45 45)"/>
+          <!-- buf: 220/2340 = 9.4% = 21.2 -->
+          <circle cx="45" cy="45" r="36" fill="none" stroke="rgba(240,234,224,0.2)" stroke-width="10"
+            stroke-dasharray="21.2 205" stroke-dashoffset="-204.1" stroke-linecap="round" transform="rotate(-90 45 45)"/>
+          <defs>
+            <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#C8824A"/>
+              <stop offset="100%" stop-color="#BE7740"/>
+            </linearGradient>
+          </defs>
+          <!-- center label -->
+          <text x="45" y="41" text-anchor="middle" font-family="Instrument Serif" font-size="13" fill="rgba(240,234,224,0.9)">36%</text>
+          <text x="45" y="53" text-anchor="middle" font-family="Hanken Grotesk" font-size="7" fill="rgba(240,234,224,0.4)" letter-spacing="0.5">free</text>
+        </svg>
+
+        <div class="donut-rows">
+          <div class="donut-row">
+            <div class="donut-label"><div class="donut-pip" style="background:var(--amber-500)"></div>Safe to spend</div>
+            <div class="donut-amt" style="color:var(--amber-400)">$840</div>
+          </div>
+          <div class="donut-row">
+            <div class="donut-label"><div class="donut-pip" style="background:rgba(248,113,113,0.8)"></div>Bills due</div>
+            <div class="donut-amt">−$980</div>
+          </div>
+          <div class="donut-row">
+            <div class="donut-label"><div class="donut-pip" style="background:rgba(96,165,250,0.8)"></div>Goals</div>
+            <div class="donut-amt">−$300</div>
+          </div>
+          <div class="donut-row">
+            <div class="donut-label"><div class="donut-pip" style="background:rgba(240,234,224,0.25)"></div>Buffer</div>
+            <div class="donut-amt">−$220</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p class="note">All three show the same data — same numbers, different visual treatment. Click a card to select your preferred approach.</p>
+
+<script>
+  function pick(el, choice) {
+    document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+</script>
+
+</body>
+</html>

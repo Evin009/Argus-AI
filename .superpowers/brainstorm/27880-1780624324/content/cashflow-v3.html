@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cashflow Preview Card V3</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --surface-0: #0E0C0A;
+    --surface-1: #181410;
+    --surface-2: #201C17;
+    --surface-3: #2A2318;
+    --amber-400: #C8824A;
+    --amber-500: #BE7740;
+    --amber-600: #A86838;
+    --on-900: rgba(240,234,224,0.92);
+    --on-600: rgba(240,234,224,0.55);
+    --on-400: rgba(240,234,224,0.35);
+    --on-200: rgba(240,234,224,0.10);
+    --positive: #4ADE80;
+    --negative: #F87171;
+    --r-lg: 14px;
+    --r-xl: 18px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--surface-0);
+    font-family: 'Hanken Grotesk', sans-serif;
+    color: var(--on-900);
+    min-height: 100vh;
+    padding: 40px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+  }
+  .page-title {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--on-400);
+  }
+  .row {
+    display: flex;
+    gap: 24px;
+    width: 100%;
+    max-width: 860px;
+    align-items: flex-start;
+  }
+  .col { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+  .col-label {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--on-400); text-align: center;
+  }
+
+  /* ── card shell ── */
+  .card {
+    background: var(--surface-1);
+    border: 1px solid var(--on-200);
+    border-radius: var(--r-xl);
+    padding: 22px 22px 18px;
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+      0 1px 0 0 rgba(240,234,224,0.04) inset,
+      0 8px 40px rgba(0,0,0,0.6);
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, #A86838 40%, #BE7740 60%, transparent);
+    opacity: 0.5;
+  }
+
+  /* ── header row ── */
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .eyebrow {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--on-400);
+  }
+
+  /* ── period toggle — reference component pattern ── */
+  .period-group {
+    display: flex;
+    border: 1px solid var(--on-200);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .period-btn {
+    background: transparent;
+    border: none;
+    border-right: 1px solid var(--on-200);
+    cursor: pointer;
+    padding: 4px 11px;
+    font-family: 'Hanken Grotesk', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--on-400);
+    letter-spacing: 0.02em;
+    transition: background 0.12s, color 0.12s;
+    line-height: 1;
+  }
+  .period-btn:last-child { border-right: none; }
+  .period-btn:hover { background: var(--surface-2); color: var(--on-600); }
+  .period-btn.active { background: var(--surface-3); color: var(--amber-400); }
+
+  /* ── KPI row ── */
+  .kpi-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .kpi-num {
+    font-family: 'Instrument Serif', serif;
+    font-size: 36px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .kpi-healthy {
+    background: linear-gradient(135deg, #D89A5C 0%, #C8824A 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .kpi-atrisk { color: var(--on-900); }
+  .kpi-sub { font-size: 12px; color: var(--on-400); line-height: 1.4; }
+
+  /* ── chart ── */
+  .chart-wrap {
+    position: relative;
+    height: 100px;
+    margin-bottom: 14px;
+    /* subtle horizontal grid lines */
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent,
+      transparent calc(33% - 0.5px),
+      rgba(240,234,224,0.04) calc(33% - 0.5px),
+      rgba(240,234,224,0.04) 33%
+    );
+  }
+
+  /* ── signal banners ── */
+  .banner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: var(--r-lg);
+    padding: 9px 12px;
+    margin-bottom: 14px;
+  }
+  .banner-risk {
+    background: rgba(248,113,113,0.06);
+    border: 1px solid rgba(248,113,113,0.15);
+  }
+  .banner-clear {
+    background: rgba(74,222,128,0.05);
+    border: 1px solid rgba(74,222,128,0.15);
+  }
+  .banner-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%; flex-shrink: 0;
+  }
+  .banner-text { font-size: 12px; color: var(--on-600); flex: 1; }
+  .banner-text strong { font-weight: 500; }
+  .banner-icon { margin-left: auto; font-size: 13px; opacity: 0.6; }
+
+  /* ── footer ── */
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .footer-meta { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--on-400); }
+  .full-link {
+    font-size: 12px; font-weight: 500;
+    color: var(--amber-500);
+    display: flex; align-items: center; gap: 3px;
+  }
+
+  .note {
+    font-size: 12px; color: var(--on-400);
+    text-align: center; max-width: 600px; line-height: 1.7;
+  }
+</style>
+</head>
+<body>
+
+<p class="page-title">Cashflow Preview — Dashboard Card</p>
+
+<div class="row">
+
+  <!-- ── RISK STATE ── -->
+  <div class="col">
+    <div class="col-label">Risk Present</div>
+    <div class="card">
+
+      <div class="card-header">
+        <span class="eyebrow">Cashflow</span>
+        <div class="period-group">
+          <button class="period-btn active" onclick="togglePeriod(this)">30D</button>
+          <button class="period-btn"        onclick="togglePeriod(this)">60D</button>
+        </div>
+      </div>
+
+      <!-- KPI -->
+      <div class="kpi-row">
+        <span class="kpi-num kpi-atrisk">$620</span>
+        <span class="kpi-sub">projected<br>by month end</span>
+      </div>
+
+      <!-- chart -->
+      <div class="chart-wrap">
+        <svg width="100%" height="100" viewBox="0 0 360 100" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="ga" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"   stop-color="#C8824A" stop-opacity="0.22"/>
+              <stop offset="100%" stop-color="#C8824A" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="gb" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"   stop-color="#F87171" stop-opacity="0.15"/>
+              <stop offset="100%" stop-color="#F87171" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+
+          <!-- risk zone bg -->
+          <rect x="200" y="0" width="96" height="100" fill="rgba(248,113,113,0.035)" rx="3"/>
+
+          <!-- healthy area -->
+          <path d="M0,52 C30,46 60,40 90,34 C120,28 148,25 172,27 C190,29 200,36 210,52 L210,100 L0,100Z"
+                fill="url(#ga)"/>
+          <!-- risk area -->
+          <path d="M210,52 C220,64 232,78 256,82 C272,80 288,70 310,58 C330,48 346,42 360,40 L360,100 L210,100Z"
+                fill="url(#gb)"/>
+
+          <!-- healthy line -->
+          <path d="M0,52 C30,46 60,40 90,34 C120,28 148,25 172,27 C190,29 200,36 210,52"
+                fill="none" stroke="#C8824A" stroke-width="2" stroke-linecap="round"/>
+
+          <!-- risk line -->
+          <path d="M210,52 C220,64 232,78 256,82 C272,80 288,70 310,58 C330,48 346,42 360,40"
+                fill="none" stroke="#F87171" stroke-width="2" stroke-linecap="round"/>
+
+          <!-- dashed risk reference line -->
+          <line x1="256" y1="0" x2="256" y2="100"
+                stroke="rgba(248,113,113,0.28)" stroke-width="1" stroke-dasharray="4 3"/>
+
+          <!-- low point dot + glow -->
+          <circle cx="256" cy="82" r="9" fill="#F87171" opacity="0.12"/>
+          <circle cx="256" cy="82" r="4" fill="#F87171"/>
+        </svg>
+      </div>
+
+      <!-- risk banner -->
+      <div class="banner banner-risk">
+        <div class="banner-dot" style="background:#F87171;box-shadow:0 0 6px #F87171"></div>
+        <span class="banner-text">Balance dips to <strong style="color:#F87171">$180</strong> around Mar 27</span>
+        <span class="banner-icon" style="color:#F87171">↘</span>
+      </div>
+
+      <div class="card-footer">
+        <span class="footer-meta">30-day forecast</span>
+        <span class="full-link">Full view →</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── CLEAN STATE ── -->
+  <div class="col">
+    <div class="col-label">No Risk</div>
+    <div class="card">
+
+      <div class="card-header">
+        <span class="eyebrow">Cashflow</span>
+        <div class="period-group">
+          <button class="period-btn active" onclick="togglePeriod(this)">30D</button>
+          <button class="period-btn"        onclick="togglePeriod(this)">60D</button>
+        </div>
+      </div>
+
+      <!-- KPI -->
+      <div class="kpi-row">
+        <span class="kpi-num kpi-healthy">$1,840</span>
+        <span class="kpi-sub">projected<br>by month end</span>
+      </div>
+
+      <!-- chart -->
+      <div class="chart-wrap">
+        <svg width="100%" height="100" viewBox="0 0 360 100" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="gc" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"   stop-color="#C8824A" stop-opacity="0.2"/>
+              <stop offset="100%" stop-color="#C8824A" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+
+          <!-- area -->
+          <path d="M0,68 C40,62 80,54 120,44 C160,34 210,24 260,18 C300,13 330,11 360,10 L360,100 L0,100Z"
+                fill="url(#gc)"/>
+
+          <!-- line -->
+          <path d="M0,68 C40,62 80,54 120,44 C160,34 210,24 260,18 C300,13 330,11 360,10"
+                fill="none" stroke="#C8824A" stroke-width="2" stroke-linecap="round"/>
+
+          <!-- end dot + glow -->
+          <circle cx="360" cy="10" r="9" fill="#C8824A" opacity="0.12"/>
+          <circle cx="360" cy="10" r="4" fill="#C8824A"/>
+        </svg>
+      </div>
+
+      <!-- clear banner -->
+      <div class="banner banner-clear">
+        <div class="banner-dot" style="background:#4ADE80;box-shadow:0 0 6px #4ADE80"></div>
+        <span class="banner-text">No risk windows in the next 30 days</span>
+        <span class="banner-icon" style="color:#4ADE80">↗</span>
+      </div>
+
+      <div class="card-footer">
+        <span class="footer-meta">30-day forecast</span>
+        <span class="full-link">Full view →</span>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<p class="note">
+  Period toggle (30D / 60D) — same pattern as reference component.<br>
+  Risk state: copper → red curve, dashed reference line, glowing low-point dot, red banner.<br>
+  Clean state: smooth copper uptrend, green clear banner. KPI in copper gradient when healthy.
+</p>
+
+<script>
+  function togglePeriod(btn) {
+    const group = btn.closest('.period-group');
+    group.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+</script>
+
+</body>
+</html>

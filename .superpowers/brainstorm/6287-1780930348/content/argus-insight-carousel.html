@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Argus Insight Carousel</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0E0C0A;
+    font-family: 'Hanken Grotesk', system-ui, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  /* ─── Carousel wrapper ─── */
+  .carousel-wrapper {
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+  }
+
+  /* ─── 3D stage ─── */
+  .stage {
+    width: 100%;
+    height: 320px;
+    position: relative;
+    perspective: 1200px;
+    perspective-origin: 50% 55%;
+  }
+
+  /* ─── Individual insight cards ─── */
+  .icard {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    overflow: hidden;
+    cursor: pointer;
+    user-select: none;
+    will-change: transform, opacity;
+    transition: transform 0.75s cubic-bezier(0.4, 1.8, 0.3, 1),
+                opacity  0.75s cubic-bezier(0.4, 1.8, 0.3, 1),
+                box-shadow 0.4s ease;
+  }
+
+  /* card glass surface */
+  .icard-inner {
+    width: 100%;
+    height: 100%;
+    background: #181410;
+    border: 1px solid rgba(240,234,224,0.07);
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    padding: 22px 24px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* top accent gradient bar */
+  .icard-inner::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    border-radius: 20px 20px 0 0;
+    background: var(--accent-grad);
+  }
+
+  /* subtle noise texture overlay */
+  .icard-inner::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    border-radius: 20px;
+  }
+
+  /* ─── Insight type tokens ─── */
+  .icard[data-type="spike"]   { --accent-grad: linear-gradient(90deg, #F87171, #EF4444); --accent: #F87171; --accent-dim: rgba(248,113,113,0.12); }
+  .icard[data-type="risk"]    { --accent-grad: linear-gradient(90deg, #FBBF24, #F59E0B); --accent: #FBBF24; --accent-dim: rgba(251,191,36,0.10); }
+  .icard[data-type="momentum"]{ --accent-grad: linear-gradient(90deg, #4ADE80, #22C55E); --accent: #4ADE80; --accent-dim: rgba(74,222,128,0.10); }
+  .icard[data-type="creep"]   { --accent-grad: linear-gradient(90deg, #D89A5C, #C8824A); --accent: #C8824A; --accent-dim: rgba(200,130,74,0.12); }
+
+  /* ─── Position states ─── */
+  .icard[data-pos="center"] {
+    z-index: 3;
+    opacity: 1;
+    transform: translateX(0) translateY(0) scale(1) rotateY(0deg);
+    box-shadow: 0 24px 64px rgba(0,0,0,0.55), 0 0 0 1px rgba(240,234,224,0.06);
+    pointer-events: auto;
+  }
+  .icard[data-pos="left"] {
+    z-index: 2;
+    opacity: 0.75;
+    transform: translateX(-62px) translateY(-44px) scale(0.84) rotateY(16deg);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+    pointer-events: auto;
+  }
+  .icard[data-pos="right"] {
+    z-index: 2;
+    opacity: 0.75;
+    transform: translateX(62px) translateY(-44px) scale(0.84) rotateY(-16deg);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+    pointer-events: auto;
+  }
+  .icard[data-pos="hidden"] {
+    z-index: 1;
+    opacity: 0;
+    transform: translateX(0) translateY(-60px) scale(0.7) rotateY(0deg);
+    pointer-events: none;
+  }
+
+  /* hover lift for side cards */
+  .icard[data-pos="left"]:hover  { transform: translateX(-62px) translateY(-52px) scale(0.86) rotateY(14deg); opacity: 0.88; }
+  .icard[data-pos="right"]:hover { transform: translateX(62px)  translateY(-52px) scale(0.86) rotateY(-14deg); opacity: 0.88; }
+
+  /* ─── Card content ─── */
+  .icard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .icard-type-row {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .type-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 6px var(--accent);
+    flex-shrink: 0;
+  }
+  .type-label {
+    font-size: 9.5px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .dismiss-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: rgba(240,234,224,0.25);
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s;
+  }
+  .dismiss-btn:hover { color: rgba(240,234,224,0.6); }
+
+  .icard-body {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+  .insight-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--accent-dim);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 1px solid rgba(240,234,224,0.06);
+  }
+  .insight-icon svg { color: var(--accent); }
+  .insight-text { flex: 1; min-width: 0; }
+  .insight-headline {
+    font-family: 'Instrument Serif', serif;
+    font-size: 17px;
+    line-height: 1.35;
+    color: rgba(240,234,224,0.92);
+    margin-bottom: 5px;
+  }
+  .insight-headline em {
+    font-style: normal;
+    color: var(--accent);
+  }
+  .insight-sub {
+    font-size: 11.5px;
+    color: rgba(240,234,224,0.45);
+    line-height: 1.5;
+  }
+
+  /* ─── Visual metric area ─── */
+  .icard-visual {
+    background: rgba(14,12,10,0.6);
+    border: 1px solid rgba(240,234,224,0.06);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+  }
+
+  /* compare bars */
+  .compare-bars { display: flex; flex-direction: column; gap: 8px; }
+  .bar-row { display: flex; flex-direction: column; gap: 4px; }
+  .bar-meta { display: flex; justify-content: space-between; align-items: center; }
+  .bar-label { font-size: 10px; color: rgba(240,234,224,0.45); font-family: 'IBM Plex Mono', monospace; }
+  .bar-val   { font-size: 10.5px; font-weight: 600; font-family: 'IBM Plex Mono', monospace; }
+  .bar-track {
+    height: 5px;
+    background: rgba(240,234,224,0.07);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: var(--bar-color, #C8824A);
+    transition: width 0.8s ease;
+  }
+
+  /* metric trio */
+  .metric-trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .metric-box {
+    background: rgba(240,234,224,0.03);
+    border: 1px solid rgba(240,234,224,0.07);
+    border-radius: 8px;
+    padding: 10px 8px;
+    text-align: center;
+  }
+  .metric-val {
+    font-family: 'Instrument Serif', serif;
+    font-size: 18px;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .metric-key {
+    font-size: 9px;
+    color: rgba(240,234,224,0.35);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  /* ─── Action chips ─── */
+  .action-row {
+    display: flex;
+    gap: 8px;
+  }
+  .chip {
+    flex: 1;
+    padding: 9px 12px;
+    border-radius: 10px;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    text-align: center;
+    font-family: 'Hanken Grotesk', sans-serif;
+  }
+  .chip-primary {
+    background: var(--accent-dim);
+    color: var(--accent);
+    border: 1px solid rgba(240,234,224,0.08);
+  }
+  .chip-primary:hover { filter: brightness(1.15); }
+  .chip-ghost {
+    background: rgba(240,234,224,0.04);
+    color: rgba(240,234,224,0.4);
+    border: 1px solid rgba(240,234,224,0.06);
+  }
+  .chip-ghost:hover { background: rgba(240,234,224,0.08); color: rgba(240,234,224,0.7); }
+
+  /* ─── Dot navigation ─── */
+  .dot-nav {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(240,234,224,0.18);
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+  .dot.active {
+    background: #C8824A;
+    box-shadow: 0 0 8px rgba(200,130,74,0.5);
+    width: 20px;
+    border-radius: 999px;
+  }
+
+  /* ─── Arrow buttons ─── */
+  .arrow-row {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+  }
+  .arrow-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #201C17;
+    border: 1px solid rgba(240,234,224,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.25s;
+    color: rgba(240,234,224,0.7);
+  }
+  .arrow-btn:hover {
+    background: #C8824A;
+    border-color: #C8824A;
+    color: #0E0C0A;
+    transform: scale(1.06);
+  }
+  .arrow-btn:active { transform: scale(0.97); }
+
+  /* progress ring around dots */
+  .progress-track {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: rgba(240,234,224,0.08);
+  }
+</style>
+</head>
+<body>
+
+<div class="carousel-wrapper">
+
+  <!-- 3D Stage -->
+  <div class="stage" id="stage">
+
+    <!-- Card 0: Spending Spike -->
+    <div class="icard" data-type="spike" data-index="0" data-pos="center">
+      <div class="icard-inner">
+        <div class="icard-header">
+          <div class="icard-type-row">
+            <div class="type-dot"></div>
+            <span class="type-label">Spending Spike</span>
+          </div>
+          <button class="dismiss-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="icard-body">
+          <div class="insight-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          </div>
+          <div class="insight-text">
+            <div class="insight-headline">Dining up <em>$214</em> vs your average</div>
+            <div class="insight-sub">8 transactions · last 12 days</div>
+          </div>
+        </div>
+        <div class="icard-visual">
+          <div class="compare-bars">
+            <div class="bar-row">
+              <div class="bar-meta">
+                <span class="bar-label">THIS MONTH</span>
+                <span class="bar-val" style="color:#F87171">$487</span>
+              </div>
+              <div class="bar-track"><div class="bar-fill" style="width:87%;--bar-color:#F87171"></div></div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-meta">
+                <span class="bar-label">3-MO AVG</span>
+                <span class="bar-val" style="color:rgba(240,234,224,0.45)">$273</span>
+              </div>
+              <div class="bar-track"><div class="bar-fill" style="width:49%;--bar-color:rgba(200,130,74,0.5)"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="action-row">
+          <button class="chip chip-primary">See dining spend</button>
+          <button class="chip chip-ghost">Dismiss</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 1: Risk Warning -->
+    <div class="icard" data-type="risk" data-index="1" data-pos="right">
+      <div class="icard-inner">
+        <div class="icard-header">
+          <div class="icard-type-row">
+            <div class="type-dot"></div>
+            <span class="type-label">Risk Warning</span>
+          </div>
+          <button class="dismiss-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="icard-body">
+          <div class="insight-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div class="insight-text">
+            <div class="insight-headline">Balance dips to <em>$84</em> on Mar 27</div>
+            <div class="insight-sub">$600 rent due · current velocity</div>
+          </div>
+        </div>
+        <div class="icard-visual">
+          <div class="metric-trio">
+            <div class="metric-box">
+              <div class="metric-val">$84</div>
+              <div class="metric-key">Proj. low</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-val">Mar 27</div>
+              <div class="metric-key">Dip date</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-val">11d</div>
+              <div class="metric-key">Until then</div>
+            </div>
+          </div>
+        </div>
+        <div class="action-row">
+          <button class="chip chip-primary">View cashflow</button>
+          <button class="chip chip-ghost">Snooze</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2: Momentum -->
+    <div class="icard" data-type="momentum" data-index="2" data-pos="hidden">
+      <div class="icard-inner">
+        <div class="icard-header">
+          <div class="icard-type-row">
+            <div class="type-dot"></div>
+            <span class="type-label">Momentum</span>
+          </div>
+          <button class="dismiss-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="icard-body">
+          <div class="insight-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+          </div>
+          <div class="insight-text">
+            <div class="insight-headline">Health score up <em>+8</em> this week</div>
+            <div class="insight-sub">Best 7-day run in 3 months</div>
+          </div>
+        </div>
+        <div class="icard-visual">
+          <div class="metric-trio">
+            <div class="metric-box">
+              <div class="metric-val" style="color:#4ADE80">+8</div>
+              <div class="metric-key">Score Δ</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-val">7d</div>
+              <div class="metric-key">Streak</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-val">72</div>
+              <div class="metric-key">Current</div>
+            </div>
+          </div>
+        </div>
+        <div class="action-row">
+          <button class="chip chip-primary">See score detail</button>
+          <button class="chip chip-ghost">Share</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3: Subscription Creep -->
+    <div class="icard" data-type="creep" data-index="3" data-pos="left">
+      <div class="icard-inner">
+        <div class="icard-header">
+          <div class="icard-type-row">
+            <div class="type-dot"></div>
+            <span class="type-label">Subscription Creep</span>
+          </div>
+          <button class="dismiss-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="icard-body">
+          <div class="insight-icon">
+            <!-- Netflix N logo -->
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M7 7 L12 17 L17 7" stroke-width="2.5"/></svg>
+          </div>
+          <div class="insight-text">
+            <div class="insight-headline">Netflix up <em>$4.99/mo</em> vs 6 months ago</div>
+            <div class="insight-sub">+$60/yr at current rate</div>
+          </div>
+        </div>
+        <div class="icard-visual">
+          <div class="metric-trio">
+            <div class="metric-box">
+              <div class="metric-val">$15.49</div>
+              <div class="metric-key">6mo ago</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-val" style="color:#C8824A">$20.48</div>
+              <div class="metric-key">Now</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-val">+$60</div>
+              <div class="metric-key">Extra/yr</div>
+            </div>
+          </div>
+        </div>
+        <div class="action-row">
+          <button class="chip chip-primary">Review sub</button>
+          <button class="chip chip-ghost">Ignore</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /stage -->
+
+  <!-- Controls -->
+  <div class="arrow-row">
+    <button class="arrow-btn" id="prev" aria-label="Previous">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="dot-nav" id="dots">
+      <div class="dot active" data-i="0"></div>
+      <div class="dot" data-i="1"></div>
+      <div class="dot" data-i="2"></div>
+      <div class="dot" data-i="3"></div>
+    </div>
+    <button class="arrow-btn" id="next" aria-label="Next">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+  </div>
+
+</div><!-- /carousel-wrapper -->
+
+<script>
+  const cards = Array.from(document.querySelectorAll('.icard'));
+  const dots  = Array.from(document.querySelectorAll('.dot'));
+  const total = cards.length;
+  let active  = 0;
+  let timer   = null;
+
+  function posFor(index) {
+    const diff = (index - active + total) % total;
+    if (diff === 0) return 'center';
+    if (diff === 1) return 'right';
+    if (diff === total - 1) return 'left';
+    return 'hidden';
+  }
+
+  function render() {
+    cards.forEach((c, i) => c.dataset.pos = posFor(i));
+    dots.forEach((d, i) => d.classList.toggle('active', i === active));
+  }
+
+  function goNext() {
+    active = (active + 1) % total;
+    render();
+    resetTimer();
+  }
+  function goPrev() {
+    active = (active - 1 + total) % total;
+    render();
+    resetTimer();
+  }
+
+  function resetTimer() {
+    clearInterval(timer);
+    timer = setInterval(goNext, 6000);
+  }
+
+  document.getElementById('next').addEventListener('click', goNext);
+  document.getElementById('prev').addEventListener('click', goPrev);
+
+  dots.forEach(d => d.addEventListener('click', () => {
+    active = +d.dataset.i;
+    render();
+    resetTimer();
+  }));
+
+  // clicking a side card brings it to center
+  cards.forEach((c, i) => c.addEventListener('click', () => {
+    if (c.dataset.pos !== 'center') {
+      active = i;
+      render();
+      resetTimer();
+    }
+  }));
+
+  // keyboard
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft')  goPrev();
+    if (e.key === 'ArrowRight') goNext();
+  });
+
+  // start autoplay
+  timer = setInterval(goNext, 6000);
+</script>
+</body>
+</html>

@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calendar Preview Card</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --surface-0: #0E0C0A;
+    --surface-1: #181410;
+    --surface-2: #201C17;
+    --surface-3: #2A2318;
+    --amber-400: #C8824A;
+    --amber-500: #BE7740;
+    --amber-600: #A86838;
+    --on-900: rgba(240,234,224,0.92);
+    --on-600: rgba(240,234,224,0.55);
+    --on-400: rgba(240,234,224,0.35);
+    --on-200: rgba(240,234,224,0.10);
+    --positive: #4ADE80;
+    --negative: #F87171;
+    --warn: #FBBF24;
+    --r-lg: 14px;
+    --r-xl: 18px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--surface-0);
+    font-family: 'Hanken Grotesk', sans-serif;
+    color: var(--on-900);
+    min-height: 100vh;
+    padding: 40px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+  }
+  .page-title {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--on-400);
+  }
+  .cards-row {
+    display: flex; gap: 24px;
+    width: 100%; max-width: 880px;
+    align-items: flex-start;
+  }
+  .col { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+  .col-label {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--on-400); text-align: center;
+  }
+
+  /* card */
+  .card {
+    background: var(--surface-1);
+    border: 1px solid var(--on-200);
+    border-radius: var(--r-xl);
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    box-shadow: 0 1px 0 0 rgba(240,234,224,0.04) inset, 0 8px 40px rgba(0,0,0,0.6);
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, #A86838 40%, #BE7740 60%, transparent);
+    opacity: 0.5;
+  }
+
+  /* header */
+  .card-header {
+    display: flex; align-items: center;
+    justify-content: space-between; margin-bottom: 16px;
+  }
+  .card-title {
+    font-size: 13px; font-weight: 600;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--on-400);
+  }
+  .view-btn {
+    background: transparent;
+    border: 1px solid var(--on-200);
+    border-radius: 8px; padding: 4px 10px;
+    font-size: 12px; font-weight: 500;
+    color: var(--on-400); cursor: pointer;
+    font-family: 'Hanken Grotesk', sans-serif;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .view-btn:hover { border-color: var(--amber-600); color: var(--amber-400); }
+
+  /* KPI row — total due this month */
+  .kpi-row {
+    display: flex; align-items: center;
+    gap: 10px; margin-bottom: 16px; padding-bottom: 4px;
+  }
+  .kpi-number {
+    font-size: 30px; font-weight: 500;
+    letter-spacing: -0.03em;
+    font-family: 'IBM Plex Mono', monospace; line-height: 1;
+    color: var(--on-900);
+  }
+  .kpi-sub { font-size: 12px; color: var(--on-400); line-height: 1.4; }
+
+  /* filter tabs — same period-tab pattern */
+  .filter-tabs {
+    display: flex; width: 100%;
+    overflow: hidden; border-radius: 8px;
+    border: 1px solid var(--on-200);
+    margin-bottom: 16px;
+  }
+  .filter-tab {
+    display: flex; flex: 1;
+    align-items: center; justify-content: center;
+    height: 28px; background: transparent; border: none;
+    border-right: 1px solid var(--on-200);
+    font-size: 11px; font-weight: 600;
+    letter-spacing: -0.006em;
+    color: var(--on-400); cursor: pointer;
+    font-family: 'Hanken Grotesk', sans-serif;
+    transition: background 0.12s, color 0.12s; outline: none;
+  }
+  .filter-tab:last-child { border-right: none; }
+  .filter-tab:hover { background: rgba(240,234,224,0.04); color: var(--on-600); }
+  .filter-tab.active { background: var(--surface-3); color: var(--on-900); }
+
+  /* payment rows */
+  .payment-rows { display: flex; flex-direction: column; gap: 2px; }
+
+  .payment-row {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--on-200);
+  }
+  .payment-row:last-child { border-bottom: none; }
+
+  .payment-left { display: flex; align-items: center; gap: 10px; }
+
+  /* brand logo circle */
+  .brand-logo {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--on-200);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700;
+    flex-shrink: 0;
+    overflow: hidden;
+    background: var(--surface-2);
+  }
+  .brand-logo img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+  .brand-logo.netflix  { background: #E50914; color: #fff; }
+  .brand-logo.spotify  { background: #1DB954; color: #fff; }
+  .brand-logo.amazon   { background: #FF9900; color: #111; }
+  .brand-logo.apple    { background: #555; color: #fff; }
+  .brand-logo.chase    { background: #117ACA; color: #fff; }
+
+  .payment-meta { display: flex; flex-direction: column; gap: 2px; }
+  .payment-name { font-size: 13px; font-weight: 500; color: var(--on-900); }
+  .payment-type { font-size: 11px; color: var(--on-400); }
+
+  .payment-right { display: flex; align-items: center; gap: 14px; }
+  .payment-amount {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px; font-weight: 500; color: var(--on-900);
+  }
+
+  /* date chip — urgency-coded */
+  .date-chip {
+    display: flex; align-items: center; gap: 4px;
+    border-radius: 999px; border: 1px solid;
+    padding: 2px 8px;
+    font-size: 11px; font-weight: 600;
+    font-family: 'IBM Plex Mono', monospace;
+    white-space: nowrap;
+  }
+  .date-chip.urgent  { background: rgba(248,113,113,0.1); border-color: rgba(248,113,113,0.25); color: var(--negative); }
+  .date-chip.soon    { background: rgba(251,191,36,0.1);  border-color: rgba(251,191,36,0.25);  color: var(--warn); }
+  .date-chip.safe    { background: rgba(240,234,224,0.06); border-color: var(--on-200); color: var(--on-400); }
+  .date-chip.ai-rec  { background: rgba(200,130,74,0.1); border-color: rgba(200,130,74,0.25); color: var(--amber-400); }
+
+  .note {
+    font-size: 12px; color: var(--on-400);
+    text-align: center; max-width: 640px; line-height: 1.7;
+  }
+</style>
+</head>
+<body>
+
+<p class="page-title">Smart Payment Calendar — Dashboard Card</p>
+
+<div class="cards-row">
+
+  <!-- ── ALL tab ── -->
+  <div class="col">
+    <div class="col-label">All Payments</div>
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Upcoming</span>
+        <button class="view-btn">Full Calendar</button>
+      </div>
+
+      <!-- total due -->
+      <div class="kpi-row">
+        <span class="kpi-number">$487</span>
+        <span class="kpi-sub">due in the<br>next 14 days</span>
+      </div>
+
+      <!-- filter tabs -->
+      <div class="filter-tabs" id="tabs-all">
+        <button class="filter-tab active" onclick="setTab('tabs-all',this)">All</button>
+        <button class="filter-tab"        onclick="setTab('tabs-all',this)">Subs</button>
+        <button class="filter-tab"        onclick="setTab('tabs-all',this)">Bills</button>
+        <button class="filter-tab"        onclick="setTab('tabs-all',this)">AI</button>
+      </div>
+
+      <!-- payment rows -->
+      <div class="payment-rows">
+
+        <!-- overdue / today -->
+        <div class="payment-row">
+          <div class="payment-left">
+            <div class="brand-logo netflix">N</div>
+            <div class="payment-meta">
+              <span class="payment-name">Netflix</span>
+              <span class="payment-type">Subscription</span>
+            </div>
+          </div>
+          <div class="payment-right">
+            <span class="payment-amount">$15.99</span>
+            <div class="date-chip urgent">
+              <!-- lucide: circle-alert -->
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+              Today
+            </div>
+          </div>
+        </div>
+
+        <!-- due in 3 days -->
+        <div class="payment-row">
+          <div class="brand-logo chase">C</div>
+          <div class="payment-meta">
+            <span class="payment-name">Chase Sapphire</span>
+            <span class="payment-type">Credit card</span>
+          </div>
+          <div class="payment-right">
+            <span class="payment-amount">$240.00</span>
+            <div class="date-chip soon">
+              <!-- lucide: clock -->
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Mar 18
+            </div>
+          </div>
+        </div>
+
+        <!-- AI recommended date -->
+        <div class="payment-row">
+          <div class="payment-left">
+            <div class="brand-logo apple">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.94c1.5 0 2.75-.6 3.95-1.6 1.2-1 2.05-2.4 2.05-4.34 0-3.5-2.5-6-6-6s-6 2.5-6 6c0 1.94.85 3.34 2.05 4.34 1.2 1 2.45 1.6 3.95 1.6z"/><path d="M12 8V3"/><path d="M9 5h6"/></svg>
+            </div>
+            <div class="payment-meta">
+              <span class="payment-name">Apple One</span>
+              <span class="payment-type">Subscription</span>
+            </div>
+          </div>
+          <div class="payment-right">
+            <span class="payment-amount">$19.95</span>
+            <div class="date-chip ai-rec">
+              <!-- lucide: sparkles -->
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3z"/></svg>
+              Mar 22 · AI
+            </div>
+          </div>
+        </div>
+
+        <!-- safe / upcoming -->
+        <div class="payment-row">
+          <div class="payment-left">
+            <div class="brand-logo spotify">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 11.973c2.5-1.473 5.5-.973 7.5.527"/><path d="M9 15c1.5-1 4-1 5.5.5"/><path d="M7 8.972c3-1.472 7.5-.972 10.5 1.028"/></svg>
+            </div>
+            <div class="payment-meta">
+              <span class="payment-name">Spotify</span>
+              <span class="payment-type">Subscription</span>
+            </div>
+          </div>
+          <div class="payment-right">
+            <span class="payment-amount">$9.99</span>
+            <div class="date-chip safe">Mar 28</div>
+          </div>
+        </div>
+
+        <!-- amazon -->
+        <div class="payment-row">
+          <div class="payment-left">
+            <div class="brand-logo amazon">a</div>
+            <div class="payment-meta">
+              <span class="payment-name">Amazon Prime</span>
+              <span class="payment-type">Subscription</span>
+            </div>
+          </div>
+          <div class="payment-right">
+            <span class="payment-amount">$14.99</span>
+            <div class="date-chip safe">Apr 2</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── AI tab ── -->
+  <div class="col">
+    <div class="col-label">AI Recommended Dates</div>
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Upcoming</span>
+        <button class="view-btn">Full Calendar</button>
+      </div>
+
+      <div class="kpi-row">
+        <span class="kpi-number">$487</span>
+        <span class="kpi-sub">due in the<br>next 14 days</span>
+      </div>
+
+      <div class="filter-tabs" id="tabs-ai">
+        <button class="filter-tab"        onclick="setTab('tabs-ai',this)">All</button>
+        <button class="filter-tab"        onclick="setTab('tabs-ai',this)">Subs</button>
+        <button class="filter-tab"        onclick="setTab('tabs-ai',this)">Bills</button>
+        <button class="filter-tab active" onclick="setTab('tabs-ai',this)">AI</button>
+      </div>
+
+      <!-- only AI rec rows -->
+      <div class="payment-rows">
+
+        <div class="payment-row">
+          <div class="payment-left">
+            <div class="brand-logo chase">C</div>
+            <div class="payment-meta">
+              <span class="payment-name">Chase Sapphire</span>
+              <span class="payment-type">Pay before closing — Mar 18</span>
+            </div>
+          </div>
+          <div class="payment-right">
+            <span class="payment-amount">$196</span>
+            <div class="date-chip ai-rec">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3z"/></svg>
+              Mar 16 · AI
+            </div>
+          </div>
+        </div>
+
+        <div class="payment-row">
+          <div class="payment-left">
+            <div class="brand-logo apple">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.94c1.5 0 2.75-.6 3.95-1.6 1.2-1 2.05-2.4 2.05-4.34 0-3.5-2.5-6-6-6s-6 2.5-6 6c0 1.94.85 3.34 2.05 4.34 1.2 1 2.45 1.6 3.95 1.6z"/><path d="M12 8V3"/><path d="M9 5h6"/></svg>
+            </div>
+            <div class="payment-meta">
+              <span class="payment-name">Apple One</span>
+              <span class="payment-type">Aligns with payday buffer</span>
+            </div>
+          </div>
+          <div class="payment-right">
+            <span class="payment-amount">$19.95</span>
+            <div class="date-chip ai-rec">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3z"/></svg>
+              Mar 22 · AI
+            </div>
+          </div>
+        </div>
+
+        <!-- explanation row -->
+        <div style="margin-top:12px;padding:10px 12px;background:rgba(200,130,74,0.06);border:1px solid rgba(200,130,74,0.15);border-radius:12px;display:flex;gap:8px;align-items:flex-start">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C8824A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3z"/></svg>
+          <p style="font-size:12px;color:rgba(240,234,224,0.55);line-height:1.5">Argus picked these dates to keep your utilization under 8% and avoid bill stacking around Mar 27</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p class="note">
+  Brand logos as colored circles (Clearbit in prod, letter fallback here). Date chips color-coded: red = today/overdue, amber = due soon, copper = AI-recommended, muted = safe. Filter tabs: All / Subs / Bills / AI. AI tab shows recommended dates with reasoning.
+</p>
+
+<script>
+  function setTab(id, btn) {
+    document.getElementById(id).querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+</script>
+</body>
+</html>

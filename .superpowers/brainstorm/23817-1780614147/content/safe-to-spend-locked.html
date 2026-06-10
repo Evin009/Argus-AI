@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Safe to Spend — Locked</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --surface-0: #0E0C0A;
+    --surface-1: #181410;
+    --surface-2: #201C17;
+    --surface-3: #2A2318;
+    --amber-400: #C8824A;
+    --amber-500: #BE7740;
+    --amber-600: #A86838;
+    --on-dark-900: rgba(240,234,224,0.92);
+    --on-dark-600: rgba(240,234,224,0.55);
+    --on-dark-400: rgba(240,234,224,0.35);
+    --on-dark-200: rgba(240,234,224,0.10);
+    --positive: #4ADE80;
+    --r-lg: 14px;
+    --r-xl: 18px;
+    --grad-accent: linear-gradient(140deg, #C8824A 0%, #BE7740 58%, #A8412B 100%);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--surface-0);
+    font-family: 'Hanken Grotesk', sans-serif;
+    color: var(--on-dark-900);
+    min-height: 100vh;
+    padding: 40px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 36px;
+  }
+  .page-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--positive);
+  }
+  .states-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    width: 100%;
+    max-width: 800px;
+  }
+  .state-wrap { display: flex; flex-direction: column; gap: 10px; }
+  .state-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--on-dark-400);
+    text-align: center;
+  }
+  .card {
+    background: var(--surface-1);
+    border: 1px solid var(--on-dark-200);
+    border-radius: var(--r-xl);
+    padding: 22px 24px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 1px 0 0 rgba(240,234,224,0.04) inset, 0 8px 32px rgba(0,0,0,0.5);
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--amber-600) 40%, var(--amber-500) 60%, transparent);
+    opacity: 0.5;
+  }
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--on-dark-400);
+  }
+  .live-pill {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--surface-2);
+    border: 1px solid var(--on-dark-200);
+    border-radius: 999px;
+    padding: 3px 9px;
+    font-size: 10.5px;
+    color: var(--on-dark-400);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--positive);
+    box-shadow: 0 0 5px var(--positive);
+  }
+  .main-number {
+    font-family: 'Instrument Serif', serif;
+    font-size: 54px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    background: var(--grad-accent);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 4px;
+  }
+  .delta { font-size: 12.5px; font-weight: 500; color: var(--positive); margin-bottom: 10px; }
+  .avail {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--on-dark-400);
+    margin-bottom: 16px;
+  }
+  .avail span { color: var(--on-dark-600); }
+  .tap-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 9px 0;
+    border: 1px solid var(--on-dark-200);
+    border-radius: var(--r-lg);
+    background: var(--surface-2);
+    font-size: 12px;
+    color: var(--on-dark-400);
+  }
+  .divider { height: 1px; background: var(--on-dark-200); margin: 16px 0 14px; }
+  .section-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--on-dark-400);
+    margin-bottom: 12px;
+  }
+
+  /* donut layout */
+  .donut-wrap {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 14px;
+  }
+  .donut-rows { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+  .donut-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12.5px;
+    color: var(--on-dark-600);
+  }
+  .donut-label { display: flex; align-items: center; gap: 7px; }
+  .pip { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .donut-amt {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    color: var(--on-dark-600);
+  }
+  .collapse-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 0;
+    border: 1px solid var(--on-dark-200);
+    border-radius: var(--r-lg);
+    background: var(--surface-2);
+    font-size: 12px;
+    color: var(--on-dark-400);
+  }
+  .note {
+    font-size: 12px;
+    color: var(--on-dark-400);
+    text-align: center;
+    max-width: 540px;
+    line-height: 1.7;
+  }
+  .locked-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(74,222,128,0.1);
+    border: 1px solid rgba(74,222,128,0.25);
+    border-radius: 999px;
+    padding: 4px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--positive);
+    letter-spacing: 0.06em;
+  }
+</style>
+</head>
+<body>
+
+<div class="locked-chip">✓ Locked — Safe to Spend</div>
+
+<div class="states-row">
+
+  <!-- COLLAPSED -->
+  <div class="state-wrap">
+    <div class="state-label">Collapsed — default</div>
+    <div class="card">
+      <div class="card-header">
+        <span class="eyebrow">Safe to Spend</span>
+        <div class="live-pill"><div class="dot"></div>This morning</div>
+      </div>
+      <div class="main-number">$840</div>
+      <div class="delta">↑ $120 from yesterday</div>
+      <div class="avail">Available balance: <span>$2,340</span></div>
+      <div class="tap-bar">View breakdown ↓</div>
+    </div>
+  </div>
+
+  <!-- EXPANDED -->
+  <div class="state-wrap">
+    <div class="state-label">Expanded — on tap</div>
+    <div class="card">
+      <div class="card-header">
+        <span class="eyebrow">Safe to Spend</span>
+        <div class="live-pill"><div class="dot"></div>This morning</div>
+      </div>
+      <div class="main-number">$840</div>
+      <div class="delta">↑ $120 from yesterday</div>
+      <div class="avail">Available balance: <span>$2,340</span></div>
+
+      <div class="divider"></div>
+      <div class="section-label">Breakdown</div>
+
+      <div class="donut-wrap">
+        <svg width="88" height="88" viewBox="0 0 88 88" style="flex-shrink:0">
+          <circle cx="44" cy="44" r="34" fill="none" stroke="rgba(240,234,224,0.07)" stroke-width="10"/>
+          <!-- safe to spend: 840/2340 = 36% = 81.4 of 213.6 -->
+          <circle cx="44" cy="44" r="34" fill="none" stroke="url(#g1)" stroke-width="10"
+            stroke-dasharray="77 136.5" stroke-dashoffset="0" stroke-linecap="round" transform="rotate(-90 44 44)"/>
+          <!-- bills: 980/2340 = 41.9% = 89.5 -->
+          <circle cx="44" cy="44" r="34" fill="none" stroke="rgba(248,113,113,0.75)" stroke-width="10"
+            stroke-dasharray="89.5 124" stroke-dashoffset="-77" stroke-linecap="round" transform="rotate(-90 44 44)"/>
+          <!-- goal: 300/2340 = 12.8% = 27.4 -->
+          <circle cx="44" cy="44" r="34" fill="none" stroke="rgba(96,165,250,0.75)" stroke-width="10"
+            stroke-dasharray="27 186.5" stroke-dashoffset="-166.5" stroke-linecap="round" transform="rotate(-90 44 44)"/>
+          <!-- buffer: 220/2340 = 9.4% = 20 -->
+          <circle cx="44" cy="44" r="34" fill="none" stroke="rgba(240,234,224,0.2)" stroke-width="10"
+            stroke-dasharray="19.5 194" stroke-dashoffset="-193.5" stroke-linecap="round" transform="rotate(-90 44 44)"/>
+          <defs>
+            <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#C8824A"/>
+              <stop offset="100%" stop-color="#BE7740"/>
+            </linearGradient>
+          </defs>
+          <text x="44" y="40" text-anchor="middle" font-family="Instrument Serif" font-size="13" fill="rgba(240,234,224,0.9)">36%</text>
+          <text x="44" y="52" text-anchor="middle" font-family="Hanken Grotesk" font-size="7" fill="rgba(240,234,224,0.35)" letter-spacing="0.5">free</text>
+        </svg>
+
+        <div class="donut-rows">
+          <div class="donut-row">
+            <div class="donut-label"><div class="pip" style="background:#BE7740"></div>Safe to spend</div>
+            <div class="donut-amt" style="color:#C8824A">$840</div>
+          </div>
+          <div class="donut-row">
+            <div class="donut-label"><div class="pip" style="background:rgba(248,113,113,0.8)"></div>Bills due</div>
+            <div class="donut-amt">−$980</div>
+          </div>
+          <div class="donut-row">
+            <div class="donut-label"><div class="pip" style="background:rgba(96,165,250,0.8)"></div>Goals</div>
+            <div class="donut-amt">−$300</div>
+          </div>
+          <div class="donut-row">
+            <div class="donut-label"><div class="pip" style="background:rgba(240,234,224,0.2)"></div>Buffer</div>
+            <div class="donut-amt">−$220</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="collapse-bar">Hide breakdown ↑</div>
+    </div>
+  </div>
+
+</div>
+
+<p class="note">Donut shows percentage of available balance that's free. Copper = yours. Red = bills. Blue = goals. Muted = buffer. Appears only on expand — collapsed state stays minimal.</p>
+
+</body>
+</html>

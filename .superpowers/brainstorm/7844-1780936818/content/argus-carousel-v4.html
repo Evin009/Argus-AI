@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Argus Insight Carousel v4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0E0C0A;
+    font-family: 'Hanken Grotesk', system-ui, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 20px;
+  }
+
+  .carousel-wrapper {
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+  }
+
+  /* ── stage ── */
+  .stage {
+    width: 100%;
+    height: 320px;
+    position: relative;
+    perspective: 1000px;
+    perspective-origin: 50% 50%;
+  }
+
+  .icard {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    cursor: pointer;
+    user-select: none;
+    will-change: transform, opacity;
+    transition: transform 0.72s cubic-bezier(0.4, 1.5, 0.3, 1),
+                opacity  0.72s cubic-bezier(0.4, 1.5, 0.3, 1);
+  }
+
+  .icard-inner {
+    width: 100%; height: 100%;
+    background: #181410;
+    border: 1px solid rgba(240,234,224,0.08);
+    border-radius: 20px;
+    padding: 20px 20px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* top accent line */
+  .icard-inner::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 2px;
+    border-radius: 20px 20px 0 0;
+    background: var(--accent-grad);
+  }
+
+  /* soft glow bleed from top */
+  .icard-inner::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 80px;
+    background: linear-gradient(180deg, var(--accent-glow) 0%, transparent 100%);
+    pointer-events: none;
+    opacity: 0.07;
+  }
+
+  /* type tokens */
+  .icard[data-type="spike"]    { --accent:#F87171; --accent-grad:linear-gradient(90deg,#F87171,#EF4444); --accent-glow:#F87171; --accent-dim:rgba(248,113,113,0.12); }
+  .icard[data-type="risk"]     { --accent:#FBBF24; --accent-grad:linear-gradient(90deg,#FCD34D,#FBBF24); --accent-glow:#FBBF24; --accent-dim:rgba(251,191,36,0.10); }
+  .icard[data-type="momentum"] { --accent:#4ADE80; --accent-grad:linear-gradient(90deg,#4ADE80,#22C55E); --accent-glow:#4ADE80; --accent-dim:rgba(74,222,128,0.09); }
+  .icard[data-type="creep"]    { --accent:#C8824A; --accent-grad:linear-gradient(90deg,#D89A5C,#C8824A); --accent-glow:#C8824A; --accent-dim:rgba(200,130,74,0.12); }
+
+  /* positions */
+  .icard[data-pos="center"] { z-index:3; opacity:1; pointer-events:auto; transform:translateX(0) translateY(0) scale(1) rotateY(0deg); box-shadow:0 20px 60px rgba(0,0,0,0.55); }
+  .icard[data-pos="left"]   { z-index:2; opacity:0.65; pointer-events:auto; transform:translateX(-55px) translateY(-28px) scale(0.85) rotateY(14deg); box-shadow:0 10px 30px rgba(0,0,0,0.4); }
+  .icard[data-pos="right"]  { z-index:2; opacity:0.65; pointer-events:auto; transform:translateX(55px)  translateY(-28px) scale(0.85) rotateY(-14deg); box-shadow:0 10px 30px rgba(0,0,0,0.4); }
+  .icard[data-pos="hidden"] { z-index:1; opacity:0; pointer-events:none; transform:translateX(0) translateY(-40px) scale(0.7); }
+  .icard[data-pos="left"]:hover  { opacity:0.82; transform:translateX(-55px) translateY(-36px) scale(0.87) rotateY(12deg); }
+  .icard[data-pos="right"]:hover { opacity:0.82; transform:translateX(55px)  translateY(-36px) scale(0.87) rotateY(-12deg); }
+
+  /* ── ROW 1: type tag + dismiss ── */
+  .tag-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative; z-index: 1;
+  }
+  .type-tag {
+    display: flex; align-items: center; gap: 5px;
+  }
+  .type-dot { width:5px; height:5px; border-radius:50%; background:var(--accent); box-shadow:0 0 6px var(--accent); }
+  .type-label { font-size:9px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--accent); font-family:'IBM Plex Mono',monospace; }
+  .dismiss-btn { background:none; border:none; cursor:pointer; color:rgba(240,234,224,0.18); padding:2px; display:flex; transition:color 0.2s; }
+  .dismiss-btn:hover { color:rgba(240,234,224,0.5); }
+
+  /* ── ROW 2: hero stat ── */
+  .hero-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative; z-index: 1;
+  }
+
+  /* Argus icon — smaller, tighter */
+  .a-icon {
+    width: 40px; height: 40px; border-radius: 11px;
+    background: var(--accent-dim);
+    border: 1px solid rgba(240,234,224,0.06);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; overflow: hidden;
+  }
+  /* brand logo override — no tinted bg, real brand color */
+  .a-icon.brand {
+    background: var(--brand-bg, #181410);
+    border-color: rgba(240,234,224,0.08);
+    padding: 0;
+  }
+
+  .hero-text {}
+  .hero-stat {
+    font-family: 'Instrument Serif', serif;
+    font-size: 32px;
+    line-height: 1;
+    color: var(--accent);
+    margin-bottom: 3px;
+  }
+  .hero-sub {
+    font-size: 12px;
+    color: rgba(240,234,224,0.55);
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  /* ── ROW 3: context line ── */
+  .context-line {
+    font-size: 11px;
+    color: rgba(240,234,224,0.3);
+    font-family: 'IBM Plex Mono', monospace;
+    position: relative; z-index: 1;
+    padding: 10px 12px;
+    background: rgba(240,234,224,0.025);
+    border-radius: 10px;
+    border: 1px solid rgba(240,234,224,0.05);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .context-line span { color: rgba(240,234,224,0.65); }
+
+  /* ── ROW 4: mini data strip (no box, inline) ── */
+  .data-strip {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    position: relative; z-index: 1;
+    background: rgba(240,234,224,0.025);
+    border: 1px solid rgba(240,234,224,0.05);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .strip-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 6px;
+    gap: 3px;
+  }
+  .strip-item + .strip-item {
+    border-left: 1px solid rgba(240,234,224,0.05);
+  }
+  .strip-val { font-family:'Instrument Serif',serif; font-size:17px; color:var(--accent); line-height:1; }
+  .strip-key { font-size:8px; color:rgba(240,234,224,0.28); text-transform:uppercase; letter-spacing:0.09em; font-family:'IBM Plex Mono',monospace; }
+
+  /* compare bars variant */
+  .bar-strip { flex-direction: column; padding: 12px 14px; gap: 8px; align-items: stretch; }
+  .bar-strip .bar-line { display:flex; flex-direction:column; gap:4px; }
+  .bar-strip .bar-meta { display:flex; justify-content:space-between; }
+  .bar-lbl { font-size:9px; color:rgba(240,234,224,0.3); font-family:'IBM Plex Mono',monospace; }
+  .bar-amt { font-size:9px; font-weight:600; font-family:'IBM Plex Mono',monospace; }
+  .bar-track { height:4px; background:rgba(240,234,224,0.06); border-radius:999px; overflow:hidden; }
+  .bar-fill  { height:100%; border-radius:999px; }
+
+  /* ── ROW 5: CTA ── */
+  .cta-row {
+    display: flex; gap: 8px;
+    position: relative; z-index: 1;
+    margin-top: auto;
+  }
+  .chip {
+    flex:1; padding:10px 10px; border-radius:10px;
+    font-size:11px; font-weight:600; cursor:pointer; border:none;
+    transition:all 0.2s; text-align:center;
+    font-family:'Hanken Grotesk',sans-serif; letter-spacing:0.01em;
+  }
+  .chip-primary { background:var(--accent-dim); color:var(--accent); border:1px solid rgba(240,234,224,0.07); }
+  .chip-primary:hover { filter:brightness(1.2); }
+  .chip-ghost   { background:transparent; color:rgba(240,234,224,0.3); border:1px solid rgba(240,234,224,0.06); }
+  .chip-ghost:hover { color:rgba(240,234,224,0.6); background:rgba(240,234,224,0.04); }
+
+  /* ── controls ── */
+  .controls { display:flex; align-items:center; gap:20px; }
+  .dot-nav { display:flex; align-items:center; gap:6px; }
+  .dot { width:5px; height:5px; border-radius:50%; background:rgba(240,234,224,0.15); transition:all 0.3s; cursor:pointer; }
+  .dot.active { width:18px; border-radius:999px; background:#C8824A; box-shadow:0 0 7px rgba(200,130,74,0.5); }
+  .arrow-btn { width:38px; height:38px; border-radius:50%; background:#1C1814; border:1px solid rgba(240,234,224,0.07); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.2s; color:rgba(240,234,224,0.55); }
+  .arrow-btn:hover { background:#C8824A; border-color:#C8824A; color:#0E0C0A; transform:scale(1.06); }
+  .arrow-btn:active { transform:scale(0.95); }
+</style>
+</head>
+<body>
+
+<div class="carousel-wrapper">
+  <div class="stage" id="stage">
+
+    <!-- ── CARD 0: Spending Spike ── -->
+    <div class="icard" data-type="spike" data-index="0" data-pos="center">
+      <div class="icard-inner">
+
+        <div class="tag-row">
+          <div class="type-tag"><div class="type-dot"></div><span class="type-label">Spending Spike</span></div>
+          <button class="dismiss-btn" onclick="event.stopPropagation()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+
+        <div class="hero-row">
+          <div class="a-icon">
+            <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+              <path d="M2 14 L7 14 L9 8 L11 19 L13 4 L15 22 L17 10 L19 14 L26 14" stroke="rgba(248,113,113,0.3)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M11 19 L13 4 L15 22" stroke="#F87171" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="13" cy="4" r="2" fill="#F87171"/>
+            </svg>
+          </div>
+          <div class="hero-text">
+            <div class="hero-stat">+$214</div>
+            <div class="hero-sub">above your dining average</div>
+          </div>
+        </div>
+
+        <div class="context-line">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="flex-shrink:0;opacity:0.4"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span>8 transactions</span>&nbsp;in dining · last 12 days
+        </div>
+
+        <div class="data-strip bar-strip">
+          <div class="bar-line">
+            <div class="bar-meta"><span class="bar-lbl">THIS MONTH</span><span class="bar-amt" style="color:#F87171">$487</span></div>
+            <div class="bar-track"><div class="bar-fill" style="width:87%;background:#F87171;opacity:0.85"></div></div>
+          </div>
+          <div class="bar-line">
+            <div class="bar-meta"><span class="bar-lbl">3-MO AVG</span><span class="bar-amt" style="color:rgba(240,234,224,0.38)">$273</span></div>
+            <div class="bar-track"><div class="bar-fill" style="width:49%;background:rgba(248,113,113,0.35)"></div></div>
+          </div>
+        </div>
+
+        <div class="cta-row">
+          <button class="chip chip-primary">See dining spend</button>
+          <button class="chip chip-ghost">Dismiss</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── CARD 1: Risk Warning ── -->
+    <div class="icard" data-type="risk" data-index="1" data-pos="right">
+      <div class="icard-inner">
+
+        <div class="tag-row">
+          <div class="type-tag"><div class="type-dot"></div><span class="type-label">Risk Warning</span></div>
+          <button class="dismiss-btn" onclick="event.stopPropagation()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+
+        <div class="hero-row">
+          <div class="a-icon">
+            <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+              <path d="M14 3 L23 7 L23 15 C23 20 18.5 24 14 25.5 C9.5 24 5 20 5 15 L5 7 Z" stroke="rgba(251,191,36,0.3)" stroke-width="1.8" fill="rgba(251,191,36,0.06)" stroke-linejoin="round"/>
+              <path d="M14 3 L23 7 L23 15" stroke="#FBBF24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.75"/>
+              <line x1="14" y1="11" x2="14" y2="17" stroke="#FBBF24" stroke-width="2.5" stroke-linecap="round"/>
+              <circle cx="14" cy="20.5" r="1.3" fill="#FBBF24"/>
+            </svg>
+          </div>
+          <div class="hero-text">
+            <div class="hero-stat">$84</div>
+            <div class="hero-sub">projected low on Mar 27</div>
+          </div>
+        </div>
+
+        <div class="context-line">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="flex-shrink:0;opacity:0.4"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+          <span>$600 rent</span>&nbsp;due · balance won't cover it
+        </div>
+
+        <div class="data-strip">
+          <div class="strip-item">
+            <div class="strip-val">$84</div>
+            <div class="strip-key">Proj. low</div>
+          </div>
+          <div class="strip-item">
+            <div class="strip-val">Mar 27</div>
+            <div class="strip-key">Dip date</div>
+          </div>
+          <div class="strip-item">
+            <div class="strip-val">11d</div>
+            <div class="strip-key">Until then</div>
+          </div>
+        </div>
+
+        <div class="cta-row">
+          <button class="chip chip-primary">View cashflow</button>
+          <button class="chip chip-ghost">Snooze</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── CARD 2: Momentum ── -->
+    <div class="icard" data-type="momentum" data-index="2" data-pos="hidden">
+      <div class="icard-inner">
+
+        <div class="tag-row">
+          <div class="type-tag"><div class="type-dot"></div><span class="type-label">Momentum</span></div>
+          <button class="dismiss-btn" onclick="event.stopPropagation()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+
+        <div class="hero-row">
+          <div class="a-icon">
+            <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+              <circle cx="14" cy="14" r="9" stroke="rgba(74,222,128,0.2)" stroke-width="1.5" stroke-dasharray="3 2.5"/>
+              <path d="M6 20 Q10 8 22 8" stroke="#4ADE80" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+              <circle cx="22" cy="8" r="2.3" fill="#4ADE80"/>
+              <circle cx="6" cy="20" r="1.4" fill="rgba(74,222,128,0.4)"/>
+            </svg>
+          </div>
+          <div class="hero-text">
+            <div class="hero-stat">+8 pts</div>
+            <div class="hero-sub">health score gain this week</div>
+          </div>
+        </div>
+
+        <div class="context-line">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="flex-shrink:0;opacity:0.4"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/></svg>
+          Best 7-day streak in&nbsp;<span>3 months</span>
+        </div>
+
+        <div class="data-strip">
+          <div class="strip-item">
+            <div class="strip-val" style="color:#4ADE80">72</div>
+            <div class="strip-key">Score now</div>
+          </div>
+          <div class="strip-item">
+            <div class="strip-val">64</div>
+            <div class="strip-key">Last week</div>
+          </div>
+          <div class="strip-item">
+            <div class="strip-val">7d</div>
+            <div class="strip-key">Streak</div>
+          </div>
+        </div>
+
+        <div class="cta-row">
+          <button class="chip chip-primary">See score detail</button>
+          <button class="chip chip-ghost">Share</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── CARD 3: Subscription Creep ── -->
+    <div class="icard" data-type="creep" data-index="3" data-pos="left">
+      <div class="icard-inner">
+
+        <div class="tag-row">
+          <div class="type-tag"><div class="type-dot"></div><span class="type-label">Subscription Creep</span></div>
+          <button class="dismiss-btn" onclick="event.stopPropagation()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+
+        <div class="hero-row">
+          <!-- Netflix brand logo -->
+          <div class="a-icon brand" style="--brand-bg:#E50914">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="40" height="40" rx="11" fill="#E50914"/>
+              <!-- Netflix N — bold italic letterform -->
+              <path d="M12 10 L12 30 L16.2 30 L16.2 18.4 L23.8 30 L28 30 L28 10 L23.8 10 L23.8 21.6 L16.2 10 Z" fill="white"/>
+            </svg>
+          </div>
+          <div class="hero-text">
+            <div class="hero-stat">+$60/yr</div>
+            <div class="hero-sub">Netflix quietly increased</div>
+          </div>
+        </div>
+
+        <div class="context-line">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="flex-shrink:0;opacity:0.4"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Was&nbsp;<span>$15.49</span>&nbsp;· now&nbsp;<span>$20.48</span>&nbsp;per month
+        </div>
+
+        <div class="data-strip">
+          <div class="strip-item">
+            <div class="strip-val">$15.49</div>
+            <div class="strip-key">6mo ago</div>
+          </div>
+          <div class="strip-item">
+            <div class="strip-val" style="color:#C8824A">$20.48</div>
+            <div class="strip-key">Now</div>
+          </div>
+          <div class="strip-item">
+            <div class="strip-val">+32%</div>
+            <div class="strip-key">Increase</div>
+          </div>
+        </div>
+
+        <div class="cta-row">
+          <button class="chip chip-primary">Review subscription</button>
+          <button class="chip chip-ghost">Ignore</button>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /stage -->
+
+  <div class="controls">
+    <button class="arrow-btn" id="prev">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="dot-nav" id="dots">
+      <div class="dot active" data-i="0"></div>
+      <div class="dot" data-i="1"></div>
+      <div class="dot" data-i="2"></div>
+      <div class="dot" data-i="3"></div>
+    </div>
+    <button class="arrow-btn" id="next">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+  const cards = Array.from(document.querySelectorAll('.icard'));
+  const dots  = Array.from(document.querySelectorAll('.dot'));
+  const total = cards.length;
+  let active = 0, timer = null;
+
+  function posFor(i) {
+    const d = (i - active + total) % total;
+    if (d === 0)       return 'center';
+    if (d === 1)       return 'right';
+    if (d === total-1) return 'left';
+    return 'hidden';
+  }
+  function render() {
+    cards.forEach((c, i) => c.dataset.pos = posFor(i));
+    dots.forEach((d, i) => d.classList.toggle('active', i === active));
+  }
+  function goNext() { active = (active + 1) % total; render(); resetTimer(); }
+  function goPrev() { active = (active - 1 + total) % total; render(); resetTimer(); }
+  function resetTimer() { clearInterval(timer); timer = setInterval(goNext, 6000); }
+
+  document.getElementById('next').addEventListener('click', goNext);
+  document.getElementById('prev').addEventListener('click', goPrev);
+  dots.forEach(d => d.addEventListener('click', () => { active = +d.dataset.i; render(); resetTimer(); }));
+  cards.forEach((c, i) => c.addEventListener('click', () => {
+    if (c.dataset.pos !== 'center') { active = i; render(); resetTimer(); }
+  }));
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft') goPrev();
+    if (e.key === 'ArrowRight') goNext();
+  });
+  timer = setInterval(goNext, 6000);
+</script>
+</body>
+</html>

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Safe to Spend — A vs B</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --surface-0: #0E0C0A;
+    --surface-1: #181410;
+    --surface-2: #201C17;
+    --surface-3: #2A2318;
+    --copper: #BE7740;
+    --amber-300: #D89A5C;
+    --amber-400: #C8824A;
+    --amber-500: #BE7740;
+    --amber-600: #A86838;
+    --paper: #F0EAE0;
+    --on-dark-900: rgba(240,234,224,0.92);
+    --on-dark-600: rgba(240,234,224,0.55);
+    --on-dark-400: rgba(240,234,224,0.35);
+    --on-dark-200: rgba(240,234,224,0.12);
+    --positive: #4ADE80;
+    --negative: #F87171;
+    --r-lg: 14px;
+    --r-xl: 18px;
+    --grad-accent: linear-gradient(140deg, #C8824A 0%, #BE7740 58%, #A8412B 100%);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--surface-0);
+    font-family: 'Hanken Grotesk', sans-serif;
+    color: var(--on-dark-900);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 24px;
+    gap: 40px;
+  }
+
+  .page-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--on-dark-400);
+  }
+
+  .comparison {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    width: 100%;
+    max-width: 860px;
+  }
+
+  .version-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .version-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--on-dark-400);
+    text-align: center;
+  }
+
+  /* ─── SHARED CARD ─── */
+  .card {
+    background: var(--surface-1);
+    border: 1px solid var(--on-dark-200);
+    border-radius: var(--r-xl);
+    padding: 22px 24px;
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+      0 1px 0 0 rgba(240,234,224,0.04) inset,
+      0 8px 32px rgba(0,0,0,0.5),
+      0 2px 8px rgba(0,0,0,0.3);
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  .card:hover { border-color: rgba(190,119,64,0.3); }
+  .card.selected { border-color: var(--copper); box-shadow: 0 0 0 1px var(--copper), 0 8px 32px rgba(0,0,0,0.5); }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, var(--amber-600) 40%, var(--copper) 60%, transparent 100%);
+    opacity: 0.5;
+  }
+
+  /* header row */
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
+
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--on-dark-400);
+  }
+
+  .live-pill {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--surface-2);
+    border: 1px solid var(--on-dark-200);
+    border-radius: 999px;
+    padding: 3px 9px;
+    font-size: 10.5px;
+    color: var(--on-dark-400);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--positive);
+    box-shadow: 0 0 5px var(--positive);
+  }
+
+  /* main number */
+  .main-number {
+    font-family: 'Instrument Serif', serif;
+    font-size: 54px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    background: var(--grad-accent);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 4px;
+  }
+
+  .delta {
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--positive);
+    margin-bottom: 10px;
+  }
+
+  .avail-balance {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--on-dark-400);
+  }
+
+  .avail-balance span {
+    color: var(--on-dark-600);
+  }
+
+  /* ─── OPTION A — collapsed summary ─── */
+  .divider {
+    height: 1px;
+    background: var(--on-dark-200);
+    margin: 16px 0;
+  }
+
+  .summary-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .summary-left {
+    font-size: 13px;
+    color: var(--on-dark-600);
+  }
+
+  .summary-amount {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--on-dark-600);
+  }
+
+  .expand-hint {
+    margin-top: 12px;
+    font-size: 11.5px;
+    color: var(--on-dark-400);
+    text-align: right;
+  }
+
+  /* ─── OPTION B — minimal ─── */
+  .tap-bar {
+    margin-top: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 9px 0;
+    border: 1px solid var(--on-dark-200);
+    border-radius: var(--r-lg);
+    background: var(--surface-2);
+    font-size: 12px;
+    color: var(--on-dark-400);
+    transition: border-color 0.2s, color 0.2s;
+    cursor: pointer;
+  }
+
+  .tap-bar:hover {
+    border-color: rgba(190,119,64,0.4);
+    color: var(--amber-400);
+  }
+
+  /* selected badge */
+  .badge {
+    display: none;
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: var(--copper);
+    color: #0E0C0A;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 999px;
+  }
+
+  .card.selected .badge { display: block; }
+
+  /* note */
+  .note {
+    font-size: 12px;
+    color: var(--on-dark-400);
+    text-align: center;
+    max-width: 500px;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+
+<p class="page-title">Safe to Spend — Option A vs Option B</p>
+
+<div class="comparison">
+
+  <!-- OPTION A -->
+  <div class="version-wrap">
+    <div class="version-label">A — Collapsed Summary</div>
+    <div class="card" onclick="select(this, 'a')">
+      <div class="badge">Selected</div>
+
+      <div class="card-header">
+        <span class="eyebrow">Safe to Spend</span>
+        <div class="live-pill"><div class="dot"></div> This morning</div>
+      </div>
+
+      <div class="main-number">$840</div>
+      <div class="delta">↑ $120 from yesterday</div>
+      <div class="avail-balance">Available balance: <span>$2,340</span></div>
+
+      <div class="divider"></div>
+
+      <div class="summary-row">
+        <div class="summary-left">Bills, goals & buffer</div>
+        <div class="summary-amount">−$1,500</div>
+      </div>
+
+      <div class="expand-hint">See breakdown →</div>
+    </div>
+  </div>
+
+  <!-- OPTION B -->
+  <div class="version-wrap">
+    <div class="version-label">B — Minimal</div>
+    <div class="card" onclick="select(this, 'b')">
+      <div class="badge">Selected</div>
+
+      <div class="card-header">
+        <span class="eyebrow">Safe to Spend</span>
+        <div class="live-pill"><div class="dot"></div> This morning</div>
+      </div>
+
+      <div class="main-number">$840</div>
+      <div class="delta">↑ $120 from yesterday</div>
+      <div class="avail-balance">Available balance: <span>$2,340</span></div>
+
+      <div class="tap-bar">
+        View breakdown →
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p class="note">Click a card to select. "Available balance" = total across all linked checking + savings accounts. Credit cards excluded.</p>
+
+<script>
+  function select(el, choice) {
+    document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    if (window.argusSelect) window.argusSelect(choice);
+  }
+</script>
+
+</body>
+</html>

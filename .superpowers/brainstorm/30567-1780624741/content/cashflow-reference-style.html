@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cashflow Card — Reference Style</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --surface-0: #0E0C0A;
+    --surface-1: #181410;
+    --surface-2: #201C17;
+    --surface-3: #2A2318;
+    --amber-400: #C8824A;
+    --amber-500: #BE7740;
+    --amber-600: #A86838;
+    --on-900: rgba(240,234,224,0.92);
+    --on-600: rgba(240,234,224,0.55);
+    --on-400: rgba(240,234,224,0.35);
+    --on-200: rgba(240,234,224,0.10);
+    --positive: #4ADE80;
+    --negative: #F87171;
+    --r-lg: 14px;
+    --r-xl: 18px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--surface-0);
+    font-family: 'Hanken Grotesk', sans-serif;
+    color: var(--on-900);
+    min-height: 100vh;
+    padding: 40px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+  }
+  .page-title {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--on-400);
+  }
+  .cards-row {
+    display: flex;
+    gap: 24px;
+    width: 100%;
+    max-width: 880px;
+    align-items: flex-start;
+  }
+  .col { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+  .col-label {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--on-400); text-align: center;
+  }
+
+  /* ── Card shell — exact reference structure ── */
+  .card {
+    background: var(--surface-1);
+    border: 1px solid var(--on-200);
+    border-radius: var(--r-xl);
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    box-shadow:
+      0 1px 0 0 rgba(240,234,224,0.04) inset,
+      0 8px 40px rgba(0,0,0,0.6);
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, #A86838 40%, #BE7740 60%, transparent);
+    opacity: 0.5;
+  }
+
+  /* ── CardHeader ── */
+  .card-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0;
+    margin-bottom: 0;
+  }
+  .card-title {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--on-400);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  /* full view button — mirrors reference "Report" button */
+  .view-btn {
+    background: transparent;
+    border: 1px solid var(--on-200);
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--on-400);
+    cursor: pointer;
+    font-family: 'Hanken Grotesk', sans-serif;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .view-btn:hover { border-color: var(--amber-600); color: var(--amber-400); }
+
+  /* ── CardContent ── */
+  .card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 0;
+    margin-top: 16px;
+  }
+
+  /* ── KPI + badge row — mirrors reference number + Badge ── */
+  .kpi-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 4px;
+  }
+  .kpi-number {
+    font-size: 30px;
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    font-family: 'IBM Plex Mono', monospace;
+    line-height: 1;
+  }
+  .kpi-healthy {
+    background: linear-gradient(135deg, #D89A5C 0%, #C8824A 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .kpi-atrisk { color: var(--on-900); }
+
+  /* badge — mirrors reference Badge component */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border-radius: 999px;
+    border: 1px solid;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+  .badge-risk {
+    background: rgba(248,113,113,0.1);
+    border-color: rgba(248,113,113,0.25);
+    color: var(--negative);
+  }
+  .badge-clear {
+    background: rgba(74,222,128,0.1);
+    border-color: rgba(74,222,128,0.25);
+    color: var(--positive);
+  }
+
+  /* ── Period tabs — EXACT reference pattern ── */
+  /* reference: flex w-full -space-x-[1.5px] divide-x overflow-hidden rounded-lg border */
+  .period-tabs {
+    display: flex;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 8px;
+    border: 1px solid var(--on-200);
+  }
+  .period-tab {
+    position: relative;
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    height: 28px;
+    background: transparent;
+    border: none;
+    border-right: 1px solid var(--on-200);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: -0.006em;
+    color: var(--on-400);
+    cursor: pointer;
+    font-family: 'Hanken Grotesk', sans-serif;
+    transition: background 0.12s, color 0.12s;
+    outline: none;
+  }
+  .period-tab:last-child { border-right: none; }
+  .period-tab:hover { background: rgba(240,234,224,0.04); color: var(--on-600); }
+  .period-tab.active {
+    background: var(--surface-3);
+    color: var(--on-900);
+  }
+
+  /* ── Chart area ── */
+  .chart-container {
+    height: 180px;
+    width: 100%;
+    position: relative;
+  }
+
+  /* ── Bottom rows — mirrors reference salesChannels list ── */
+  .signal-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .signal-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .signal-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .signal-icon-wrap {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    border: 1px solid var(--on-200);
+    background: var(--surface-2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+  .signal-name { font-size: 13px; font-weight: 500; color: var(--on-600); }
+  .signal-right { display: flex; align-items: center; gap: 20px; }
+  .signal-value { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--on-900); font-weight: 500; }
+  .signal-change {
+    display: flex; align-items: center; gap: 3px;
+    font-size: 12px; font-weight: 600;
+  }
+
+  .note {
+    font-size: 12px; color: var(--on-400);
+    text-align: center; max-width: 600px; line-height: 1.7;
+  }
+</style>
+</head>
+<body>
+
+<p class="page-title">Cashflow Card — Reference Component Structure</p>
+
+<div class="cards-row">
+
+  <!-- ── RISK STATE ── -->
+  <div class="col">
+    <div class="col-label">Risk Present</div>
+    <div class="card">
+
+      <!-- CardHeader -->
+      <div class="card-header">
+        <span class="card-title">Cashflow</span>
+        <button class="view-btn">Full View</button>
+      </div>
+
+      <!-- CardContent -->
+      <div class="card-content">
+
+        <!-- KPI + badge -->
+        <div class="kpi-row">
+          <span class="kpi-number kpi-atrisk">$620</span>
+          <span class="badge badge-risk">⚠ Risk</span>
+        </div>
+
+        <!-- Period tabs — exact reference pattern -->
+        <div class="period-tabs" id="tabs-risk">
+          <button class="period-tab active" onclick="setTab('tabs-risk', this)">30D</button>
+          <button class="period-tab"        onclick="setTab('tabs-risk', this)">60D</button>
+        </div>
+
+        <!-- Chart -->
+        <div class="chart-container">
+          <svg width="100%" height="180" viewBox="0 0 380 180" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="ra" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%"   stop-color="#C8824A" stop-opacity="0.2"/>
+                <stop offset="100%" stop-color="#C8824A" stop-opacity="0"/>
+              </linearGradient>
+              <linearGradient id="rb" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%"   stop-color="#F87171" stop-opacity="0.15"/>
+                <stop offset="100%" stop-color="#F87171" stop-opacity="0"/>
+              </linearGradient>
+              <!-- subtle grid lines -->
+            </defs>
+
+            <!-- grid lines -->
+            <line x1="0" y1="60"  x2="380" y2="60"  stroke="rgba(240,234,224,0.05)" stroke-width="1"/>
+            <line x1="0" y1="120" x2="380" y2="120" stroke="rgba(240,234,224,0.05)" stroke-width="1"/>
+
+            <!-- risk zone bg -->
+            <rect x="218" y="0" width="100" height="180" fill="rgba(248,113,113,0.03)" rx="3"/>
+
+            <!-- healthy area fill -->
+            <path d="M0,100 C35,92 70,82 105,70 C135,60 158,55 182,58 C200,60 210,70 220,96 L220,180 L0,180Z"
+                  fill="url(#ra)"/>
+            <!-- risk area fill -->
+            <path d="M220,96 C230,118 244,148 268,154 C286,152 304,136 330,114 C352,96 366,86 380,82 L380,180 L220,180Z"
+                  fill="url(#rb)"/>
+
+            <!-- healthy curve -->
+            <path d="M0,100 C35,92 70,82 105,70 C135,60 158,55 182,58 C200,60 210,70 220,96"
+                  fill="none" stroke="#C8824A" stroke-width="2" stroke-linecap="round"/>
+            <!-- risk curve -->
+            <path d="M220,96 C230,118 244,148 268,154 C286,152 304,136 330,114 C352,96 366,86 380,82"
+                  fill="none" stroke="#F87171" stroke-width="2" stroke-linecap="round"/>
+
+            <!-- dashed ref line -->
+            <line x1="268" y1="0" x2="268" y2="180"
+                  stroke="rgba(248,113,113,0.25)" stroke-width="1" stroke-dasharray="4 3"/>
+
+            <!-- low point -->
+            <circle cx="268" cy="154" r="10" fill="#F87171" opacity="0.1"/>
+            <circle cx="268" cy="154" r="4.5" fill="#F87171"/>
+          </svg>
+        </div>
+
+        <!-- signal rows — mirrors reference salesChannels -->
+        <div class="signal-rows">
+          <div class="signal-row">
+            <div class="signal-left">
+              <div class="signal-icon-wrap">📅</div>
+              <span class="signal-name">Dip date</span>
+            </div>
+            <div class="signal-right">
+              <span class="signal-value">Mar 27</span>
+              <div class="signal-change" style="color:var(--negative)">
+                <span>↘</span>
+                <span>High risk</span>
+              </div>
+            </div>
+          </div>
+          <div class="signal-row">
+            <div class="signal-left">
+              <div class="signal-icon-wrap">💰</div>
+              <span class="signal-name">Lowest balance</span>
+            </div>
+            <div class="signal-right">
+              <span class="signal-value">$180</span>
+              <div class="signal-change" style="color:var(--negative)">
+                <span>↘</span>
+                <span>−$440</span>
+              </div>
+            </div>
+          </div>
+          <div class="signal-row">
+            <div class="signal-left">
+              <div class="signal-icon-wrap">🎯</div>
+              <span class="signal-name">Month end</span>
+            </div>
+            <div class="signal-right">
+              <span class="signal-value">$620</span>
+              <div class="signal-change" style="color:var(--on-400)">
+                <span>→</span>
+                <span>Projected</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CLEAN STATE ── -->
+  <div class="col">
+    <div class="col-label">No Risk</div>
+    <div class="card">
+
+      <!-- CardHeader -->
+      <div class="card-header">
+        <span class="card-title">Cashflow</span>
+        <button class="view-btn">Full View</button>
+      </div>
+
+      <!-- CardContent -->
+      <div class="card-content">
+
+        <!-- KPI + badge -->
+        <div class="kpi-row">
+          <span class="kpi-number kpi-healthy">$1,840</span>
+          <span class="badge badge-clear">↗ On track</span>
+        </div>
+
+        <!-- Period tabs -->
+        <div class="period-tabs" id="tabs-clean">
+          <button class="period-tab active" onclick="setTab('tabs-clean', this)">30D</button>
+          <button class="period-tab"        onclick="setTab('tabs-clean', this)">60D</button>
+        </div>
+
+        <!-- Chart -->
+        <div class="chart-container">
+          <svg width="100%" height="180" viewBox="0 0 380 180" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="rc" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%"   stop-color="#C8824A" stop-opacity="0.2"/>
+                <stop offset="100%" stop-color="#C8824A" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+
+            <!-- grid lines -->
+            <line x1="0" y1="60"  x2="380" y2="60"  stroke="rgba(240,234,224,0.05)" stroke-width="1"/>
+            <line x1="0" y1="120" x2="380" y2="120" stroke="rgba(240,234,224,0.05)" stroke-width="1"/>
+
+            <!-- area fill -->
+            <path d="M0,140 C50,128 100,112 150,92 C200,72 250,52 300,36 C330,26 356,18 380,14 L380,180 L0,180Z"
+                  fill="url(#rc)"/>
+            <!-- curve -->
+            <path d="M0,140 C50,128 100,112 150,92 C200,72 250,52 300,36 C330,26 356,18 380,14"
+                  fill="none" stroke="#C8824A" stroke-width="2" stroke-linecap="round"/>
+
+            <!-- end dot -->
+            <circle cx="380" cy="14" r="10" fill="#C8824A" opacity="0.1"/>
+            <circle cx="380" cy="14" r="4.5" fill="#C8824A"/>
+          </svg>
+        </div>
+
+        <!-- signal rows -->
+        <div class="signal-rows">
+          <div class="signal-row">
+            <div class="signal-left">
+              <div class="signal-icon-wrap">📅</div>
+              <span class="signal-name">Risk windows</span>
+            </div>
+            <div class="signal-right">
+              <span class="signal-value">None</span>
+              <div class="signal-change" style="color:var(--positive)">
+                <span>↗</span>
+                <span>Clear</span>
+              </div>
+            </div>
+          </div>
+          <div class="signal-row">
+            <div class="signal-left">
+              <div class="signal-icon-wrap">💰</div>
+              <span class="signal-name">Lowest balance</span>
+            </div>
+            <div class="signal-right">
+              <span class="signal-value">$1,240</span>
+              <div class="signal-change" style="color:var(--positive)">
+                <span>↗</span>
+                <span>Safe</span>
+              </div>
+            </div>
+          </div>
+          <div class="signal-row">
+            <div class="signal-left">
+              <div class="signal-icon-wrap">🎯</div>
+              <span class="signal-name">Month end</span>
+            </div>
+            <div class="signal-right">
+              <span class="signal-value">$1,840</span>
+              <div class="signal-change" style="color:var(--positive)">
+                <span>↗</span>
+                <span>+$500</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p class="note">
+  Exact reference structure: CardHeader (title + button) → KPI + badge → period tabs (30D/60D) → chart (180px) → data rows.<br>
+  Tabs use the same divide-x pill pattern. Bottom rows mirror the salesChannels list structure.
+</p>
+
+<script>
+  function setTab(groupId, btn) {
+    const group = document.getElementById(groupId);
+    group.querySelectorAll('.period-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+</script>
+
+</body>
+</html>

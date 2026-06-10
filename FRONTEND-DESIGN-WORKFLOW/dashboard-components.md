@@ -189,15 +189,62 @@ All components below are design-locked. HTML previews live in:
 
 ---
 
+## 6. Argus Insight Card
+
+**File:** `argus-carousel-v6c.html`
+**Purpose:** Proactive AI insight feed. One targeted insight at a time, carousel style. 5th dashboard surface.
+
+### Structure
+- 3D stacked carousel — center card forward, left/right cards at 14° Y-rotation, 85% scale, offset up 28px
+- 4 cards cycle: auto every 6s, arrow buttons, dot nav, click side cards to jump
+- Keyboard: ArrowLeft / ArrowRight
+
+### Card anatomy (top → bottom, `gap: 14px`)
+1. **Tag row** — type dot (glowing) + `TYPE LABEL` in IBM Plex Mono 9px uppercase + dismiss ✕
+2. **Hero row** — 40×40 icon + large Instrument Serif stat (32px, accent color) + one-line sub
+3. **Context line** — `rgba(10,8,6,0.5)` bg + `backdrop-filter:blur(4px)`, IBM Plex Mono 11px, key detail highlighted
+4. **Data strip** — same frosted bg, either bar-strip (2 compare bars) or 3-column stat grid
+5. **CTA row** — primary chip (accent-dim bg) + ghost chip
+
+### Background texture
+CSS `repeating-linear-gradient(-42deg)` — 2px engraved ridge channel per 15px:
+- px 13–14: `rgba(255,255,255, 0.022)` highlight
+- px 14–15: `rgba(0,0,0, 0.055)` shadow
+Creates subtle 3D etched-line texture, fully readable over.
+
+### Icon system — Argus Bold Filled
+| Type | Icon | Treatment |
+|---|---|---|
+| Spending Spike | Flame | Filled `#F87171`, white highlight facet |
+| Risk Warning | Argus Eye | Filled iris `#FBBF24`, dark pupil + glint — brand reference |
+| Momentum | Lightning bolt | Filled `#4ADE80`, white highlight facet |
+| Subscription Creep | Brand logo | Real merchant color (Netflix `#E50914` + white N) |
+
+### 4 insight types
+| Type | Accent | Visual |
+|---|---|---|
+| Spending Spike | `#F87171` red | 2 compare bars (this month vs 3-mo avg) |
+| Risk Warning | `#FBBF24` amber | 3-stat strip (proj. low / dip date / days until) |
+| Momentum | `#4ADE80` green | 3-stat strip (score now / last week / streak) |
+| Subscription Creep | `#C8824A` copper | 3-stat strip (6mo ago / now / % increase) |
+
+### Tokens
+- Card bg: `#181410` + ridge texture
+- Top accent bar: 2px `var(--accent-grad)`
+- Top glow bleed: accent at 5% opacity, 90px fade
+- Context/strip bg: `rgba(10,8,6,0.5)` + `backdrop-filter:blur(4px)`
+- Active dot: copper pill `#C8824A`, 18px wide
+- Arrows: `#1C1814` → copper on hover
+
+---
+
 ## Components Still To Design
 
 | # | Feature | Buildable now? | Status |
 |---|---|---|---|
-| 6 | Recent Transactions feed | ✅ Phase 2 done | ⬜ |
-| 7 | Subscriptions summary | ✅ Phase 3 done | ⬜ |
-| 8 | Account Balances | ✅ Phase 2 done | ⬜ |
-| 9 | AI Intelligence Feed | ✅ Phase 3.5 done | ⬜ |
-| 10 | Guardian Status card | ❌ Phase 9 | ⬜ |
+| 7 | Recent Transactions feed | ✅ Phase 2 done | ⬜ |
+| 8 | Subscriptions summary | ✅ Phase 3 done | ⬜ |
+| 9 | Account Balances | ✅ Phase 2 done | ⬜ |
 
 ---
 

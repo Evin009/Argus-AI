@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Goals Progress Options</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --surface-0: #0E0C0A;
+    --surface-1: #181410;
+    --surface-2: #201C17;
+    --surface-3: #2A2318;
+    --amber-400: #C8824A;
+    --amber-500: #BE7740;
+    --amber-600: #A86838;
+    --on-900: rgba(240,234,224,0.92);
+    --on-600: rgba(240,234,224,0.55);
+    --on-400: rgba(240,234,224,0.35);
+    --on-200: rgba(240,234,224,0.10);
+    --positive: #4ADE80;
+    --negative: #F87171;
+    --r-lg: 14px;
+    --r-xl: 18px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--surface-0);
+    font-family: 'Hanken Grotesk', sans-serif;
+    color: var(--on-900);
+    min-height: 100vh;
+    padding: 40px 24px;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 32px;
+  }
+  .page-title {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--on-400);
+  }
+  .options-row {
+    display: flex; gap: 20px;
+    width: 100%; max-width: 960px;
+    align-items: flex-start;
+  }
+  .opt { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+  .opt-label {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--on-400); text-align: center;
+  }
+
+  /* shared card */
+  .card {
+    background: var(--surface-1);
+    border: 1px solid var(--on-200);
+    border-radius: var(--r-xl);
+    padding: 20px;
+    position: relative; overflow: hidden;
+    box-shadow: 0 1px 0 0 rgba(240,234,224,0.04) inset, 0 8px 40px rgba(0,0,0,0.6);
+    cursor: pointer; transition: border-color 0.2s;
+  }
+  .card:hover { border-color: rgba(190,119,64,0.3); }
+  .card.selected { border-color: var(--amber-500); box-shadow: 0 0 0 1px var(--amber-500), 0 8px 32px rgba(0,0,0,0.5); }
+  .card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, #A86838 40%, #BE7740 60%, transparent);
+    opacity: 0.5;
+  }
+  .selected-badge {
+    display: none; position: absolute; top: 12px; right: 12px;
+    background: var(--amber-500); color: #0E0C0A;
+    font-size: 9px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 2px 7px; border-radius: 999px;
+  }
+  .card.selected .selected-badge { display: block; }
+
+  .card-header {
+    display: flex; align-items: center;
+    justify-content: space-between; margin-bottom: 16px;
+  }
+  .card-title {
+    font-size: 13px; font-weight: 600;
+    letter-spacing: 0.06em; text-transform: uppercase; color: var(--on-400);
+  }
+  .view-btn {
+    background: transparent; border: 1px solid var(--on-200);
+    border-radius: 8px; padding: 4px 10px;
+    font-size: 12px; font-weight: 500; color: var(--on-400); cursor: pointer;
+    font-family: 'Hanken Grotesk', sans-serif;
+  }
+
+  /* ── shared goal row shell ── */
+  .goal-rows { display: flex; flex-direction: column; gap: 14px; }
+
+  .goal-name { font-size: 13px; font-weight: 500; color: var(--on-900); }
+  .goal-meta { font-size: 11px; color: var(--on-400); margin-top: 1px; }
+  .on-track { color: var(--positive); }
+  .off-track { color: var(--negative); }
+
+  .amount-row {
+    display: flex; align-items: center;
+    justify-content: space-between; margin-top: 2px;
+  }
+  .amount-current {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px; color: var(--on-600);
+  }
+  .amount-target {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px; color: var(--on-400);
+  }
+
+  .divider-line { height: 1px; background: var(--on-200); }
+
+  /* ── OPTION A: Horizontal progress bar ── */
+  .progress-bar-wrap { margin-top: 8px; }
+  .progress-track {
+    height: 5px; background: var(--on-200);
+    border-radius: 999px; overflow: hidden; margin-bottom: 6px;
+  }
+  .progress-fill {
+    height: 100%; border-radius: 999px;
+    background: linear-gradient(90deg, #C8824A, #BE7740);
+  }
+  .progress-fill.low { background: linear-gradient(90deg, #F87171, #EF4444); }
+
+  /* ── OPTION B: Compact ring per goal ── */
+  .goal-row-b {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .ring-mini { flex-shrink: 0; position: relative; }
+  .ring-mini .ring-pct {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 9px; font-weight: 600;
+    color: var(--on-600);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .goal-row-b .goal-info { flex: 1; }
+
+  /* ── OPTION C: Segmented milestone bar ── */
+  .milestone-track {
+    display: flex; gap: 3px; margin-top: 8px; margin-bottom: 6px;
+  }
+  .milestone-seg {
+    flex: 1; height: 5px; border-radius: 999px;
+    background: var(--on-200);
+  }
+  .milestone-seg.filled { background: linear-gradient(90deg, #C8824A, #BE7740); }
+  .milestone-seg.partial {
+    background: linear-gradient(90deg, #C8824A 60%, var(--on-200) 60%);
+  }
+  .milestone-labels {
+    display: flex; justify-content: space-between;
+    font-size: 10px; color: var(--on-400);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .note {
+    font-size: 12px; color: var(--on-400);
+    text-align: center; max-width: 700px; line-height: 1.7;
+  }
+</style>
+</head>
+<body>
+
+<p class="page-title">Goals — Progress Visualization Options</p>
+
+<div class="options-row">
+
+  <!-- ── OPTION A: Horizontal progress bar ── -->
+  <div class="opt">
+    <div class="opt-label">A — Progress Bar</div>
+    <div class="card" onclick="pick(this,'a')">
+      <div class="selected-badge">Selected</div>
+      <div class="card-header">
+        <span class="card-title">Goals</span>
+        <button class="view-btn">View all</button>
+      </div>
+      <div class="goal-rows">
+
+        <div>
+          <div class="amount-row">
+            <div>
+              <div class="goal-name">Emergency Fund</div>
+              <div class="goal-meta on-track">↗ On track — Oct 2025</div>
+            </div>
+            <div style="text-align:right">
+              <div class="amount-current">$2,800</div>
+              <div class="amount-target">of $5,000</div>
+            </div>
+          </div>
+          <div class="progress-bar-wrap">
+            <div class="progress-track">
+              <div class="progress-fill" style="width:56%"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider-line"></div>
+
+        <div>
+          <div class="amount-row">
+            <div>
+              <div class="goal-name">Pay off Visa</div>
+              <div class="goal-meta off-track">↘ Behind — review plan</div>
+            </div>
+            <div style="text-align:right">
+              <div class="amount-current">$640</div>
+              <div class="amount-target">of $2,400</div>
+            </div>
+          </div>
+          <div class="progress-bar-wrap">
+            <div class="progress-track">
+              <div class="progress-fill low" style="width:27%"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider-line"></div>
+
+        <div>
+          <div class="amount-row">
+            <div>
+              <div class="goal-name">Vacation — Japan</div>
+              <div class="goal-meta on-track">↗ On track — Dec 2025</div>
+            </div>
+            <div style="text-align:right">
+              <div class="amount-current">$1,200</div>
+              <div class="amount-target">of $3,000</div>
+            </div>
+          </div>
+          <div class="progress-bar-wrap">
+            <div class="progress-track">
+              <div class="progress-fill" style="width:40%"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── OPTION B: Mini ring per goal ── -->
+  <div class="opt">
+    <div class="opt-label">B — Mini Ring</div>
+    <div class="card" onclick="pick(this,'b')">
+      <div class="selected-badge">Selected</div>
+      <div class="card-header">
+        <span class="card-title">Goals</span>
+        <button class="view-btn">View all</button>
+      </div>
+      <div class="goal-rows">
+
+        <div class="goal-row-b">
+          <div class="ring-mini">
+            <svg width="48" height="48" viewBox="0 0 48 48">
+              <circle cx="24" cy="24" r="19" fill="none" stroke="rgba(200,130,74,0.12)" stroke-width="5"/>
+              <circle cx="24" cy="24" r="19" fill="none" stroke="url(#rg1)" stroke-width="5"
+                stroke-dasharray="67 52.3" stroke-linecap="round" transform="rotate(-90 24 24)"/>
+              <defs><linearGradient id="rg1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#D89A5C"/><stop offset="100%" stop-color="#C8824A"/>
+              </linearGradient></defs>
+            </svg>
+            <div class="ring-pct">56%</div>
+          </div>
+          <div class="goal-info">
+            <div class="goal-name">Emergency Fund</div>
+            <div class="goal-meta">$2,800 of $5,000</div>
+            <div class="goal-meta on-track" style="margin-top:2px">↗ On track · Oct 2025</div>
+          </div>
+        </div>
+
+        <div class="divider-line"></div>
+
+        <div class="goal-row-b">
+          <div class="ring-mini">
+            <svg width="48" height="48" viewBox="0 0 48 48">
+              <circle cx="24" cy="24" r="19" fill="none" stroke="rgba(248,113,113,0.12)" stroke-width="5"/>
+              <circle cx="24" cy="24" r="19" fill="none" stroke="#F87171" stroke-width="5"
+                stroke-dasharray="32.1 87.2" stroke-linecap="round" transform="rotate(-90 24 24)"/>
+            </svg>
+            <div class="ring-pct">27%</div>
+          </div>
+          <div class="goal-info">
+            <div class="goal-name">Pay off Visa</div>
+            <div class="goal-meta">$640 of $2,400</div>
+            <div class="goal-meta off-track" style="margin-top:2px">↘ Behind · review plan</div>
+          </div>
+        </div>
+
+        <div class="divider-line"></div>
+
+        <div class="goal-row-b">
+          <div class="ring-mini">
+            <svg width="48" height="48" viewBox="0 0 48 48">
+              <circle cx="24" cy="24" r="19" fill="none" stroke="rgba(200,130,74,0.12)" stroke-width="5"/>
+              <circle cx="24" cy="24" r="19" fill="none" stroke="url(#rg2)" stroke-width="5"
+                stroke-dasharray="47.7 71.6" stroke-linecap="round" transform="rotate(-90 24 24)"/>
+              <defs><linearGradient id="rg2" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#D89A5C"/><stop offset="100%" stop-color="#C8824A"/>
+              </linearGradient></defs>
+            </svg>
+            <div class="ring-pct">40%</div>
+          </div>
+          <div class="goal-info">
+            <div class="goal-name">Vacation — Japan</div>
+            <div class="goal-meta">$1,200 of $3,000</div>
+            <div class="goal-meta on-track" style="margin-top:2px">↗ On track · Dec 2025</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── OPTION C: Milestone segments ── -->
+  <div class="opt">
+    <div class="opt-label">C — Milestone Steps</div>
+    <div class="card" onclick="pick(this,'c')">
+      <div class="selected-badge">Selected</div>
+      <div class="card-header">
+        <span class="card-title">Goals</span>
+        <button class="view-btn">View all</button>
+      </div>
+      <div class="goal-rows">
+
+        <div>
+          <div class="amount-row">
+            <div>
+              <div class="goal-name">Emergency Fund</div>
+              <div class="goal-meta on-track">↗ On track — Oct 2025</div>
+            </div>
+            <div style="text-align:right">
+              <div class="amount-current">$2,800 / $5,000</div>
+            </div>
+          </div>
+          <!-- 5 milestone segments, ~2.8 of 5 filled -->
+          <div class="milestone-track">
+            <div class="milestone-seg filled"></div>
+            <div class="milestone-seg filled"></div>
+            <div class="milestone-seg partial"></div>
+            <div class="milestone-seg"></div>
+            <div class="milestone-seg"></div>
+          </div>
+          <div class="milestone-labels">
+            <span>$0</span><span>$1k</span><span>$2k</span><span>$3k</span><span>$4k</span><span>$5k</span>
+          </div>
+        </div>
+
+        <div class="divider-line"></div>
+
+        <div>
+          <div class="amount-row">
+            <div>
+              <div class="goal-name">Pay off Visa</div>
+              <div class="goal-meta off-track">↘ Behind — review plan</div>
+            </div>
+            <div style="text-align:right">
+              <div class="amount-current">$640 / $2,400</div>
+            </div>
+          </div>
+          <div class="milestone-track">
+            <div class="milestone-seg" style="background:linear-gradient(90deg,#F87171 80%,rgba(240,234,224,0.1) 80%)"></div>
+            <div class="milestone-seg"></div>
+            <div class="milestone-seg"></div>
+            <div class="milestone-seg"></div>
+          </div>
+          <div class="milestone-labels">
+            <span>$0</span><span>$600</span><span>$1.2k</span><span>$1.8k</span><span>$2.4k</span>
+          </div>
+        </div>
+
+        <div class="divider-line"></div>
+
+        <div>
+          <div class="amount-row">
+            <div>
+              <div class="goal-name">Vacation — Japan</div>
+              <div class="goal-meta on-track">↗ On track — Dec 2025</div>
+            </div>
+            <div style="text-align:right">
+              <div class="amount-current">$1,200 / $3,000</div>
+            </div>
+          </div>
+          <div class="milestone-track">
+            <div class="milestone-seg filled"></div>
+            <div class="milestone-seg filled"></div>
+            <div class="milestone-seg" style="background:linear-gradient(90deg,#C8824A 40%,rgba(240,234,224,0.1) 40%)"></div>
+            <div class="milestone-seg"></div>
+            <div class="milestone-seg"></div>
+          </div>
+          <div class="milestone-labels">
+            <span>$0</span><span>$600</span><span>$1.2k</span><span>$1.8k</span><span>$2.4k</span><span>$3k</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p class="note">
+  A — Simple horizontal bar. Clean, instant to read, compact.<br>
+  B — Mini ring per goal. Satisfying visual weight, % in center, consistent with Health Score rings.<br>
+  C — Milestone steps. Shows progress as discrete steps toward target. Good for goal-oriented thinking.
+</p>
+
+<script>
+  function pick(el, c) {
+    document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+</script>
+</body>
+</html>

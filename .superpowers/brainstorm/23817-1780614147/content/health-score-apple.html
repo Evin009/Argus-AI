@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Health Score — Apple Health Style</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --surface-0: #0E0C0A;
+    --surface-1: #181410;
+    --surface-2: #201C17;
+    --surface-3: #2A2318;
+    --amber-400: #C8824A;
+    --amber-500: #BE7740;
+    --amber-600: #A86838;
+    --on-dark-900: rgba(240,234,224,0.92);
+    --on-dark-600: rgba(240,234,224,0.55);
+    --on-dark-400: rgba(240,234,224,0.35);
+    --on-dark-200: rgba(240,234,224,0.10);
+    --positive: #4ADE80;
+    --negative: #F87171;
+    --r-lg: 14px;
+    --r-xl: 18px;
+    --grad-accent: linear-gradient(140deg, #C8824A 0%, #BE7740 58%, #A8412B 100%);
+
+    --ring-1: #C8824A; /* Liquidity — copper */
+    --ring-2: #FBBF24; /* Stability — gold */
+    --ring-3: #60A5FA; /* Debt Load — blue */
+    --ring-4: #F87171; /* Spending Volatility — red (weakest) */
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--surface-0);
+    font-family: 'Hanken Grotesk', sans-serif;
+    color: var(--on-dark-900);
+    min-height: 100vh;
+    padding: 40px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+  }
+  .page-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--on-dark-400);
+  }
+
+  /* card shell */
+  .card {
+    background: var(--surface-1);
+    border: 1px solid var(--on-dark-200);
+    border-radius: var(--r-xl);
+    padding: 22px 24px;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    max-width: 320px;
+    box-shadow:
+      0 1px 0 0 rgba(240,234,224,0.04) inset,
+      0 8px 40px rgba(0,0,0,0.6),
+      0 2px 8px rgba(0,0,0,0.4);
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--amber-600) 40%, var(--amber-500) 60%, transparent);
+    opacity: 0.5;
+  }
+
+  /* header */
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--on-dark-400);
+  }
+  .delta-chip {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(74,222,128,0.1);
+    border: 1px solid rgba(74,222,128,0.2);
+    border-radius: 999px;
+    padding: 2px 9px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--positive);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  /* rings container */
+  .rings-wrap {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 18px;
+  }
+
+  .ring-svg-wrap {
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .ring-center {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+  .ring-score {
+    font-family: 'Instrument Serif', serif;
+    font-size: 30px;
+    line-height: 1;
+    background: var(--grad-accent);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .ring-denom {
+    font-size: 9px;
+    color: var(--on-dark-400);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-top: 1px;
+  }
+
+  /* legend */
+  .legend {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .legend-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .legend-left {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .legend-pip {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .legend-name {
+    font-size: 12px;
+    color: var(--on-dark-600);
+  }
+  .legend-val {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--on-dark-400);
+  }
+  .legend-val.weak { color: var(--negative); }
+
+  /* divider */
+  .divider { height: 1px; background: var(--on-dark-200); margin-bottom: 14px; }
+
+  /* callout */
+  .callout {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(248,113,113,0.06);
+    border: 1px solid rgba(248,113,113,0.15);
+    border-radius: var(--r-lg);
+    padding: 9px 12px;
+    margin-bottom: 14px;
+  }
+  .callout-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--negative);
+    box-shadow: 0 0 6px var(--negative);
+    flex-shrink: 0;
+  }
+  .callout-text {
+    font-size: 12px;
+    color: var(--on-dark-600);
+    line-height: 1.4;
+    flex: 1;
+  }
+  .callout-text strong { color: var(--on-dark-900); font-weight: 500; }
+
+  /* footer */
+  .footer-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .updated { font-size: 11.5px; color: var(--on-dark-400); }
+  .tap-link {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--amber-500);
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .note {
+    font-size: 12px;
+    color: var(--on-dark-400);
+    text-align: center;
+    max-width: 380px;
+    line-height: 1.7;
+  }
+
+  /* ring glow animation */
+  @keyframes ringIn {
+    from { stroke-dashoffset: 326.7; opacity: 0; }
+    to { opacity: 1; }
+  }
+</style>
+</head>
+<body>
+
+<p class="page-title">Financial Health Score — Dashboard Card</p>
+
+<div class="card">
+
+  <div class="card-header">
+    <span class="eyebrow">Health Score</span>
+    <div class="delta-chip">↑ 3 this week</div>
+  </div>
+
+  <div class="rings-wrap">
+
+    <!-- 4 concentric rings -->
+    <div class="ring-svg-wrap">
+      <svg width="120" height="120" viewBox="0 0 120 120">
+        <defs>
+          <!-- glow filters per ring -->
+          <filter id="glow1" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="2.5" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="glow2" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="2" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="glow3" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="2" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="glow4" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="2" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+
+        <!-- RING 1 — Liquidity (outermost) r=52, circ=326.7, 85%=277.7 -->
+        <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(200,130,74,0.12)" stroke-width="7.5"/>
+        <circle cx="60" cy="60" r="52" fill="none" stroke="#C8824A" stroke-width="7.5"
+          stroke-dasharray="277.7 49" stroke-linecap="round"
+          transform="rotate(-90 60 60)" filter="url(#glow1)" opacity="0.95"/>
+
+        <!-- RING 2 — Stability r=40, circ=251.3, 78%=196 -->
+        <circle cx="60" cy="60" r="40" fill="none" stroke="rgba(251,191,36,0.12)" stroke-width="7.5"/>
+        <circle cx="60" cy="60" r="40" fill="none" stroke="#FBBF24" stroke-width="7.5"
+          stroke-dasharray="196 55.3" stroke-linecap="round"
+          transform="rotate(-90 60 60)" filter="url(#glow2)" opacity="0.9"/>
+
+        <!-- RING 3 — Debt Load r=28, circ=175.9, 71%=124.9 -->
+        <circle cx="60" cy="60" r="28" fill="none" stroke="rgba(96,165,250,0.12)" stroke-width="7.5"/>
+        <circle cx="60" cy="60" r="28" fill="none" stroke="#60A5FA" stroke-width="7.5"
+          stroke-dasharray="124.9 51" stroke-linecap="round"
+          transform="rotate(-90 60 60)" filter="url(#glow3)" opacity="0.9"/>
+
+        <!-- RING 4 — Spending Volatility (innermost) r=16, circ=100.5, 48%=48.2 -->
+        <circle cx="60" cy="60" r="16" fill="none" stroke="rgba(248,113,113,0.12)" stroke-width="7.5"/>
+        <circle cx="60" cy="60" r="16" fill="none" stroke="#F87171" stroke-width="7.5"
+          stroke-dasharray="48.2 52.3" stroke-linecap="round"
+          transform="rotate(-90 60 60)" filter="url(#glow4)" opacity="0.95"/>
+      </svg>
+
+      <div class="ring-center">
+        <div class="ring-score">72</div>
+        <div class="ring-denom">/ 100</div>
+      </div>
+    </div>
+
+    <!-- legend -->
+    <div class="legend">
+      <div class="legend-row">
+        <div class="legend-left">
+          <div class="legend-pip" style="background:#C8824A;box-shadow:0 0 5px rgba(200,130,74,0.6)"></div>
+          <span class="legend-name">Liquidity</span>
+        </div>
+        <span class="legend-val">85</span>
+      </div>
+      <div class="legend-row">
+        <div class="legend-left">
+          <div class="legend-pip" style="background:#FBBF24;box-shadow:0 0 5px rgba(251,191,36,0.5)"></div>
+          <span class="legend-name">Stability</span>
+        </div>
+        <span class="legend-val">78</span>
+      </div>
+      <div class="legend-row">
+        <div class="legend-left">
+          <div class="legend-pip" style="background:#60A5FA;box-shadow:0 0 5px rgba(96,165,250,0.5)"></div>
+          <span class="legend-name">Debt Load</span>
+        </div>
+        <span class="legend-val">71</span>
+      </div>
+      <div class="legend-row">
+        <div class="legend-left">
+          <div class="legend-pip" style="background:#F87171;box-shadow:0 0 5px rgba(248,113,113,0.6)"></div>
+          <span class="legend-name">Volatility</span>
+        </div>
+        <span class="legend-val weak">48</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- weakest dimension callout -->
+  <div class="callout">
+    <div class="callout-dot"></div>
+    <div class="callout-text"><strong>Spending Volatility</strong> is pulling your score down</div>
+  </div>
+
+  <div class="footer-row">
+    <span class="updated">Updated daily</span>
+    <span class="tap-link">Full view →</span>
+  </div>
+
+</div>
+
+<p class="note">4 concentric rings — one per dimension. Each ring fills to its score. Innermost (red) is the weakest. Glowing ring caps. Score centred. Callout pins the problem dimension.</p>
+
+</body>
+</html>

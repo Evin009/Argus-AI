@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calendar Grid Card</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --surface-0: #0E0C0A;
+    --surface-1: #181410;
+    --surface-2: #201C17;
+    --surface-3: #2A2318;
+    --amber-400: #C8824A;
+    --amber-500: #BE7740;
+    --amber-600: #A86838;
+    --on-900: rgba(240,234,224,0.92);
+    --on-600: rgba(240,234,224,0.55);
+    --on-400: rgba(240,234,224,0.35);
+    --on-200: rgba(240,234,224,0.10);
+    --positive: #4ADE80;
+    --negative: #F87171;
+    --warn: #FBBF24;
+    --r-lg: 14px;
+    --r-xl: 18px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--surface-0);
+    font-family: 'Hanken Grotesk', sans-serif;
+    color: var(--on-900);
+    min-height: 100vh;
+    padding: 40px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+  }
+  .page-title {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--on-400);
+  }
+
+  /* card */
+  .card {
+    background: var(--surface-1);
+    border: 1px solid var(--on-200);
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 1px 0 0 rgba(240,234,224,0.04) inset, 0 8px 40px rgba(0,0,0,0.6);
+    position: relative;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, #A86838 40%, #BE7740 60%, transparent);
+    opacity: 0.5;
+    z-index: 1;
+  }
+
+  /* card header */
+  .card-header {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid var(--on-200);
+  }
+  .card-title {
+    font-size: 13px; font-weight: 600;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--on-400);
+  }
+  .view-btn {
+    background: transparent;
+    border: 1px solid var(--on-200);
+    border-radius: 8px; padding: 4px 10px;
+    font-size: 12px; font-weight: 500;
+    color: var(--on-400); cursor: pointer;
+    font-family: 'Hanken Grotesk', sans-serif;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .view-btn:hover { border-color: var(--amber-600); color: var(--amber-400); }
+
+  /* month nav row */
+  .month-nav {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--on-200);
+  }
+  .month-nav-btn {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    background: transparent; border: 1px solid var(--on-200);
+    border-radius: 7px; cursor: pointer; color: var(--on-400);
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .month-nav-btn:hover { border-color: var(--amber-600); color: var(--amber-400); }
+  .month-nav-btn svg { width: 14px; height: 14px; }
+  .month-label {
+    font-size: 13px; font-weight: 600;
+    color: var(--on-900);
+  }
+
+  /* day headers */
+  .day-headers {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    border-bottom: 1px solid var(--on-200);
+  }
+  .day-header {
+    padding: 8px 0;
+    text-align: center;
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--on-400);
+  }
+
+  /* calendar grid */
+  .cal-grid {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+  }
+  .cal-cell {
+    border-right: 1px solid var(--on-200);
+    border-bottom: 1px solid var(--on-200);
+    min-height: 52px;
+    padding: 6px 4px 4px;
+    position: relative;
+  }
+  /* remove right border on last column */
+  .cal-cell:nth-child(7n) { border-right: none; }
+  /* remove bottom border on last row */
+  .cal-cell.last-row { border-bottom: none; }
+  .cal-cell.empty { background: transparent; }
+
+  .day-num {
+    width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    font-size: 11px; font-weight: 500;
+    color: var(--on-400);
+    margin: 0 auto 3px;
+  }
+  .day-num.today {
+    background: var(--amber-500);
+    color: #0E0C0A;
+    font-weight: 700;
+  }
+  .day-num.has-bills { color: var(--on-600); }
+
+  /* bill dots / logos on calendar day */
+  .bill-dots {
+    display: flex; flex-direction: column;
+    gap: 2px; align-items: center;
+  }
+
+  /* brand logo pill — small */
+  .bill-pill {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 700;
+    border: 1px solid rgba(0,0,0,0.2);
+    overflow: hidden;
+    cursor: default;
+  }
+  .bill-pill.netflix  { background: #E50914; color: #fff; }
+  .bill-pill.spotify  { background: #1DB954; color: #fff; }
+  .bill-pill.chase    { background: #117ACA; color: #fff; }
+  .bill-pill.apple    { background: #555;    color: #fff; }
+  .bill-pill.amazon   { background: #FF9900; color: #111; }
+  .bill-pill.rent     { background: rgba(190,119,64,0.8); color: #fff; font-size: 8px; }
+  .bill-pill.ai       { background: rgba(200,130,74,0.2); border: 1px solid rgba(200,130,74,0.4); color: var(--amber-400); }
+
+  /* overflow indicator */
+  .bill-more {
+    font-size: 9px; color: var(--on-400);
+    text-align: center; line-height: 1;
+  }
+
+  /* legend */
+  .legend {
+    display: flex; gap: 12px; flex-wrap: wrap;
+    padding: 12px 20px;
+    border-top: 1px solid var(--on-200);
+    background: var(--surface-2);
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 11px; color: var(--on-400);
+  }
+  .legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%; flex-shrink: 0;
+  }
+
+  .note {
+    font-size: 12px; color: var(--on-400);
+    text-align: center; max-width: 420px; line-height: 1.7;
+  }
+</style>
+</head>
+<body>
+
+<p class="page-title">Smart Payment Calendar — Dashboard Card</p>
+
+<div class="card">
+
+  <!-- header -->
+  <div class="card-header">
+    <span class="card-title">Upcoming</span>
+    <button class="view-btn">Full Calendar</button>
+  </div>
+
+  <!-- month nav -->
+  <div class="month-nav">
+    <button class="month-nav-btn">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+    </button>
+    <span class="month-label">March 2025</span>
+    <button class="month-nav-btn">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+    </button>
+  </div>
+
+  <!-- day headers -->
+  <div class="day-headers">
+    <div class="day-header">Su</div>
+    <div class="day-header">Mo</div>
+    <div class="day-header">Tu</div>
+    <div class="day-header">We</div>
+    <div class="day-header">Th</div>
+    <div class="day-header">Fr</div>
+    <div class="day-header">Sa</div>
+  </div>
+
+  <!-- calendar grid — March 2025 starts on Saturday (idx 6) -->
+  <div class="cal-grid">
+
+    <!-- week 1: empty cells + Mar 1 -->
+    <div class="cal-cell empty"></div>
+    <div class="cal-cell empty"></div>
+    <div class="cal-cell empty"></div>
+    <div class="cal-cell empty"></div>
+    <div class="cal-cell empty"></div>
+    <div class="cal-cell empty"></div>
+    <div class="cal-cell">
+      <div class="day-num">1</div>
+    </div>
+
+    <!-- week 2: Mar 2–8 -->
+    <div class="cal-cell"><div class="day-num">2</div></div>
+    <div class="cal-cell"><div class="day-num">3</div></div>
+    <div class="cal-cell"><div class="day-num">4</div></div>
+    <div class="cal-cell"><div class="day-num">5</div></div>
+    <div class="cal-cell"><div class="day-num">6</div></div>
+    <div class="cal-cell"><div class="day-num">7</div></div>
+    <div class="cal-cell"><div class="day-num">8</div></div>
+
+    <!-- week 3: Mar 9–15 -->
+    <div class="cal-cell"><div class="day-num">9</div></div>
+    <div class="cal-cell">
+      <div class="day-num has-bills">10</div>
+      <div class="bill-dots">
+        <div class="bill-pill netflix">N</div>
+      </div>
+    </div>
+    <div class="cal-cell"><div class="day-num">11</div></div>
+    <div class="cal-cell"><div class="day-num">12</div></div>
+    <div class="cal-cell"><div class="day-num">13</div></div>
+    <div class="cal-cell"><div class="day-num">14</div></div>
+    <div class="cal-cell"><div class="day-num">15</div></div>
+
+    <!-- week 4: Mar 16–22 -->
+    <div class="cal-cell"><div class="day-num">16</div></div>
+    <div class="cal-cell"><div class="day-num">17</div></div>
+    <!-- today: Mar 15 shown as 18 for demo -->
+    <div class="cal-cell">
+      <div class="day-num today">18</div>
+      <div class="bill-dots">
+        <div class="bill-pill chase">C</div>
+      </div>
+    </div>
+    <div class="cal-cell"><div class="day-num">19</div></div>
+    <div class="cal-cell"><div class="day-num">20</div></div>
+    <!-- AI recommended date -->
+    <div class="cal-cell" style="background:rgba(200,130,74,0.04)">
+      <div class="day-num has-bills">21</div>
+      <div class="bill-dots">
+        <div class="bill-pill ai">
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3z"/></svg>
+        </div>
+      </div>
+    </div>
+    <div class="cal-cell"><div class="day-num">22</div></div>
+
+    <!-- week 5: Mar 23–29 -->
+    <div class="cal-cell"><div class="day-num">23</div></div>
+    <div class="cal-cell"><div class="day-num">24</div></div>
+    <div class="cal-cell"><div class="day-num">25</div></div>
+    <div class="cal-cell"><div class="day-num">26</div></div>
+    <div class="cal-cell"><div class="day-num">27</div></div>
+    <div class="cal-cell">
+      <div class="day-num has-bills">28</div>
+      <div class="bill-dots">
+        <div class="bill-pill spotify">
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 11.973c2.5-1.473 5.5-.973 7.5.527"/><path d="M9 15c1.5-1 4-1 5.5.5"/><path d="M7 8.972c3-1.472 7.5-.972 10.5 1.028"/></svg>
+        </div>
+      </div>
+    </div>
+    <div class="cal-cell"><div class="day-num">29</div></div>
+
+    <!-- week 6: Mar 30–31 -->
+    <div class="cal-cell last-row">
+      <div class="day-num has-bills">30</div>
+      <div class="bill-dots">
+        <div class="bill-pill rent">Rent</div>
+      </div>
+    </div>
+    <div class="cal-cell last-row">
+      <div class="day-num has-bills">31</div>
+      <div class="bill-dots">
+        <div class="bill-pill amazon">a</div>
+      </div>
+    </div>
+    <div class="cal-cell last-row empty"></div>
+    <div class="cal-cell last-row empty"></div>
+    <div class="cal-cell last-row empty"></div>
+    <div class="cal-cell last-row empty"></div>
+    <div class="cal-cell last-row empty"></div>
+
+  </div>
+
+  <!-- legend -->
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#E50914"></div>
+      Subscription
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#117ACA"></div>
+      Credit bill
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:rgba(200,130,74,0.6)"></div>
+      AI date
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--amber-500)"></div>
+      Today
+    </div>
+  </div>
+
+</div>
+
+<p class="note">Same grid structure as existing bills calendar page — adapted to Argus design system. Brand logo circles on due dates. AI-recommended dates get a subtle copper cell highlight + sparkle icon. Today = copper dot. Prev/next month nav. Legend at bottom.</p>
+
+</body>
+</html>

@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Health Score — Dashboard Card</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --surface-0: #0E0C0A;
+    --surface-1: #181410;
+    --surface-2: #201C17;
+    --surface-3: #2A2318;
+    --amber-400: #C8824A;
+    --amber-500: #BE7740;
+    --amber-600: #A86838;
+    --on-dark-900: rgba(240,234,224,0.92);
+    --on-dark-600: rgba(240,234,224,0.55);
+    --on-dark-400: rgba(240,234,224,0.35);
+    --on-dark-200: rgba(240,234,224,0.10);
+    --positive: #4ADE80;
+    --negative: #F87171;
+    --r-lg: 14px;
+    --r-xl: 18px;
+    --grad-accent: linear-gradient(140deg, #C8824A 0%, #BE7740 58%, #A8412B 100%);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--surface-0);
+    font-family: 'Hanken Grotesk', sans-serif;
+    color: var(--on-dark-900);
+    min-height: 100vh;
+    padding: 40px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+  }
+  .page-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--on-dark-400);
+  }
+  .variants {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+    max-width: 960px;
+  }
+  .variant-wrap { display: flex; flex-direction: column; gap: 10px; }
+  .variant-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--on-dark-400);
+    text-align: center;
+  }
+  .card {
+    background: var(--surface-1);
+    border: 1px solid var(--on-dark-200);
+    border-radius: var(--r-xl);
+    padding: 22px 24px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 1px 0 0 rgba(240,234,224,0.04) inset, 0 8px 32px rgba(0,0,0,0.5);
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: rgba(190,119,64,0.35); }
+  .card.selected { border-color: var(--amber-500); box-shadow: 0 0 0 1px var(--amber-500), 0 8px 32px rgba(0,0,0,0.5); }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--amber-600) 40%, var(--amber-500) 60%, transparent);
+    opacity: 0.5;
+  }
+  .selected-badge {
+    display: none;
+    position: absolute;
+    top: 12px; right: 12px;
+    background: var(--amber-500);
+    color: #0E0C0A;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 999px;
+  }
+  .card.selected .selected-badge { display: block; }
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--on-dark-400);
+  }
+  .delta-chip {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(74,222,128,0.1);
+    border: 1px solid rgba(74,222,128,0.2);
+    border-radius: 999px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--positive);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .divider { height: 1px; background: var(--on-dark-200); margin: 16px 0 14px; }
+  .callout {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    background: var(--surface-2);
+    border: 1px solid var(--on-dark-200);
+    border-radius: var(--r-lg);
+    padding: 10px 12px;
+    margin-bottom: 14px;
+  }
+  .callout-bar {
+    width: 2px;
+    border-radius: 999px;
+    background: var(--negative);
+    align-self: stretch;
+    flex-shrink: 0;
+  }
+  .callout-text {
+    font-size: 12px;
+    color: var(--on-dark-600);
+    line-height: 1.5;
+  }
+  .callout-text strong { color: var(--on-dark-900); font-weight: 500; }
+  .tap-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .tap-link {
+    font-size: 12px;
+    color: var(--amber-500);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* ── VARIANT A: Ring left + score right ── */
+  .a-body {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .a-right { flex: 1; }
+  .score-big {
+    font-family: 'Instrument Serif', serif;
+    font-size: 52px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    background: var(--grad-accent);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 2px;
+  }
+  .score-sub {
+    font-size: 12px;
+    color: var(--on-dark-400);
+    margin-bottom: 4px;
+  }
+
+  /* ── VARIANT B: Arc gauge top + score centered ── */
+  .b-center { text-align: center; }
+  .gauge-wrap { position: relative; width: 140px; height: 76px; margin: 0 auto 12px; }
+  .score-over {
+    position: absolute;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Instrument Serif', serif;
+    font-size: 36px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    background: var(--grad-accent);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .score-denom {
+    font-size: 12px;
+    color: var(--on-dark-400);
+    margin-bottom: 4px;
+  }
+
+  /* ── VARIANT C: Full ring centered ── */
+  .c-body { display: flex; flex-direction: column; align-items: center; }
+  .ring-wrap { position: relative; width: 110px; height: 110px; margin-bottom: 14px; }
+  .ring-score {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+  .ring-num {
+    font-family: 'Instrument Serif', serif;
+    font-size: 34px;
+    line-height: 1;
+    background: var(--grad-accent);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .ring-label {
+    font-size: 9px;
+    color: var(--on-dark-400);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 1px;
+  }
+  .dim-bars { width: 100%; display: flex; flex-direction: column; gap: 6px; }
+  .dim-row { display: flex; flex-direction: column; gap: 3px; }
+  .dim-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--on-dark-400); }
+  .dim-track { height: 3px; background: var(--on-dark-200); border-radius: 999px; overflow: hidden; }
+  .dim-fill { height: 100%; border-radius: 999px; }
+
+  .note {
+    font-size: 12px;
+    color: var(--on-dark-400);
+    text-align: center;
+    max-width: 600px;
+    line-height: 1.7;
+  }
+</style>
+</head>
+<body>
+
+<p class="page-title">Financial Health Score — Dashboard Card Options</p>
+
+<div class="variants">
+
+  <!-- VARIANT A: Ring left, score + callout right -->
+  <div class="variant-wrap">
+    <div class="variant-label">A — Ring + Score Side by Side</div>
+    <div class="card" onclick="pick(this,'a')">
+      <div class="selected-badge">Selected</div>
+      <div class="card-header">
+        <span class="eyebrow">Health Score</span>
+        <div class="delta-chip">↑ 3 this week</div>
+      </div>
+
+      <div class="a-body">
+        <!-- ring -->
+        <svg width="88" height="88" viewBox="0 0 88 88" style="flex-shrink:0">
+          <circle cx="44" cy="44" r="36" fill="none" stroke="rgba(240,234,224,0.07)" stroke-width="9"/>
+          <!-- 72% = 72/100 * circumference(226.2) = 162.9 -->
+          <circle cx="44" cy="44" r="36" fill="none" stroke="url(#rg1)" stroke-width="9"
+            stroke-dasharray="162.9 63.3" stroke-dashoffset="0" stroke-linecap="round"
+            transform="rotate(-90 44 44)"/>
+          <defs>
+            <linearGradient id="rg1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#D89A5C"/>
+              <stop offset="100%" stop-color="#A8412B"/>
+            </linearGradient>
+          </defs>
+        </svg>
+
+        <div class="a-right">
+          <div class="score-big">72</div>
+          <div class="score-sub">out of 100</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="callout">
+        <div class="callout-bar"></div>
+        <div class="callout-text"><strong>Spending Volatility</strong> is holding your score back</div>
+      </div>
+
+      <div class="tap-row">
+        <span style="font-size:12px;color:var(--on-dark-400)">Updated daily</span>
+        <span class="tap-link">Full breakdown →</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- VARIANT B: Gauge arc top, score below -->
+  <div class="variant-wrap">
+    <div class="variant-label">B — Gauge Arc</div>
+    <div class="card" onclick="pick(this,'b')">
+      <div class="selected-badge">Selected</div>
+      <div class="card-header">
+        <span class="eyebrow">Health Score</span>
+        <div class="delta-chip">↑ 3 this week</div>
+      </div>
+
+      <div class="b-center">
+        <!-- semicircle gauge: radius 60, cx=70 cy=70, half circle top -->
+        <div class="gauge-wrap">
+          <svg width="140" height="76" viewBox="0 0 140 76">
+            <!-- track: half circle -->
+            <path d="M10,70 A60,60 0 0,1 130,70" fill="none" stroke="rgba(240,234,224,0.07)" stroke-width="10" stroke-linecap="round"/>
+            <!-- fill: 72% of half circle = 72% of 188.5 = 135.7 -->
+            <path d="M10,70 A60,60 0 0,1 130,70" fill="none" stroke="url(#gg1)" stroke-width="10"
+              stroke-linecap="round" stroke-dasharray="135.7 52.8" stroke-dashoffset="0"/>
+            <defs>
+              <linearGradient id="gg1" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#D89A5C"/>
+                <stop offset="100%" stop-color="#A8412B"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <div class="score-over">72</div>
+        </div>
+        <div class="score-denom">out of 100</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="callout">
+        <div class="callout-bar"></div>
+        <div class="callout-text"><strong>Spending Volatility</strong> is holding your score back</div>
+      </div>
+
+      <div class="tap-row">
+        <span style="font-size:12px;color:var(--on-dark-400)">Updated daily</span>
+        <span class="tap-link">Full breakdown →</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- VARIANT C: Full ring + 4 dim mini bars -->
+  <div class="variant-wrap">
+    <div class="variant-label">C — Ring + 4 Dimensions</div>
+    <div class="card" onclick="pick(this,'c')">
+      <div class="selected-badge">Selected</div>
+      <div class="card-header">
+        <span class="eyebrow">Health Score</span>
+        <div class="delta-chip">↑ 3 this week</div>
+      </div>
+
+      <div class="c-body">
+        <div class="ring-wrap">
+          <svg width="110" height="110" viewBox="0 0 110 110">
+            <circle cx="55" cy="55" r="44" fill="none" stroke="rgba(240,234,224,0.07)" stroke-width="9"/>
+            <circle cx="55" cy="55" r="44" fill="none" stroke="url(#rg2)" stroke-width="9"
+              stroke-dasharray="198.4 77" stroke-dashoffset="0" stroke-linecap="round"
+              transform="rotate(-90 55 55)"/>
+            <defs>
+              <linearGradient id="rg2" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#D89A5C"/>
+                <stop offset="100%" stop-color="#A8412B"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <div class="ring-score">
+            <div class="ring-num">72</div>
+            <div class="ring-label">/ 100</div>
+          </div>
+        </div>
+
+        <div class="dim-bars">
+          <div class="dim-row">
+            <div class="dim-meta"><span>Liquidity</span><span style="font-family:'IBM Plex Mono',monospace">85</span></div>
+            <div class="dim-track"><div class="dim-fill" style="width:85%;background:rgba(190,119,64,0.7)"></div></div>
+          </div>
+          <div class="dim-row">
+            <div class="dim-meta"><span>Stability</span><span style="font-family:'IBM Plex Mono',monospace">78</span></div>
+            <div class="dim-track"><div class="dim-fill" style="width:78%;background:rgba(190,119,64,0.6)"></div></div>
+          </div>
+          <div class="dim-row">
+            <div class="dim-meta"><span>Debt Load</span><span style="font-family:'IBM Plex Mono',monospace">71</span></div>
+            <div class="dim-track"><div class="dim-fill" style="width:71%;background:rgba(190,119,64,0.5)"></div></div>
+          </div>
+          <div class="dim-row">
+            <div class="dim-meta"><span style="color:var(--negative)">Spending Volatility</span><span style="font-family:'IBM Plex Mono',monospace;color:var(--negative)">48</span></div>
+            <div class="dim-track"><div class="dim-fill" style="width:48%;background:rgba(248,113,113,0.6)"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:14px" class="tap-row">
+        <span style="font-size:12px;color:var(--on-dark-400)">Updated daily</span>
+        <span class="tap-link">Full breakdown →</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p class="note">A — ring + large number side by side, callout below. B — speedometer gauge arc, score centred. C — full ring with all 4 dimension bars visible, weakest one in red. Click to select.</p>
+
+<script>
+  function pick(el, choice) {
+    document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+</script>
+
+</body>
+</html>

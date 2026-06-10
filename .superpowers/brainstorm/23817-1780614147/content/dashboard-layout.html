@@ -1,0 +1,67 @@
+<h2>Dashboard — Overall Layout Structure</h2>
+<p class="subtitle">How should the dashboard space be organized? These are structural wireframes — not the final design.</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a1a;padding:16px;font-family:monospace;font-size:11px;color:#888;border-radius:6px;line-height:1.8">
+      <div style="background:#2a2318;border:1px solid #3a3020;border-radius:4px;padding:6px 10px;margin-bottom:8px;color:#c8824a;font-weight:bold;text-align:center">SAFE TO SPEND HERO — Full Width</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px">
+        <div style="background:#1e1a14;border:1px solid #2a2318;border-radius:4px;padding:6px;text-align:center">Health Score</div>
+        <div style="background:#1e1a14;border:1px solid #2a2318;border-radius:4px;padding:6px;text-align:center">Cashflow</div>
+        <div style="background:#1e1a14;border:1px solid #2a2318;border-radius:4px;padding:6px;text-align:center">Guardian</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:6px">
+        <div style="background:#1e1a14;border:1px solid #2a2318;border-radius:4px;padding:6px;text-align:center">Transactions Feed</div>
+        <div style="background:#1e1a14;border:1px solid #2a2318;border-radius:4px;padding:6px;text-align:center">Calendar</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Hero + Card Grid</h3>
+      <p>Safe to Spend spans full width at top as the anchor. Cards in a 3-column grid below. Most important number always visible first.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a1a;padding:16px;font-family:monospace;font-size:11px;color:#888;border-radius:6px;line-height:1.8">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px">
+        <div style="background:#2a2318;border:1px solid #c8824a;border-radius:4px;padding:10px;text-align:center;color:#c8824a">Safe to Spend<br/><span style="font-size:14px;font-weight:bold">$840</span></div>
+        <div style="background:#1e1a14;border:1px solid #2a2318;border-radius:4px;padding:10px;text-align:center">Health Score<br/>72</div>
+        <div style="background:#1e1a14;border:1px solid #2a2318;border-radius:4px;padding:10px;text-align:center">Cashflow Risk<br/>Low</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1.2fr 1fr 0.8fr;gap:6px">
+        <div style="background:#1e1a14;border:1px solid #2a2318;border-radius:4px;padding:6px;text-align:center">Transactions</div>
+        <div style="background:#1e1a14;border:1px solid #2a2318;border-radius:4px;padding:6px;text-align:center">Calendar</div>
+        <div style="background:#1e1a14;border:1px solid #2a2318;border-radius:4px;padding:6px;text-align:center">Goals</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Pure 3-Column Grid</h3>
+      <p>All cards equal-weight in a 3-column grid. No single hero. Safe to Spend is first card but same height as others. Denser, more data at a glance.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a1a;padding:16px;font-family:monospace;font-size:11px;color:#888;border-radius:6px;line-height:1.8">
+      <div style="display:grid;grid-template-columns:1fr 1.8fr;gap:6px;margin-bottom:8px">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="background:#2a2318;border:1px solid #c8824a;border-radius:4px;padding:8px;text-align:center;color:#c8824a">Safe to Spend<br/>$840</div>
+          <div style="background:#1e1a14;border:1px solid #2a2318;border-radius:4px;padding:8px;text-align:center">Health Score</div>
+          <div style="background:#1e1a14;border:1px solid #2a2318;border-radius:4px;padding:8px;text-align:center">Guardian</div>
+        </div>
+        <div style="background:#1e1a14;border:1px solid #2a2318;border-radius:4px;padding:8px;text-align:center">
+          AI Intelligence Feed<br/>(primary column)
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <div style="background:#1e1a14;border:1px solid #2a2318;border-radius:4px;padding:6px;text-align:center">Transactions</div>
+        <div style="background:#1e1a14;border:1px solid #2a2318;border-radius:4px;padding:6px;text-align:center">Calendar Preview</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Left KPI Column + Right Feed</h3>
+      <p>Narrow left column with key numbers stacked vertically. Wide right column dominated by AI intelligence feed. Metrics on left, intelligence on right.</p>
+    </div>
+  </div>
+
+</div>

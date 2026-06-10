@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Goals — Creative Options</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --surface-0: #0E0C0A;
+    --surface-1: #181410;
+    --surface-2: #201C17;
+    --surface-3: #2A2318;
+    --amber-400: #C8824A;
+    --amber-500: #BE7740;
+    --amber-600: #A86838;
+    --on-900: rgba(240,234,224,0.92);
+    --on-600: rgba(240,234,224,0.55);
+    --on-400: rgba(240,234,224,0.35);
+    --on-200: rgba(240,234,224,0.10);
+    --positive: #4ADE80;
+    --negative: #F87171;
+    --r-lg: 14px;
+    --r-xl: 18px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--surface-0);
+    font-family: 'Hanken Grotesk', sans-serif;
+    color: var(--on-900);
+    min-height: 100vh;
+    padding: 40px 24px;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 32px;
+  }
+  .page-title {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--on-400);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    width: 100%; max-width: 860px;
+  }
+  .opt { display: flex; flex-direction: column; gap: 10px; }
+  .opt-label {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--on-400); text-align: center;
+  }
+  .card {
+    background: var(--surface-1);
+    border: 1px solid var(--on-200);
+    border-radius: var(--r-xl); padding: 20px;
+    position: relative; overflow: hidden;
+    box-shadow: 0 1px 0 0 rgba(240,234,224,0.04) inset, 0 8px 40px rgba(0,0,0,0.6);
+    cursor: pointer; transition: border-color 0.2s;
+  }
+  .card:hover { border-color: rgba(190,119,64,0.3); }
+  .card.selected { border-color: var(--amber-500); box-shadow: 0 0 0 1px var(--amber-500), 0 8px 32px rgba(0,0,0,0.5); }
+  .card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, #A86838 40%, #BE7740 60%, transparent);
+    opacity: 0.5;
+  }
+  .selected-badge {
+    display: none; position: absolute; top: 12px; right: 12px;
+    background: var(--amber-500); color: #0E0C0A;
+    font-size: 9px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 2px 7px; border-radius: 999px;
+  }
+  .card.selected .selected-badge { display: block; }
+  .card-header {
+    display: flex; align-items: center;
+    justify-content: space-between; margin-bottom: 18px;
+  }
+  .card-title {
+    font-size: 13px; font-weight: 600;
+    letter-spacing: 0.06em; text-transform: uppercase; color: var(--on-400);
+  }
+  .view-btn {
+    background: transparent; border: 1px solid var(--on-200);
+    border-radius: 8px; padding: 4px 10px;
+    font-size: 12px; font-weight: 500; color: var(--on-400); cursor: pointer;
+    font-family: 'Hanken Grotesk', sans-serif;
+  }
+  .goal-rows { display: flex; flex-direction: column; gap: 14px; }
+  .divider { height: 1px; background: var(--on-200); }
+  .on-track { color: var(--positive); }
+  .off-track { color: var(--negative); }
+
+  /* ── OPTION D: Dot milestone journey ── */
+  .dot-track {
+    display: flex; align-items: center;
+    gap: 0; margin: 8px 0 4px;
+  }
+  .dot-seg-line {
+    flex: 1; height: 1.5px;
+    background: var(--on-200);
+  }
+  .dot-seg-line.filled { background: var(--amber-500); }
+  .dot-node {
+    width: 10px; height: 10px; border-radius: 50%;
+    border: 1.5px solid var(--on-200);
+    background: var(--surface-1);
+    flex-shrink: 0; z-index: 1;
+  }
+  .dot-node.filled {
+    background: var(--amber-500);
+    border-color: var(--amber-500);
+    box-shadow: 0 0 6px rgba(190,119,64,0.6);
+  }
+  .dot-node.current {
+    background: var(--surface-1);
+    border-color: var(--amber-400);
+    box-shadow: 0 0 8px rgba(200,130,74,0.5);
+    position: relative;
+  }
+  .dot-node.current::after {
+    content: '';
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    width: 4px; height: 4px; border-radius: 50%;
+    background: var(--amber-400);
+  }
+  .dot-node.fail {
+    background: rgba(248,113,113,0.15);
+    border-color: rgba(248,113,113,0.5);
+  }
+  .dot-labels {
+    display: flex; justify-content: space-between;
+    font-size: 9.5px; color: var(--on-400);
+    font-family: 'IBM Plex Mono', monospace;
+    margin-top: 3px;
+  }
+
+  /* ── OPTION E: Arc gauge (semicircle) ── */
+  .gauge-row {
+    display: flex; align-items: center; gap: 14px;
+  }
+  .gauge-wrap { flex-shrink: 0; position: relative; }
+  .gauge-label {
+    position: absolute; bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px; color: var(--on-400);
+    font-family: 'IBM Plex Mono', monospace;
+    white-space: nowrap;
+  }
+  .gauge-info { flex: 1; }
+  .gauge-name { font-size: 13px; font-weight: 500; color: var(--on-900); }
+  .gauge-meta { font-size: 11px; color: var(--on-400); margin-top: 2px; }
+  .gauge-amt {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px; color: var(--on-600); margin-top: 3px;
+  }
+
+  /* ── OPTION F: Glowing filled pill with amount marker ── */
+  .pill-track-wrap { margin: 8px 0 5px; }
+  .pill-outer {
+    height: 20px; background: var(--surface-3);
+    border: 1px solid var(--on-200); border-radius: 999px;
+    position: relative; overflow: hidden;
+  }
+  .pill-fill {
+    height: 100%; border-radius: 999px;
+    background: linear-gradient(90deg, #A86838, #C8824A, #D89A5C);
+    position: relative;
+    transition: width 0.3s;
+  }
+  .pill-fill::after {
+    content: '';
+    position: absolute; right: 0; top: 0; bottom: 0; width: 20px;
+    background: linear-gradient(90deg, transparent, rgba(216,154,92,0.4));
+    border-radius: 0 999px 999px 0;
+  }
+  .pill-fill.fail {
+    background: linear-gradient(90deg, #7f2929, #F87171);
+  }
+  .pill-amount {
+    position: absolute; right: 8px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 10px; font-weight: 600;
+    color: rgba(240,234,224,0.5);
+    font-family: 'IBM Plex Mono', monospace;
+    mix-blend-mode: normal;
+    pointer-events: none;
+  }
+  .pill-end-label {
+    display: flex; justify-content: space-between;
+    font-size: 10px; color: var(--on-400);
+    font-family: 'IBM Plex Mono', monospace;
+    margin-top: 4px;
+  }
+
+  .note {
+    font-size: 12px; color: var(--on-400);
+    text-align: center; max-width: 700px; line-height: 1.7;
+  }
+</style>
+</head>
+<body>
+
+<p class="page-title">Goals — More Creative Options</p>
+
+<div class="grid">
+
+  <!-- ── D: Dot journey ── -->
+  <div class="opt">
+    <div class="opt-label">D — Dot Journey</div>
+    <div class="card" onclick="pick(this)">
+      <div class="selected-badge">Selected</div>
+      <div class="card-header">
+        <span class="card-title">Goals</span>
+        <button class="view-btn">View all</button>
+      </div>
+      <div class="goal-rows">
+
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline">
+            <div class="gauge-name">Emergency Fund</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--on-600)">$2,800 / $5,000</div>
+          </div>
+          <div class="dot-track">
+            <div class="dot-node filled"></div>
+            <div class="dot-seg-line filled"></div>
+            <div class="dot-node filled"></div>
+            <div class="dot-seg-line filled"></div>
+            <div class="dot-node current"></div>
+            <div class="dot-seg-line"></div>
+            <div class="dot-node"></div>
+            <div class="dot-seg-line"></div>
+            <div class="dot-node"></div>
+          </div>
+          <div class="dot-labels">
+            <span>$0</span><span>$1.25k</span><span>$2.5k</span><span>$3.75k</span><span>$5k</span>
+          </div>
+          <div style="font-size:11px;margin-top:4px" class="on-track">↗ On track — Oct 2025</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline">
+            <div class="gauge-name">Pay off Visa</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--on-600)">$640 / $2,400</div>
+          </div>
+          <div class="dot-track">
+            <div class="dot-node fail" style="border-color:rgba(248,113,113,0.5);background:rgba(248,113,113,0.1)"></div>
+            <div class="dot-seg-line" style="background:rgba(248,113,113,0.3)"></div>
+            <div class="dot-node" style="border-color:rgba(248,113,113,0.3)"></div>
+            <div class="dot-seg-line"></div>
+            <div class="dot-node"></div>
+            <div class="dot-seg-line"></div>
+            <div class="dot-node"></div>
+          </div>
+          <div class="dot-labels">
+            <span>$0</span><span>$800</span><span>$1.6k</span><span>$2.4k</span>
+          </div>
+          <div style="font-size:11px;margin-top:4px" class="off-track">↘ Behind — review plan</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline">
+            <div class="gauge-name">Japan Trip</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--on-600)">$1,200 / $3,000</div>
+          </div>
+          <div class="dot-track">
+            <div class="dot-node filled"></div>
+            <div class="dot-seg-line filled"></div>
+            <div class="dot-node current"></div>
+            <div class="dot-seg-line"></div>
+            <div class="dot-node"></div>
+            <div class="dot-seg-line"></div>
+            <div class="dot-node"></div>
+          </div>
+          <div class="dot-labels"><span>$0</span><span>$750</span><span>$1.5k</span><span>$2.25k</span><span>$3k</span></div>
+          <div style="font-size:11px;margin-top:4px" class="on-track">↗ On track — Dec 2025</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── E: Arc gauge ── -->
+  <div class="opt">
+    <div class="opt-label">E — Arc Gauge</div>
+    <div class="card" onclick="pick(this)">
+      <div class="selected-badge">Selected</div>
+      <div class="card-header">
+        <span class="card-title">Goals</span>
+        <button class="view-btn">View all</button>
+      </div>
+      <div class="goal-rows">
+
+        <div class="gauge-row">
+          <div class="gauge-wrap">
+            <svg width="64" height="36" viewBox="0 0 80 44">
+              <path d="M8,40 A32,32 0 0,1 72,40" fill="none" stroke="rgba(200,130,74,0.1)" stroke-width="8" stroke-linecap="round"/>
+              <!-- 56% of 180deg arc -->
+              <path d="M8,40 A32,32 0 0,1 72,40" fill="none" stroke="url(#ag1)" stroke-width="8"
+                stroke-linecap="round" stroke-dasharray="56.4 44.3"/>
+              <defs><linearGradient id="ag1" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#D89A5C"/><stop offset="100%" stop-color="#C8824A"/>
+              </linearGradient></defs>
+            </svg>
+            <div class="gauge-label">56%</div>
+          </div>
+          <div class="gauge-info">
+            <div class="gauge-name">Emergency Fund</div>
+            <div class="gauge-amt">$2,800 of $5,000</div>
+            <div class="gauge-meta on-track" style="margin-top:3px">↗ On track · Oct 2025</div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="gauge-row">
+          <div class="gauge-wrap">
+            <svg width="64" height="36" viewBox="0 0 80 44">
+              <path d="M8,40 A32,32 0 0,1 72,40" fill="none" stroke="rgba(248,113,113,0.1)" stroke-width="8" stroke-linecap="round"/>
+              <path d="M8,40 A32,32 0 0,1 72,40" fill="none" stroke="#F87171" stroke-width="8"
+                stroke-linecap="round" stroke-dasharray="27.2 73.5"/>
+            </svg>
+            <div class="gauge-label">27%</div>
+          </div>
+          <div class="gauge-info">
+            <div class="gauge-name">Pay off Visa</div>
+            <div class="gauge-amt">$640 of $2,400</div>
+            <div class="gauge-meta off-track" style="margin-top:3px">↘ Behind · review plan</div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="gauge-row">
+          <div class="gauge-wrap">
+            <svg width="64" height="36" viewBox="0 0 80 44">
+              <path d="M8,40 A32,32 0 0,1 72,40" fill="none" stroke="rgba(200,130,74,0.1)" stroke-width="8" stroke-linecap="round"/>
+              <path d="M8,40 A32,32 0 0,1 72,40" fill="none" stroke="url(#ag2)" stroke-width="8"
+                stroke-linecap="round" stroke-dasharray="40.3 60.4"/>
+              <defs><linearGradient id="ag2" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#D89A5C"/><stop offset="100%" stop-color="#C8824A"/>
+              </linearGradient></defs>
+            </svg>
+            <div class="gauge-label">40%</div>
+          </div>
+          <div class="gauge-info">
+            <div class="gauge-name">Japan Trip</div>
+            <div class="gauge-amt">$1,200 of $3,000</div>
+            <div class="gauge-meta on-track" style="margin-top:3px">↗ On track · Dec 2025</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── F: Glowing pill fill ── -->
+  <div class="opt">
+    <div class="opt-label">F — Glowing Pill Fill</div>
+    <div class="card" onclick="pick(this)">
+      <div class="selected-badge">Selected</div>
+      <div class="card-header">
+        <span class="card-title">Goals</span>
+        <button class="view-btn">View all</button>
+      </div>
+      <div class="goal-rows">
+
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+            <div class="gauge-name">Emergency Fund</div>
+            <div style="font-size:11px" class="on-track">↗ Oct 2025</div>
+          </div>
+          <div class="pill-outer">
+            <div class="pill-fill" style="width:56%"></div>
+            <div class="pill-amount">$2,800</div>
+          </div>
+          <div class="pill-end-label"><span>$0</span><span>$5,000</span></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+            <div class="gauge-name">Pay off Visa</div>
+            <div style="font-size:11px" class="off-track">↘ Behind</div>
+          </div>
+          <div class="pill-outer">
+            <div class="pill-fill fail" style="width:27%"></div>
+            <div class="pill-amount">$640</div>
+          </div>
+          <div class="pill-end-label"><span>$0</span><span>$2,400</span></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+            <div class="gauge-name">Japan Trip</div>
+            <div style="font-size:11px" class="on-track">↗ Dec 2025</div>
+          </div>
+          <div class="pill-outer">
+            <div class="pill-fill" style="width:40%"></div>
+            <div class="pill-amount">$1,200</div>
+          </div>
+          <div class="pill-end-label"><span>$0</span><span>$3,000</span></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── G: C + D hybrid (milestone segs + dot nodes) ── -->
+  <div class="opt">
+    <div class="opt-label">G — Segment + Glow (C × D)</div>
+    <div class="card" onclick="pick(this)">
+      <div class="selected-badge">Selected</div>
+      <div class="card-header">
+        <span class="card-title">Goals</span>
+        <button class="view-btn">View all</button>
+      </div>
+      <div class="goal-rows">
+
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline">
+            <div class="gauge-name">Emergency Fund</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--on-600)">56%</div>
+          </div>
+          <!-- thick segments with rounded caps + glow on filled -->
+          <div style="display:flex;gap:3px;margin:8px 0 4px">
+            <div style="flex:1;height:6px;border-radius:999px;background:linear-gradient(90deg,#D89A5C,#C8824A);box-shadow:0 0 6px rgba(200,130,74,0.4)"></div>
+            <div style="flex:1;height:6px;border-radius:999px;background:linear-gradient(90deg,#D89A5C,#C8824A);box-shadow:0 0 6px rgba(200,130,74,0.4)"></div>
+            <div style="flex:1;height:6px;border-radius:999px;background:linear-gradient(90deg,#C8824A 60%,rgba(240,234,224,0.1) 60%)"></div>
+            <div style="flex:1;height:6px;border-radius:999px;background:rgba(240,234,224,0.1)"></div>
+            <div style="flex:1;height:6px;border-radius:999px;background:rgba(240,234,224,0.1)"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:9.5px;color:var(--on-400);font-family:'IBM Plex Mono',monospace">
+            <span>$0</span><span>$1k</span><span>$2k</span><span>$3k</span><span>$4k</span><span>$5k</span>
+          </div>
+          <div style="font-size:11px;margin-top:4px;color:var(--on-600)">$2,800 saved · <span class="on-track">on track</span></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline">
+            <div class="gauge-name">Pay off Visa</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--negative)">27%</div>
+          </div>
+          <div style="display:flex;gap:3px;margin:8px 0 4px">
+            <div style="flex:1;height:6px;border-radius:999px;background:linear-gradient(90deg,#F87171 80%,rgba(248,113,113,0.1) 80%);box-shadow:0 0 5px rgba(248,113,113,0.3)"></div>
+            <div style="flex:1;height:6px;border-radius:999px;background:rgba(248,113,113,0.08)"></div>
+            <div style="flex:1;height:6px;border-radius:999px;background:rgba(248,113,113,0.08)"></div>
+            <div style="flex:1;height:6px;border-radius:999px;background:rgba(248,113,113,0.08)"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:9.5px;color:var(--on-400);font-family:'IBM Plex Mono',monospace">
+            <span>$0</span><span>$600</span><span>$1.2k</span><span>$1.8k</span><span>$2.4k</span>
+          </div>
+          <div style="font-size:11px;margin-top:4px;color:var(--on-600)">$640 paid · <span class="off-track">behind</span></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline">
+            <div class="gauge-name">Japan Trip</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--on-600)">40%</div>
+          </div>
+          <div style="display:flex;gap:3px;margin:8px 0 4px">
+            <div style="flex:1;height:6px;border-radius:999px;background:linear-gradient(90deg,#D89A5C,#C8824A);box-shadow:0 0 6px rgba(200,130,74,0.4)"></div>
+            <div style="flex:1;height:6px;border-radius:999px;background:linear-gradient(90deg,#C8824A 30%,rgba(240,234,224,0.1) 30%)"></div>
+            <div style="flex:1;height:6px;border-radius:999px;background:rgba(240,234,224,0.1)"></div>
+            <div style="flex:1;height:6px;border-radius:999px;background:rgba(240,234,224,0.1)"></div>
+            <div style="flex:1;height:6px;border-radius:999px;background:rgba(240,234,224,0.1)"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:9.5px;color:var(--on-400);font-family:'IBM Plex Mono',monospace">
+            <span>$0</span><span>$600</span><span>$1.2k</span><span>$1.8k</span><span>$2.4k</span><span>$3k</span>
+          </div>
+          <div style="font-size:11px;margin-top:4px;color:var(--on-600)">$1,200 saved · <span class="on-track">on track</span></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p class="note">
+  D — Dot journey: nodes connected by a line, glowing current position.<br>
+  E — Arc gauge: speedometer half-arc per goal, % below.<br>
+  F — Glowing pill: thick capsule fill with current amount inside, glow at the fill edge.<br>
+  G — Segment + glow: C upgraded with glowing filled segments and red tint when behind.
+</p>
+
+<script>
+  function pick(el) {
+    document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+</script>
+</body>
+</html>

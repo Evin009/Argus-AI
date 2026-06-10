@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Argus Insight Card</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --surface-0: #0E0C0A;
+    --surface-1: #181410;
+    --surface-2: #201C17;
+    --surface-3: #2A2318;
+    --amber-400: #C8824A;
+    --amber-500: #BE7740;
+    --amber-600: #A86838;
+    --on-900: rgba(240,234,224,0.92);
+    --on-600: rgba(240,234,224,0.55);
+    --on-400: rgba(240,234,224,0.35);
+    --on-200: rgba(240,234,224,0.10);
+    --positive: #4ADE80;
+    --negative: #F87171;
+    --info: #60A5FA;
+    --warn: #FBBF24;
+    --r-lg: 14px;
+    --r-xl: 18px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--surface-0);
+    font-family: 'Hanken Grotesk', sans-serif;
+    color: var(--on-900);
+    min-height: 100vh;
+    padding: 40px 24px;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 28px;
+  }
+  .page-title {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--on-400);
+  }
+  .subtitle {
+    font-size: 12px; color: var(--on-400);
+    text-align: center; max-width: 400px; line-height: 1.6;
+  }
+
+  /* ── carousel wrapper ── */
+  .carousel {
+    width: 100%; max-width: 420px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+
+  /* ── card shell ── */
+  .icard {
+    background: var(--surface-1);
+    border: 1px solid var(--on-200);
+    border-radius: var(--r-xl);
+    padding: 20px;
+    position: relative; overflow: hidden;
+    box-shadow: 0 1px 0 0 rgba(240,234,224,0.04) inset, 0 8px 40px rgba(0,0,0,0.6);
+    display: none;
+  }
+  .icard.active { display: block; }
+  .icard::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent-left) 40%, var(--accent-right) 60%, transparent);
+    opacity: 0.6;
+  }
+
+  /* ── card header ── */
+  .icard-header {
+    display: flex; align-items: center;
+    justify-content: space-between; margin-bottom: 16px;
+  }
+  .icard-label {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--on-400);
+  }
+  .label-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    box-shadow: 0 0 5px currentColor;
+  }
+  .dismiss-btn {
+    width: 24px; height: 24px;
+    border-radius: 6px; border: 1px solid var(--on-200);
+    background: transparent; cursor: pointer; color: var(--on-400);
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* ── insight body ── */
+  .insight-body {
+    display: flex; align-items: flex-start; gap: 14px; margin-bottom: 16px;
+  }
+  .insight-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    border: 1px solid var(--on-200);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-size: 18px;
+  }
+  .insight-text { flex: 1; }
+  .insight-headline {
+    font-size: 15px; font-weight: 600;
+    line-height: 1.3; color: var(--on-900);
+    margin-bottom: 4px;
+  }
+  .insight-headline span { }
+  .insight-sub {
+    font-size: 12px; color: var(--on-600); line-height: 1.5;
+  }
+
+  /* ── visual element ── */
+  .insight-visual { margin-bottom: 16px; }
+
+  /* comparison bars */
+  .compare-bars { display: flex; flex-direction: column; gap: 6px; }
+  .bar-row { display: flex; align-items: center; gap: 8px; }
+  .bar-label { font-size: 11px; color: var(--on-400); width: 52px; flex-shrink: 0; font-family: 'IBM Plex Mono', monospace; }
+  .bar-track { flex: 1; height: 6px; background: var(--on-200); border-radius: 999px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 999px; }
+  .bar-val { font-size: 11px; color: var(--on-600); width: 38px; text-align: right; font-family: 'IBM Plex Mono', monospace; flex-shrink: 0; }
+
+  /* mini sparkline */
+  .mini-spark { width: 100%; height: 40px; }
+
+  /* metric trio */
+  .metric-trio { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .metric-box {
+    background: var(--surface-2);
+    border: 1px solid var(--on-200);
+    border-radius: 10px; padding: 10px 10px 8px;
+    display: flex; flex-direction: column; gap: 3px;
+  }
+  .metric-val {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px; font-weight: 500; line-height: 1; color: var(--on-900);
+  }
+  .metric-key { font-size: 10px; color: var(--on-400); }
+
+  /* ── action chips ── */
+  .action-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .action-chip {
+    display: flex; align-items: center; gap: 5px;
+    border-radius: 999px; padding: 6px 12px;
+    font-size: 12px; font-weight: 600; cursor: pointer;
+    border: 1px solid; transition: opacity 0.15s;
+    font-family: 'Hanken Grotesk', sans-serif;
+  }
+  .action-chip:hover { opacity: 0.8; }
+  .chip-primary { background: rgba(190,119,64,0.15); border-color: rgba(190,119,64,0.35); color: var(--amber-400); }
+  .chip-secondary { background: transparent; border-color: var(--on-200); color: var(--on-400); }
+  .action-chip svg { width: 12px; height: 12px; }
+
+  /* ── dots nav ── */
+  .dots-nav { display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .dot-nav {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--on-200); cursor: pointer;
+    transition: background 0.2s, width 0.2s;
+    border: none;
+  }
+  .dot-nav.active { background: var(--amber-500); width: 18px; border-radius: 999px; }
+
+  .nav-row {
+    display: flex; align-items: center; justify-content: space-between;
+    width: 100%; max-width: 420px;
+  }
+  .nav-btn {
+    width: 32px; height: 32px;
+    background: var(--surface-1); border: 1px solid var(--on-200);
+    border-radius: 8px; cursor: pointer; color: var(--on-400);
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .nav-btn:hover { border-color: var(--amber-600); color: var(--amber-400); }
+  .nav-btn svg { width: 14px; height: 14px; }
+
+  .note {
+    font-size: 12px; color: var(--on-400);
+    text-align: center; max-width: 420px; line-height: 1.7;
+  }
+</style>
+</head>
+<body>
+
+<p class="page-title">Argus Insight Card — 4 insight types</p>
+<p class="subtitle">One insight at a time. Swipe or use arrows. Each insight is specific, visual, and actionable.</p>
+
+<!-- ── INSIGHT 1: Spending spike ── -->
+<div class="carousel">
+
+  <div class="icard active" style="--accent-left:#F87171;--accent-right:#EF4444">
+    <div class="icard-header">
+      <div class="icard-label">
+        <div class="label-dot" style="color:#F87171;background:#F87171"></div>
+        Spending Spike
+      </div>
+      <button class="dismiss-btn">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="insight-body">
+      <div class="insight-icon" style="background:rgba(248,113,113,0.08);border-color:rgba(248,113,113,0.2)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F87171" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.5 7.5M17 13l1.5 7.5M9 21a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm7 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/></svg>
+      </div>
+      <div class="insight-text">
+        <div class="insight-headline">Dining is <span style="color:#F87171">$89 over</span> your usual this month</div>
+        <div class="insight-sub">9 transactions at restaurants — Friday nights account for 60% of it</div>
+      </div>
+    </div>
+    <div class="insight-visual">
+      <div class="compare-bars">
+        <div class="bar-row">
+          <div class="bar-label">This mo.</div>
+          <div class="bar-track"><div class="bar-fill" style="width:88%;background:linear-gradient(90deg,#F87171,#EF4444)"></div></div>
+          <div class="bar-val" style="color:#F87171">$312</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">Avg.</div>
+          <div class="bar-track"><div class="bar-fill" style="width:64%;background:rgba(200,130,74,0.6)"></div></div>
+          <div class="bar-val">$223</div>
+        </div>
+      </div>
+    </div>
+    <div class="action-row">
+      <div class="action-chip chip-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+        See dining spend
+      </div>
+      <div class="action-chip chip-secondary">Dismiss</div>
+    </div>
+  </div>
+
+  <!-- ── INSIGHT 2: Risk warning ── -->
+  <div class="icard" style="--accent-left:#FBBF24;--accent-right:#F59E0B">
+    <div class="icard-header">
+      <div class="icard-label">
+        <div class="label-dot" style="color:#FBBF24;background:#FBBF24"></div>
+        Risk Warning
+      </div>
+      <button class="dismiss-btn">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="insight-body">
+      <div class="insight-icon" style="background:rgba(251,191,36,0.08);border-color:rgba(251,191,36,0.2)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FBBF24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+      </div>
+      <div class="insight-text">
+        <div class="insight-headline">Balance likely hits <span style="color:#FBBF24">$180</span> on Mar 27</div>
+        <div class="insight-sub">Rent + Chase bill land the same week. You have 9 days to adjust.</div>
+      </div>
+    </div>
+    <div class="insight-visual">
+      <div class="metric-trio">
+        <div class="metric-box">
+          <div class="metric-val" style="color:#FBBF24">$180</div>
+          <div class="metric-key">Projected low</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-val">Mar 27</div>
+          <div class="metric-key">Risk date</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-val" style="color:#F87171">9 days</div>
+          <div class="metric-key">Until dip</div>
+        </div>
+      </div>
+    </div>
+    <div class="action-row">
+      <div class="action-chip chip-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        View cashflow
+      </div>
+      <div class="action-chip chip-secondary">Snooze</div>
+    </div>
+  </div>
+
+  <!-- ── INSIGHT 3: Positive momentum ── -->
+  <div class="icard" style="--accent-left:#4ADE80;--accent-right:#22C55E">
+    <div class="icard-header">
+      <div class="icard-label">
+        <div class="label-dot" style="color:#4ADE80;background:#4ADE80"></div>
+        Momentum
+      </div>
+      <button class="dismiss-btn">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="insight-body">
+      <div class="insight-icon" style="background:rgba(74,222,128,0.08);border-color:rgba(74,222,128,0.2)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+      </div>
+      <div class="insight-text">
+        <div class="insight-headline">Health Score up <span style="color:#4ADE80">+8</span> — best week in 3 months</div>
+        <div class="insight-sub">Spending Volatility improved most. You stayed consistent all 7 days.</div>
+      </div>
+    </div>
+    <div class="insight-visual">
+      <div class="metric-trio">
+        <div class="metric-box">
+          <div class="metric-val" style="color:#4ADE80">72 → 80</div>
+          <div class="metric-key">Score change</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-val" style="color:#4ADE80">7 days</div>
+          <div class="metric-key">Streak</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-val">Top 3mo</div>
+          <div class="metric-key">Best run</div>
+        </div>
+      </div>
+    </div>
+    <div class="action-row">
+      <div class="action-chip chip-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        See score detail
+      </div>
+      <div class="action-chip chip-secondary">Share</div>
+    </div>
+  </div>
+
+  <!-- ── INSIGHT 4: Subscription creep ── -->
+  <div class="icard" style="--accent-left:#C8824A;--accent-right:#BE7740">
+    <div class="icard-header">
+      <div class="icard-label">
+        <div class="label-dot" style="color:#C8824A;background:#C8824A"></div>
+        Subscription Creep
+      </div>
+      <button class="dismiss-btn">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="insight-body">
+      <div class="insight-icon" style="background:#E50914;border-color:rgba(229,9,20,0.3)">
+        <span style="font-size:16px;font-weight:900;color:#fff;font-family:Georgia,serif">N</span>
+      </div>
+      <div class="insight-text">
+        <div class="insight-headline">Netflix is <span style="color:#C8824A">$2 more</span> than 6 months ago</div>
+        <div class="insight-sub">Was $15.99 — now $17.99. Small increases compound: $24/yr unnoticed.</div>
+      </div>
+    </div>
+    <div class="insight-visual">
+      <div class="metric-trio">
+        <div class="metric-box">
+          <div class="metric-val">$15.99</div>
+          <div class="metric-key">6 mo. ago</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-val" style="color:#C8824A">$17.99</div>
+          <div class="metric-key">Now</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-val" style="color:#F87171">+$24/yr</div>
+          <div class="metric-key">Extra cost</div>
+        </div>
+      </div>
+    </div>
+    <div class="action-row">
+      <div class="action-chip chip-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
+        Review subscription
+      </div>
+      <div class="action-chip chip-secondary">Ignore</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- nav -->
+<div class="nav-row">
+  <button class="nav-btn" onclick="prev()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="m15 18-6-6 6-6"/></svg>
+  </button>
+  <div class="dots-nav">
+    <button class="dot-nav active" onclick="goTo(0)"></button>
+    <button class="dot-nav" onclick="goTo(1)"></button>
+    <button class="dot-nav" onclick="goTo(2)"></button>
+    <button class="dot-nav" onclick="goTo(3)"></button>
+  </div>
+  <button class="nav-btn" onclick="next()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="m9 18 6-6-6-6"/></svg>
+  </button>
+</div>
+
+<p class="note">Each insight: specific data point + visual comparison/metrics + 1–2 action chips. Arrows or dots to cycle. Color-coded by type: red = spike, amber = risk, green = momentum, copper = subscription.</p>
+
+<script>
+  let current = 0;
+  const cards = document.querySelectorAll('.icard');
+  const dots = document.querySelectorAll('.dot-nav');
+
+  function goTo(n) {
+    cards[current].classList.remove('active');
+    dots[current].classList.remove('active');
+    current = (n + cards.length) % cards.length;
+    cards[current].classList.add('active');
+    dots[current].classList.add('active');
+  }
+  function next() { goTo(current + 1); }
+  function prev() { goTo(current - 1); }
+
+  // auto-cycle every 6s
+  setInterval(() => next(), 6000);
+</script>
+</body>
+</html>

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Safe to Spend — Component</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --surface-0: #0E0C0A;
+    --surface-1: #181410;
+    --surface-2: #201C17;
+    --surface-3: #2A2318;
+    --copper: #BE7740;
+    --amber-300: #D89A5C;
+    --amber-400: #C8824A;
+    --amber-500: #BE7740;
+    --amber-600: #A86838;
+    --paper: #F0EAE0;
+    --on-dark-900: rgba(240,234,224,0.92);
+    --on-dark-600: rgba(240,234,224,0.55);
+    --on-dark-400: rgba(240,234,224,0.35);
+    --on-dark-200: rgba(240,234,224,0.15);
+    --positive: #4ADE80;
+    --negative: #F87171;
+    --r-md: 10px;
+    --r-lg: 14px;
+    --r-xl: 18px;
+    --grad-accent: linear-gradient(140deg, #C8824A 0%, #BE7740 58%, #A8412B 100%);
+    --ease-out-expo: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--surface-0);
+    font-family: 'Hanken Grotesk', sans-serif;
+    color: var(--on-dark-900);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    gap: 32px;
+  }
+
+  .label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--on-dark-400);
+    font-family: 'Hanken Grotesk', sans-serif;
+  }
+
+  /* ─── CARD ─── */
+  .card {
+    background: var(--surface-1);
+    border: 1px solid var(--on-dark-200);
+    border-radius: var(--r-xl);
+    padding: 24px 28px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow:
+      0 1px 0 0 rgba(240,234,224,0.04) inset,
+      0 8px 32px rgba(0,0,0,0.5),
+      0 2px 8px rgba(0,0,0,0.3);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* subtle copper top border accent */
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, var(--amber-600) 40%, var(--copper) 60%, transparent 100%);
+    opacity: 0.6;
+  }
+
+  /* ─── HEADER ROW ─── */
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .updated-pill {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--surface-2);
+    border: 1px solid var(--on-dark-200);
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 11px;
+    color: var(--on-dark-400);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--positive);
+    box-shadow: 0 0 4px var(--positive);
+  }
+
+  /* ─── MAIN NUMBER ─── */
+  .main-number-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    margin-bottom: 4px;
+  }
+
+  .main-number {
+    font-family: 'Instrument Serif', serif;
+    font-size: 52px;
+    line-height: 1;
+    background: var(--grad-accent);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.02em;
+  }
+
+  .delta {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--positive);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .delta.down { color: var(--negative); }
+
+  .bank-balance {
+    font-size: 13px;
+    color: var(--on-dark-400);
+    margin-bottom: 20px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .bank-balance span {
+    color: var(--on-dark-600);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  /* ─── DIVIDER ─── */
+  .divider {
+    height: 1px;
+    background: var(--on-dark-200);
+    margin-bottom: 16px;
+  }
+
+  /* ─── BREAKDOWN ─── */
+  .breakdown-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--on-dark-400);
+    margin-bottom: 10px;
+  }
+
+  .breakdown-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .breakdown-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .breakdown-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13.5px;
+    color: var(--on-dark-600);
+  }
+
+  .breakdown-icon {
+    width: 22px; height: 22px;
+    border-radius: 6px;
+    background: var(--surface-3);
+    border: 1px solid var(--on-dark-200);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+
+  .breakdown-amount {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--on-dark-600);
+  }
+
+  /* ─── TAP HINT ─── */
+  .tap-hint {
+    margin-top: 16px;
+    text-align: center;
+    font-size: 11.5px;
+    color: var(--on-dark-400);
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+
+  .tap-hint:hover { color: var(--amber-400); }
+
+  /* ─── PAGE META ─── */
+  .page-title {
+    font-family: 'Hanken Grotesk', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--on-dark-400);
+    text-align: center;
+  }
+
+  .page-note {
+    font-size: 12px;
+    color: var(--on-dark-400);
+    text-align: center;
+    max-width: 360px;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+
+<p class="page-title">Safe to Spend — Dashboard Card Component</p>
+
+<!-- THE COMPONENT -->
+<div class="card">
+
+  <!-- Header -->
+  <div class="card-header">
+    <span class="label">Safe to Spend</span>
+    <div class="updated-pill">
+      <div class="dot"></div>
+      Updated this morning
+    </div>
+  </div>
+
+  <!-- Main number -->
+  <div class="main-number-row">
+    <div class="main-number">$840</div>
+    <div class="delta">↑ $120 from yesterday</div>
+  </div>
+
+  <!-- Bank balance ref -->
+  <div class="bank-balance">Bank balance: <span>$2,340</span></div>
+
+  <!-- Divider -->
+  <div class="divider"></div>
+
+  <!-- Breakdown -->
+  <div class="breakdown-label">Committed</div>
+  <div class="breakdown-list">
+
+    <div class="breakdown-row">
+      <div class="breakdown-left">
+        <div class="breakdown-icon">📋</div>
+        Bills due in 14 days
+      </div>
+      <div class="breakdown-amount">−$980</div>
+    </div>
+
+    <div class="breakdown-row">
+      <div class="breakdown-left">
+        <div class="breakdown-icon">🎯</div>
+        Goal contribution
+      </div>
+      <div class="breakdown-amount">−$300</div>
+    </div>
+
+    <div class="breakdown-row">
+      <div class="breakdown-left">
+        <div class="breakdown-icon">🛡</div>
+        Buffer reserve
+      </div>
+      <div class="breakdown-amount">−$220</div>
+    </div>
+
+  </div>
+
+  <!-- Tap hint -->
+  <div class="tap-hint">Tap to see full breakdown →</div>
+
+</div>
+
+<p class="page-note">Component uses exact design system tokens — surface colors, copper gradient, Instrument Serif, IBM Plex Mono. Icons are placeholder — will be replaced with design system icons.</p>
+
+</body>
+</html>
