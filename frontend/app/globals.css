@@ -158,10 +158,19 @@ body.light .grain::after {
 /* ─── Dashboard grid ─────────────────────────────────────────────── */
 .arg-grid {
   display: grid;
-  grid-template-columns: minmax(320px, 1fr) minmax(290px, 1.12fr) minmax(330px, 1.28fr);
+  grid-template-columns: minmax(280px, 1fr) minmax(0, 2fr);
   gap: 14px;
+  align-items: stretch;
 }
 .arg-col { display: flex; flex-direction: column; gap: 14px; }
+
+@media (max-width: 1024px) {
+  .arg-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 860px) {
+  .arg-right { grid-template-columns: 1fr !important; }
+  .arg-right > * { grid-column: 1 !important; }
+}
 
 /* ─── TopNav tabs (horizontal scroll on narrow viewports) ─────────── */
 .arg-topnav-tabs {

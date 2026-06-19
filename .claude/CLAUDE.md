@@ -450,3 +450,4 @@ CashflowAgent  RiskAgent    DebtAgent
 | Redis | Caching, background job queues (Celery workers for Plaid sync, embedding generation) | High |
 | Vercel | Frontend hosting | High |
 | Railway / Fly.io | FastAPI backend hosting | High |
+
