@@ -205,9 +205,9 @@ export default function OnboardingPage() {
           maxWidth: 1056,
           padding: 8,
           borderRadius: 44,
-          background: "rgba(20,17,13,0.35)",
-          border: "1px solid rgba(255,255,255,0.06)",
-          boxShadow: "0 30px 90px rgba(0,0,0,0.55), 0 10px 28px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04)",
+          background: "rgba(120,108,90,0.28)",
+          border: "1px solid rgba(255,255,255,0.14)",
+          boxShadow: "0 30px 90px rgba(0,0,0,0.5), 0 10px 28px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)",
         }}
       >
         <div
