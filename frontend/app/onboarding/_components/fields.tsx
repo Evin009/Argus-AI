@@ -37,11 +37,13 @@ const errorStyle: React.CSSProperties = {
 export function Field({
   label,
   required,
+  hint,
   error,
   children,
 }: {
   label: string;
   required?: boolean;
+  hint?: string;
   error?: string;
   children: React.ReactNode;
 }) {
@@ -51,6 +53,7 @@ export function Field({
         {label}
         {required && <span style={{ color: "var(--amber-700)" }}> *</span>}
       </label>
+      {hint && <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "#877B6B", margin: "-2px 0 8px" }}>{hint}</p>}
       {children}
       {error && <p style={errorStyle}>{error}</p>}
     </div>
@@ -236,6 +239,11 @@ export function RepeatableRows<T extends Record<string, string | number>>({
 
   return (
     <div>
+      {rows.length === 0 && (
+        <p style={{ fontFamily: "var(--font-sans)", fontSize: 13.5, color: "#877B6B", margin: "0 0 10px" }}>
+          Nothing added yet — every entry helps Argus reason more precisely.
+        </p>
+      )}
       {rows.map((row, i) => (
         <motion.div
           key={i}
@@ -262,10 +270,12 @@ export function RepeatableRows<T extends Record<string, string | number>>({
               </div>
             )
           )}
-          <button
+          <motion.button
             type="button"
             onClick={() => removeRow(i)}
             aria-label="Remove"
+            whileTap={{ scale: 0.9 }}
+            whileHover={{ scale: 1.05, borderColor: "#B5462F", color: "#B5462F" }}
             style={{
               flexShrink: 0,
               width: 36,
@@ -281,7 +291,7 @@ export function RepeatableRows<T extends Record<string, string | number>>({
             }}
           >
             <X size={14} strokeWidth={1.5} />
-          </button>
+          </motion.button>
         </motion.div>
       ))}
       <motion.button

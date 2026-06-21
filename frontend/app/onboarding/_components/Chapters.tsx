@@ -12,7 +12,7 @@ type ChapterProps = {
 export function ChapterIncome({ state, setState, errors }: ChapterProps) {
   return (
     <>
-      <Field label="Monthly income" required error={errors.income}>
+      <Field label="Monthly income" required hint="Gross income, before taxes" error={errors.income}>
         <NumberField
           value={state.income}
           onChange={(v) => setState({ ...state, income: v })}
@@ -81,7 +81,7 @@ export function ChapterExpenses({ state, setState }: ChapterProps) {
 
 export function ChapterDebt({ state, setState }: ChapterProps) {
   return (
-    <Field label="Debts (credit cards, loans)">
+    <Field label="Debts (credit cards, loans)" hint="Balance, APR, and minimum payment for each">
       <RepeatableRows
         rows={state.debts}
         onChange={(rows) => setState({ ...state, debts: rows })}
@@ -99,7 +99,7 @@ export function ChapterDebt({ state, setState }: ChapterProps) {
 
 export function ChapterGoals({ state, setState }: ChapterProps) {
   return (
-    <Field label="Financial goals">
+    <Field label="Financial goals" hint="List the most important one first — Argus protects it first when money's tight">
       <RepeatableRows
         rows={state.goals}
         onChange={(rows) => setState({ ...state, goals: rows })}

@@ -28,6 +28,21 @@ const slideVariants: Variants = {
   exit: (dir: number) => ({ opacity: 0, x: dir > 0 ? -24 : 24 }),
 };
 
+function SavingDots() {
+  return (
+    <span style={{ display: "flex", gap: 3 }}>
+      {[0, 1, 2].map((i) => (
+        <motion.span
+          key={i}
+          animate={{ opacity: [0.3, 1, 0.3] }}
+          transition={{ duration: 1, repeat: Infinity, delay: i * 0.15, ease: "easeInOut" }}
+          style={{ width: 5, height: 5, borderRadius: "50%", background: "#fff" }}
+        />
+      ))}
+    </span>
+  );
+}
+
 const CHAPTER_SUBTITLE = [
   "Let's start with what comes in.",
   "Now, what goes out every month.",
@@ -310,7 +325,7 @@ export default function OnboardingPage() {
               }}
             >
               <span style={{ color: "#fff", fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: 16 }}>
-                {submitting ? "Saving…" : isLastChapter ? "Finish" : "Continue"}
+                {submitting ? "Saving" : isLastChapter ? "Finish" : "Continue"}
               </span>
               <motion.span
                 variants={{ rest: { x: 0, y: 0, scale: 1 }, hover: { x: 2, y: -1, scale: 1.06 } }}
@@ -326,7 +341,13 @@ export default function OnboardingPage() {
                   flexShrink: 0,
                 }}
               >
-                {isLastChapter ? <Check size={16} strokeWidth={1.75} color="#fff" /> : <ArrowRight size={16} strokeWidth={1.75} color="#fff" />}
+                {submitting ? (
+                  <SavingDots />
+                ) : isLastChapter ? (
+                  <Check size={16} strokeWidth={1.75} color="#fff" />
+                ) : (
+                  <ArrowRight size={16} strokeWidth={1.75} color="#fff" />
+                )}
               </motion.span>
             </motion.button>
           </div>
