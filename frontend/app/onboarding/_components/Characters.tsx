@@ -47,6 +47,19 @@ function Body({ color = COPPER }: { color?: string }) {
   return <path d="M70 130 Q70 100 100 100 Q130 100 130 130 L132 175 Q100 188 68 175 Z" fill={color} stroke={INK} strokeWidth="3" />;
 }
 
+export function IncomeWCharacter() {
+  return (
+    <Image
+      src="/onboarding/income-w.jpg"
+      alt=""
+      fill
+      sizes="46vw"
+      style={{ objectFit: "cover" }}
+      priority
+    />
+  );
+}
+
 export function IncomeCharacter({ size = 140 }: { size?: number }) {
   return (
     <Bounce>

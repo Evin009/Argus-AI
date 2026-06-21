@@ -7,6 +7,7 @@ import { ArrowRight, ArrowLeft, Check } from "lucide-react";
 import { api } from "@/lib/api";
 import { AmbientBackground } from "./_components/AmbientBackground";
 import {
+  IncomeWCharacter,
   IncomeCharacter,
   ExpensesCharacter,
   DebtCharacter,
@@ -43,7 +44,7 @@ const CHAPTER_COMPONENTS = [
 // Same character reused across sibling chapters of the same theme, so splitting
 // a dense chapter into two steps doesn't require new artwork.
 const CHARACTERS = [
-  IncomeCharacter,
+  IncomeWCharacter,
   IncomeCharacter,
   ExpensesCharacter,
   DebtCharacter,
@@ -55,7 +56,7 @@ const CHARACTERS = [
 ];
 // Chapters whose character is a full-bleed photo/illustration that should cover the entire
 // left panel, instead of the default small centered icon treatment.
-const CHARACTER_FILLS_PANEL = [false, false, true, false, false, false, false, false, false];
+const CHARACTER_FILLS_PANEL = [true, false, true, false, false, false, false, false, false];
 
 const slideVariants: Variants = {
   enter: (dir: number) => ({ opacity: 0, x: dir > 0 ? 24 : -24 }),
