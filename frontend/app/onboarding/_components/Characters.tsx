@@ -68,18 +68,16 @@ export function IncomeCharacter({ size = 140 }: { size?: number }) {
   );
 }
 
-export function ExpensesCharacter({ size = 140 }: { size?: number }) {
+export function ExpensesCharacter() {
   return (
-    <Bounce>
-      <Image
-        src="/onboarding/expenses-character.png"
-        alt=""
-        width={size}
-        height={size}
-        style={{ objectFit: "contain", borderRadius: "var(--r-lg)" }}
-        priority
-      />
-    </Bounce>
+    <Image
+      src="/onboarding/expenses-character.png"
+      alt=""
+      fill
+      sizes="38vw"
+      style={{ objectFit: "cover" }}
+      priority
+    />
   );
 }
 

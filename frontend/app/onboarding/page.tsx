@@ -18,6 +18,9 @@ import { ChapterIncome, ChapterExpenses, ChapterDebt, ChapterGoals, ChapterBehav
 import { CHAPTERS, INITIAL_STATE, type OnboardingState } from "./_components/types";
 
 const CHARACTERS = [IncomeCharacter, ExpensesCharacter, DebtCharacter, GoalsCharacter, BehaviorCharacter, RiskCharacter];
+// Chapters whose character is a full-bleed photo/illustration that should cover the entire
+// left panel, instead of the default small centered icon treatment.
+const CHARACTER_FILLS_PANEL = [false, true, false, false, false, false];
 
 const slideVariants: Variants = {
   enter: (dir: number) => ({ opacity: 0, x: dir > 0 ? 24 : -24 }),
@@ -63,6 +66,7 @@ export default function OnboardingPage() {
 
   const isLastChapter = chapter === CHAPTERS.length - 1;
   const Character = CHARACTERS[chapter];
+  const fillsPanel = CHARACTER_FILLS_PANEL[chapter];
 
   function goTo(next: number) {
     setDirection(next > chapter ? 1 : -1);
@@ -154,35 +158,36 @@ export default function OnboardingPage() {
             flexShrink: 0,
             background: "linear-gradient(160deg, var(--surface-1) 0%, var(--surface-0) 100%)",
             display: "flex",
-            flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            padding: 32,
+            padding: fillsPanel ? 0 : 32,
             position: "relative",
+            overflow: "hidden",
           }}
         >
           <AnimatePresence mode="wait">
             <motion.div
               key={chapter}
-              initial={{ opacity: 0, y: 16, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -16, scale: 0.9 }}
+              initial={{ opacity: 0, scale: fillsPanel ? 1.04 : 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: fillsPanel ? 1.04 : 0.9 }}
               transition={{ duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
-              style={{ textAlign: "center" }}
+              style={fillsPanel ? { position: "absolute", inset: 0 } : { textAlign: "center" }}
             >
               <Character />
-              <p style={{ fontFamily: "var(--font-display)", fontSize: 22, color: "var(--paper)", marginTop: 8 }}>
-                {CHAPTERS[chapter]}
-              </p>
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "var(--on-dark-400)", marginTop: 4, maxWidth: 200 }}>
-                {CHAPTER_SUBTITLE[chapter]}
-              </p>
             </motion.div>
           </AnimatePresence>
         </div>
 
         {/* Right panel — form */}
         <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "28px 32px" }}>
+          <p style={{ fontFamily: "var(--font-display)", fontSize: 24, color: "var(--paper)", margin: 0 }}>
+            {CHAPTERS[chapter]}
+          </p>
+          <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "var(--on-dark-400)", margin: "4px 0 18px" }}>
+            {CHAPTER_SUBTITLE[chapter]}
+          </p>
+
           <div style={{ display: "flex", gap: 6, marginBottom: 24 }}>
             {CHAPTERS.map((title, i) => (
               <motion.div
