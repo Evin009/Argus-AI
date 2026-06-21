@@ -75,11 +75,14 @@ def _mock_supabase_completion(upsert_row: dict):
     return mock
 
 
+_COMPLETE_PAYLOAD = {"income": 5000, "pay_schedule": "biweekly", "risk_tolerance": "moderate", "completed": True}
+
+
 def test_post_onboarding_completed_sets_completed_at():
-    row = {"user_id": "test-user-id", "income": 5000}
+    row = {"user_id": "test-user-id", **_COMPLETE_PAYLOAD}
     mock = _mock_supabase_completion(row)
     with patch("routers.onboarding.get_supabase", return_value=mock):
-        client.post("/onboarding", json={"income": 5000, "completed": True})
+        client.post("/onboarding", json=_COMPLETE_PAYLOAD)
 
     onboarding_upsert = mock.table.call_args_list[0]
     assert onboarding_upsert.args == ("onboarding_responses",)
@@ -88,13 +91,10 @@ def test_post_onboarding_completed_sets_completed_at():
 
 
 def test_post_onboarding_completed_seeds_financial_profile():
-    row = {"user_id": "test-user-id", "income": 5000, "risk_tolerance": "moderate"}
+    row = {"user_id": "test-user-id", **_COMPLETE_PAYLOAD}
     mock = _mock_supabase_completion(row)
     with patch("routers.onboarding.get_supabase", return_value=mock):
-        client.post(
-            "/onboarding",
-            json={"income": 5000, "risk_tolerance": "moderate", "completed": True},
-        )
+        client.post("/onboarding", json=_COMPLETE_PAYLOAD)
 
     tables_touched = [call.args[0] for call in mock.table.call_args_list]
     assert "user_financial_profiles" in tables_touched
@@ -113,3 +113,73 @@ def test_post_onboarding_not_completed_does_not_seed_profile():
 
     tables_touched = [call.args[0] for call in mock.table.call_args_list]
     assert "user_financial_profiles" not in tables_touched
+
+
+def test_post_onboarding_completed_missing_required_field_rejected():
+    mock = _mock_supabase_completion({"user_id": "test-user-id"})
+    with patch("routers.onboarding.get_supabase", return_value=mock):
+        resp = client.post("/onboarding", json={"income": 5000, "completed": True})
+    assert resp.status_code == 422
+
+
+def test_post_onboarding_rejects_negative_income():
+    mock = _mock_supabase_completion({"user_id": "test-user-id"})
+    with patch("routers.onboarding.get_supabase", return_value=mock):
+        resp = client.post("/onboarding", json={"income": -100})
+    assert resp.status_code == 422
+
+
+def test_post_onboarding_rejects_negative_rent():
+    mock = _mock_supabase_completion({"user_id": "test-user-id"})
+    with patch("routers.onboarding.get_supabase", return_value=mock):
+        resp = client.post("/onboarding", json={"rent": -1})
+    assert resp.status_code == 422
+
+
+def test_post_onboarding_rejects_non_numeric_income():
+    mock = _mock_supabase_completion({"user_id": "test-user-id"})
+    with patch("routers.onboarding.get_supabase", return_value=mock):
+        resp = client.post("/onboarding", json={"income": "not-a-number"})
+    assert resp.status_code == 422
+
+
+def test_post_onboarding_rejects_negative_debt_balance():
+    mock = _mock_supabase_completion({"user_id": "test-user-id"})
+    with patch("routers.onboarding.get_supabase", return_value=mock):
+        resp = client.post(
+            "/onboarding",
+            json={"debts": [{"name": "Visa", "balance": -500, "interest_rate": 22, "minimum_payment": 50}]},
+        )
+    assert resp.status_code == 422
+
+
+def test_post_onboarding_rejects_negative_goal_target():
+    mock = _mock_supabase_completion({"user_id": "test-user-id"})
+    with patch("routers.onboarding.get_supabase", return_value=mock):
+        resp = client.post("/onboarding", json={"goals": [{"title": "Emergency fund", "target_amount": -1}]})
+    assert resp.status_code == 422
+
+
+def test_post_onboarding_accepts_full_expanded_payload():
+    full_payload = {
+        "income": 5500,
+        "pay_schedule": "biweekly",
+        "income_stability": "fixed",
+        "other_income": False,
+        "rent": 1600,
+        "major_expenses": [{"name": "Car", "amount": 320}],
+        "debts": [{"name": "Visa", "balance": 1200, "interest_rate": 22.5, "minimum_payment": 35}],
+        "goals": [{"title": "Emergency fund", "target_amount": 5000, "priority": 1}],
+        "risk_tolerance": "moderate",
+        "impulse_spender": "sometimes",
+        "spending_triggers": ["stress", "sales"],
+        "balance_check_frequency": "daily",
+        "payment_preference": "credit",
+        "overdraft_frequency": "rarely",
+        "buffer_preference": "moderate",
+        "completed": True,
+    }
+    mock = _mock_supabase_completion({"user_id": "test-user-id", **full_payload})
+    with patch("routers.onboarding.get_supabase", return_value=mock):
+        resp = client.post("/onboarding", json=full_payload)
+    assert resp.status_code == 200

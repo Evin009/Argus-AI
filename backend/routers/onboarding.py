@@ -2,24 +2,69 @@ from datetime import UTC, datetime
 from typing import Optional
 
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, model_validator
 
 from db.client import get_supabase
 from middleware.auth import get_current_user
 
 router = APIRouter(prefix="/onboarding", tags=["onboarding"])
 
-_PROFILE_FIELDS = ("income", "pay_schedule", "rent", "major_expenses", "goals", "risk_tolerance")
+_PROFILE_FIELDS = (
+    "income",
+    "pay_schedule",
+    "income_stability",
+    "rent",
+    "major_expenses",
+    "debts",
+    "goals",
+    "risk_tolerance",
+    "impulse_spender",
+    "spending_triggers",
+    "buffer_preference",
+)
+
+
+class Expense(BaseModel):
+    name: str
+    amount: float = Field(ge=0)
+
+
+class Goal(BaseModel):
+    title: str
+    target_amount: float = Field(ge=0)
+    priority: Optional[int] = None
+
+
+class Debt(BaseModel):
+    name: str
+    balance: float = Field(ge=0)
+    interest_rate: float = Field(ge=0)
+    minimum_payment: float = Field(ge=0)
 
 
 class OnboardingRequest(BaseModel):
-    income: Optional[float] = None
+    income: Optional[float] = Field(default=None, ge=0)
     pay_schedule: Optional[str] = None
-    rent: Optional[float] = None
-    major_expenses: Optional[list] = None
-    goals: Optional[list] = None
+    income_stability: Optional[str] = None
+    other_income: Optional[bool] = None
+    rent: Optional[float] = Field(default=None, ge=0)
+    major_expenses: Optional[list[Expense]] = None
+    debts: Optional[list[Debt]] = None
+    goals: Optional[list[Goal]] = None
     risk_tolerance: Optional[str] = None
+    impulse_spender: Optional[str] = None
+    spending_triggers: Optional[list[str]] = None
+    balance_check_frequency: Optional[str] = None
+    payment_preference: Optional[str] = None
+    overdraft_frequency: Optional[str] = None
+    buffer_preference: Optional[str] = None
     completed: Optional[bool] = None
+
+    @model_validator(mode="after")
+    def _required_fields_when_completing(self):
+        if self.completed and (self.income is None or not self.pay_schedule or not self.risk_tolerance):
+            raise ValueError("income, pay_schedule, and risk_tolerance are required to complete onboarding")
+        return self
 
 
 @router.post("")
