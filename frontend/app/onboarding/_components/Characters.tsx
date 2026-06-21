@@ -63,7 +63,7 @@ export function IncomeWCharacter() {
 export function IncomeDetailsCharacter() {
   return (
     <Image
-      src="/onboarding/income-detail-2.png"
+      src="/onboarding/income-details.png"
       alt=""
       fill
       sizes="46vw"
