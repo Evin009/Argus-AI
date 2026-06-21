@@ -37,3 +37,33 @@ def test_post_onboarding_scopes_upsert_to_current_user():
 
     upsert_call_args = mock.table.return_value.upsert.call_args[0][0]
     assert upsert_call_args["user_id"] == "test-user-id"
+
+
+def _mock_supabase_select(row: dict | None):
+    mock = MagicMock()
+    chain = mock.table.return_value.select.return_value.eq.return_value
+    chain.maybe_single.return_value.execute.return_value.data = row
+    return mock
+
+
+def test_onboarding_status_completed_true():
+    row = {"user_id": "test-user-id", "completed_at": "2026-06-21T00:00:00+00:00"}
+    with patch("routers.onboarding.get_supabase", return_value=_mock_supabase_select(row)):
+        resp = client.get("/onboarding/status")
+    assert resp.status_code == 200
+    assert resp.json() == {"completed": True}
+
+
+def test_onboarding_status_not_started():
+    with patch("routers.onboarding.get_supabase", return_value=_mock_supabase_select(None)):
+        resp = client.get("/onboarding/status")
+    assert resp.status_code == 200
+    assert resp.json() == {"completed": False}
+
+
+def test_onboarding_status_started_but_not_completed():
+    row = {"user_id": "test-user-id", "completed_at": None}
+    with patch("routers.onboarding.get_supabase", return_value=_mock_supabase_select(row)):
+        resp = client.get("/onboarding/status")
+    assert resp.status_code == 200
+    assert resp.json() == {"completed": False}

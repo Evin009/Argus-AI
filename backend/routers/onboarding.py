@@ -27,3 +27,17 @@ async def post_onboarding(
     row = {"user_id": user_id, **body.model_dump(exclude_none=True)}
     result = supabase.table("onboarding_responses").upsert(row).execute()
     return result.data[0]
+
+
+@router.get("/status")
+async def get_onboarding_status(user_id: str = Depends(get_current_user)):
+    supabase = get_supabase()
+    result = (
+        supabase.table("onboarding_responses")
+        .select("completed_at")
+        .eq("user_id", user_id)
+        .maybe_single()
+        .execute()
+    )
+    row = result.data
+    return {"completed": bool(row and row.get("completed_at"))}
