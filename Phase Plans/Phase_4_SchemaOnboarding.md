@@ -55,7 +55,7 @@ develop
 ---
 
 ### `feature/onboarding-ui` ✅
-*4-chapter stepped flow*
+*6-chapter journey experience (expanded post-launch from the original 4-chapter spec — added Debt and Spending Behavior chapters, custom character illustrations, and a redesigned curved split-card layout; see migration 013 for the added schema fields)*
 
 **Frontend:**
 - [x] Build onboarding flow — Chapter 1: income/pay schedule, Chapter 2: fixed expenses, Chapter 3: goals, Chapter 4: spending nature/risk tolerance
