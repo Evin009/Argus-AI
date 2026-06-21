@@ -180,12 +180,13 @@ export default function OnboardingPage() {
           </AnimatePresence>
         </div>
 
-        {/* Right panel — form */}
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "32px 36px", background: "var(--surface-2)" }}>
-          <p style={{ fontFamily: "var(--font-display)", fontSize: 30, color: "var(--paper)", margin: 0 }}>
+        {/* Right panel — form. Deliberately light/cream against the dark character
+            panel and ambient background, so it reads as the focal surface. */}
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "32px 36px", background: "#FCF8F0" }}>
+          <p style={{ fontFamily: "var(--font-display)", fontSize: 30, color: "#1C1815", margin: 0 }}>
             {CHAPTERS[chapter]}
           </p>
-          <p style={{ fontFamily: "var(--font-sans)", fontSize: 15, color: "var(--on-dark-600)", margin: "6px 0 20px" }}>
+          <p style={{ fontFamily: "var(--font-sans)", fontSize: 15, color: "#6B6052", margin: "6px 0 20px" }}>
             {CHAPTER_SUBTITLE[chapter]}
           </p>
 
@@ -193,7 +194,7 @@ export default function OnboardingPage() {
             {CHAPTERS.map((title, i) => (
               <motion.div
                 key={title}
-                animate={{ background: i <= chapter ? "var(--amber-600)" : "var(--surface-3)" }}
+                animate={{ background: i <= chapter ? "var(--amber-600)" : "rgba(20,17,13,0.12)" }}
                 transition={{ duration: 0.3 }}
                 style={{ flex: 1, height: 4, borderRadius: "var(--r-pill)" }}
               />
@@ -222,7 +223,7 @@ export default function OnboardingPage() {
           </div>
 
           {submitError && (
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 14.5, color: "var(--negative-bright)", marginBottom: 8 }}>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: 14.5, color: "#B5462F", marginBottom: 8 }}>
               {submitError}
             </p>
           )}
@@ -240,7 +241,7 @@ export default function OnboardingPage() {
                 background: "transparent",
                 border: "none",
                 cursor: chapter === 0 ? "default" : "pointer",
-                color: chapter === 0 ? "var(--surface-3)" : "var(--on-dark-600)",
+                color: chapter === 0 ? "rgba(20,17,13,0.25)" : "#6B6052",
                 fontFamily: "var(--font-sans)",
                 fontSize: 16,
                 padding: "10px 4px",

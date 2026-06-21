@@ -7,9 +7,9 @@ export const inputStyle: React.CSSProperties = {
   width: "100%",
   fontFamily: "var(--font-sans)",
   fontSize: 17,
-  color: "var(--paper)",
-  background: "var(--surface-1)",
-  border: "1px solid var(--surface-3)",
+  color: "#1C1815",
+  background: "#FFFFFF",
+  border: "1px solid rgba(20,17,13,0.14)",
   borderRadius: "var(--r-md)",
   padding: "13px 15px",
   outline: "none",
@@ -23,14 +23,14 @@ export const labelStyle: React.CSSProperties = {
   fontSize: 13,
   letterSpacing: ".08em",
   textTransform: "uppercase",
-  color: "var(--on-dark-600)",
+  color: "#6B6052",
   marginBottom: 8,
 };
 
 const errorStyle: React.CSSProperties = {
   fontFamily: "var(--font-sans)",
   fontSize: 14,
-  color: "var(--negative-bright)",
+  color: "#B5462F",
   marginTop: 6,
 };
 
@@ -49,7 +49,7 @@ export function Field({
     <div style={{ marginBottom: 18 }}>
       <label style={labelStyle}>
         {label}
-        {required && <span style={{ color: "var(--amber-400)" }}> *</span>}
+        {required && <span style={{ color: "var(--amber-700)" }}> *</span>}
       </label>
       {children}
       {error && <p style={errorStyle}>{error}</p>}
@@ -158,12 +158,12 @@ export function ChoiceCard({
         ...inputStyle,
         cursor: "pointer",
         textAlign: "left",
-        border: selected ? "1.5px solid var(--amber-600)" : "1px solid var(--surface-3)",
-        background: selected ? "var(--amber-tint-dark)" : "var(--surface-1)",
+        border: selected ? "1.5px solid var(--amber-600)" : "1px solid rgba(20,17,13,0.14)",
+        background: selected ? "#EFDFCB" : "#FFFFFF",
       }}
     >
       <div style={{ fontWeight: 600, fontSize: 16.5 }}>{title}</div>
-      {desc && <div style={{ fontSize: 14, color: "var(--on-dark-600)", marginTop: 3 }}>{desc}</div>}
+      {desc && <div style={{ fontSize: 14, color: "#6B6052", marginTop: 3 }}>{desc}</div>}
     </motion.button>
   );
 }
@@ -193,9 +193,9 @@ export function ChipMultiSelect({
               fontWeight: 600,
               padding: "9px 16px",
               borderRadius: "var(--r-pill)",
-              border: active ? "1px solid var(--amber-600)" : "1px solid var(--surface-3)",
-              background: active ? "var(--amber-600)" : "var(--surface-1)",
-              color: active ? "#fff" : "var(--on-dark-600)",
+              border: active ? "1px solid var(--amber-600)" : "1px solid rgba(20,17,13,0.14)",
+              background: active ? "var(--amber-600)" : "#FFFFFF",
+              color: active ? "#fff" : "#6B6052",
               cursor: "pointer",
             }}
           >
@@ -271,9 +271,9 @@ export function RepeatableRows<T extends Record<string, string | number>>({
               width: 36,
               height: 36,
               borderRadius: "50%",
-              border: "1px solid var(--surface-3)",
+              border: "1px solid rgba(20,17,13,0.14)",
               background: "transparent",
-              color: "var(--on-dark-400)",
+              color: "#877B6B",
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
