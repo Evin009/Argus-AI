@@ -248,6 +248,21 @@ export default function OnboardingPage() {
           </p>
         </div>
 
+        <div style={{ display: "flex", gap: 6, marginBottom: 20 }}>
+          {CHAPTER_TITLES.map((title, i) => (
+            <div
+              key={title}
+              style={{
+                flex: 1,
+                height: 4,
+                borderRadius: "var(--r-pill)",
+                background: i <= chapter ? "var(--amber-600)" : "var(--surface-3)",
+                transition: "background .25s ease",
+              }}
+            />
+          ))}
+        </div>
+
         <div
           style={{
             background: "var(--surface-1)",
