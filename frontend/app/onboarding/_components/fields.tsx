@@ -158,8 +158,11 @@ export function SelectField({
           alignItems: "center",
           justifyContent: "space-between",
           gap: 8,
+          position: "relative",
+          zIndex: open ? 31 : "auto",
           borderColor: error ? "var(--negative-bright)" : open ? "var(--amber-600)" : "rgba(20,17,13,0.14)",
-          boxShadow: open ? "0 0 0 3px rgba(168,104,56,0.16)" : "none",
+          borderBottomLeftRadius: open ? 0 : "var(--r-md)",
+          borderBottomRightRadius: open ? 0 : "var(--r-md)",
           color: selected ? "#1C1815" : "#877B6B",
         }}
       >
@@ -176,23 +179,25 @@ export function SelectField({
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            initial={{ opacity: 0, scaleY: 0.92 }}
+            animate={{ opacity: 1, scaleY: 1 }}
+            exit={{ opacity: 0, scaleY: 0.92 }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
             style={{
               position: "absolute",
-              top: "calc(100% + 6px)",
+              top: "100%",
               left: 0,
               right: 0,
               zIndex: 30,
-              background: "rgba(94,68,46,0.6)",
+              transformOrigin: "top",
+              background: "rgba(40,28,18,0.85)",
               backdropFilter: "blur(18px)",
               WebkitBackdropFilter: "blur(18px)",
-              border: "1px solid rgba(255,255,255,0.16)",
-              borderRadius: "var(--r-md)",
+              border: "1px solid var(--amber-600)",
+              borderTop: "none",
+              borderBottomLeftRadius: "var(--r-md)",
+              borderBottomRightRadius: "var(--r-md)",
               padding: 6,
-              boxShadow: "inset 0 1px 0 rgba(255,255,255,0.18)",
               maxHeight: 168,
               overflowY: "auto",
               scrollbarWidth: "thin",
@@ -205,7 +210,7 @@ export function SelectField({
                 <motion.button
                   key={opt.value}
                   type="button"
-                  whileHover={{ backgroundColor: isSelected ? undefined : "rgba(255,255,255,0.1)" }}
+                  whileHover={{ backgroundColor: "rgba(255,255,255,0.1)" }}
                   transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
                   onClick={() => {
                     onChange(opt.value);
@@ -214,14 +219,14 @@ export function SelectField({
                   style={{
                     width: "100%",
                     textAlign: "left",
-                    background: isSelected ? "var(--amber-600)" : "transparent",
-                    color: isSelected ? "#fff" : "#F0EAE0",
+                    background: "transparent",
+                    color: isSelected ? "var(--amber-400)" : "#F0EAE0",
                     border: "none",
                     borderRadius: "var(--r-sm)",
                     padding: "10px 12px",
                     marginBottom: i === options.length - 1 ? 0 : 2,
                     fontFamily: "var(--font-sans)",
-                    fontWeight: 600,
+                    fontWeight: isSelected ? 700 : 600,
                     fontSize: 15,
                     cursor: "pointer",
                   }}
