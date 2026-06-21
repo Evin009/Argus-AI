@@ -54,14 +54,14 @@ develop
 
 ---
 
-### `feature/onboarding-ui` ⬜
+### `feature/onboarding-ui` ✅
 *4-chapter stepped flow*
 
 **Frontend:**
 - [x] Build onboarding flow — Chapter 1: income/pay schedule, Chapter 2: fixed expenses, Chapter 3: goals, Chapter 4: spending nature/risk tolerance
-- [ ] Progress indicator per chapter
-- [ ] Gate bank linking behind onboarding completion — skip option with reminder
-- [ ] Merge → `develop`
+- [x] Progress indicator per chapter
+- [x] Gate bank linking behind onboarding completion — skip option with reminder
+- [x] Merge → `develop`
 
 ---
 
@@ -103,7 +103,7 @@ onboarding_responses (
 ## Definition of Done
 
 - [x] Migration applied to Supabase
-- [ ] Onboarding flow live, gates bank linking — blocked on remaining `feature/onboarding-ui` tasks
+- [x] Onboarding flow live, gates bank linking
 - [x] `user_financial_profiles` seeded from onboarding answers day one
 - [ ] CI green on `main`
 
