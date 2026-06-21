@@ -71,7 +71,9 @@ Follow this exactly when starting any phase or feature work:
    write the failing test → write the code → run it → confirm it passes.
 4. **Stop after each task.** Give a short, clear, non-verbose explanation of what was done, then
    prompt for a commit. Don't move to the next task until told to.
-5. **Stop after the feature is fully done.** Give a bulleted summary of everything the feature did,
+5. **Update the phase plan checklist after every single task** is completed — check it off in
+   `Phase Plans/Phase_X_Name.md` before moving on, not just at the end of the feature.
+6. **Stop after the feature is fully done.** Give a bulleted summary of everything the feature did,
    then prompt for a commit covering the whole feature.
 
 Never commit or push automatically — always stop and ask.

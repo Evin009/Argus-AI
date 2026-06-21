@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from routers import auth, bills, insights, onboarding, plaid, subscriptions, transactions
+from routers import auth, bills, insights, plaid, subscriptions, transactions
 
 load_dotenv()
 
@@ -34,7 +34,6 @@ app.include_router(transactions.router)
 app.include_router(bills.router)
 app.include_router(subscriptions.router)
 app.include_router(insights.router)
-app.include_router(onboarding.router)
 
 
 @app.get("/health", tags=["system"])
