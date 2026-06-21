@@ -186,11 +186,13 @@ export function SelectField({
               left: 0,
               right: 0,
               zIndex: 30,
-              background: "#3E2B20",
-              border: "1px solid rgba(255,255,255,0.08)",
+              background: "rgba(94,68,46,0.6)",
+              backdropFilter: "blur(18px)",
+              WebkitBackdropFilter: "blur(18px)",
+              border: "1px solid rgba(255,255,255,0.16)",
               borderRadius: "var(--r-md)",
               padding: 6,
-              boxShadow: "0 16px 40px rgba(0,0,0,0.35), 0 4px 12px rgba(0,0,0,0.25)",
+              boxShadow: "inset 0 1px 0 rgba(255,255,255,0.18)",
               maxHeight: 168,
               overflowY: "auto",
               scrollbarWidth: "thin",
@@ -203,7 +205,7 @@ export function SelectField({
                 <motion.button
                   key={opt.value}
                   type="button"
-                  whileHover={{ x: 2, backgroundColor: isSelected ? undefined : "rgba(255,255,255,0.07)" }}
+                  whileHover={{ backgroundColor: isSelected ? undefined : "rgba(255,255,255,0.1)" }}
                   transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
                   onClick={() => {
                     onChange(opt.value);

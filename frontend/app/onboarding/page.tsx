@@ -300,7 +300,7 @@ export default function OnboardingPage() {
             ))}
           </div>
 
-          <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
+          <div style={{ flex: 1, position: "relative", overflowX: "hidden", overflowY: "visible" }}>
             <AnimatePresence mode="wait" custom={direction}>
               <motion.div
                 key={chapter}
