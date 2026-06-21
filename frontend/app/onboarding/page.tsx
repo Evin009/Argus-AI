@@ -227,22 +227,28 @@ export default function OnboardingPage() {
             width: "52%",
             flexShrink: 0,
             background: "linear-gradient(160deg, var(--surface-1) 0%, var(--surface-0) 100%)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: fillsPanel ? 0 : 32,
             position: "relative",
             overflow: "hidden",
           }}
         >
-          <AnimatePresence mode="wait">
+          {/* Crossfade, not sequential fade-out-then-in — both layers overlap during the
+              transition so the panel never bottoms out to the bare dark background. */}
+          <AnimatePresence>
             <motion.div
               key={chapter}
-              initial={{ opacity: 0, scale: fillsPanel ? 1.04 : 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: fillsPanel ? 1.04 : 0.9 }}
-              transition={{ duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
-              style={fillsPanel ? { position: "absolute", inset: 0 } : { textAlign: "center" }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5, ease: "easeInOut" }}
+              style={{
+                position: "absolute",
+                inset: 0,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: fillsPanel ? 0 : 32,
+                textAlign: fillsPanel ? undefined : "center",
+              }}
             >
               <Character />
             </motion.div>
