@@ -2,285 +2,231 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, ArrowLeft } from "lucide-react";
+import { AnimatePresence, motion, type Variants } from "framer-motion";
+import { ArrowRight, ArrowLeft, Check } from "lucide-react";
 import { api } from "@/lib/api";
+import { AmbientBackground } from "./_components/AmbientBackground";
+import {
+  IncomeCharacter,
+  ExpensesCharacter,
+  DebtCharacter,
+  GoalsCharacter,
+  BehaviorCharacter,
+  RiskCharacter,
+} from "./_components/Characters";
+import { ChapterIncome, ChapterExpenses, ChapterDebt, ChapterGoals, ChapterBehavior, ChapterRisk } from "./_components/Chapters";
+import { CHAPTERS, INITIAL_STATE, type OnboardingState } from "./_components/types";
 
-type PaySchedule = "weekly" | "biweekly" | "monthly";
-type RiskTolerance = "conservative" | "moderate" | "aggressive";
+const CHARACTERS = [IncomeCharacter, ExpensesCharacter, DebtCharacter, GoalsCharacter, BehaviorCharacter, RiskCharacter];
 
-type Expense = { name: string; amount: number };
-type Goal = { title: string; target_amount: number };
-
-type OnboardingState = {
-  income: string;
-  pay_schedule: PaySchedule | "";
-  rent: string;
-  major_expenses: Expense[];
-  goals: Goal[];
-  risk_tolerance: RiskTolerance | "";
+const slideVariants: Variants = {
+  enter: (dir: number) => ({ opacity: 0, x: dir > 0 ? 24 : -24 }),
+  center: { opacity: 1, x: 0 },
+  exit: (dir: number) => ({ opacity: 0, x: dir > 0 ? -24 : 24 }),
 };
 
-const CHAPTER_TITLES = ["Income", "Expenses", "Goals", "Risk Tolerance"];
+const CHAPTER_SUBTITLE = [
+  "Let's start with what comes in.",
+  "Now, what goes out every month.",
+  "Anything you're paying down?",
+  "What are you working toward?",
+  "How do you actually spend?",
+  "Last one — how you feel about risk.",
+];
 
-const inputStyle: React.CSSProperties = {
-  width: "100%",
-  fontFamily: "var(--font-sans)",
-  fontSize: 15,
-  color: "var(--paper)",
-  background: "var(--surface-2)",
-  border: "1px solid var(--surface-3)",
-  borderRadius: "var(--r-md)",
-  padding: "12px 14px",
-  outline: "none",
-  boxSizing: "border-box",
-};
-
-const labelStyle: React.CSSProperties = {
-  display: "block",
-  fontFamily: "var(--font-mono)",
-  fontSize: 11,
-  letterSpacing: ".1em",
-  textTransform: "uppercase",
-  color: "var(--on-dark-400)",
-  marginBottom: 7,
-};
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div style={{ marginBottom: 18 }}>
-      <label style={labelStyle}>{label}</label>
-      {children}
-    </div>
-  );
+function validateChapter(chapter: number, state: OnboardingState): Partial<Record<keyof OnboardingState, string>> {
+  const errors: Partial<Record<keyof OnboardingState, string>> = {};
+  if (chapter === 0) {
+    if (!state.income) errors.income = "Income is required";
+    if (!state.pay_schedule) errors.pay_schedule = "Pick a pay schedule";
+  }
+  if (chapter === 5) {
+    if (!state.risk_tolerance) errors.risk_tolerance = "Pick how you think about risk";
+  }
+  return errors;
 }
 
-function ChapterIncome({ state, setState }: { state: OnboardingState; setState: (s: OnboardingState) => void }) {
-  return (
-    <>
-      <Field label="Monthly income">
-        <input
-          type="number"
-          style={inputStyle}
-          placeholder="5000"
-          value={state.income}
-          onChange={(e) => setState({ ...state, income: e.target.value })}
-        />
-      </Field>
-      <Field label="Pay schedule">
-        <select
-          style={inputStyle}
-          value={state.pay_schedule}
-          onChange={(e) => setState({ ...state, pay_schedule: e.target.value as PaySchedule })}
-        >
-          <option value="">Select…</option>
-          <option value="weekly">Weekly</option>
-          <option value="biweekly">Biweekly</option>
-          <option value="monthly">Monthly</option>
-        </select>
-      </Field>
-    </>
-  );
-}
-
-function ChapterExpenses({ state, setState }: { state: OnboardingState; setState: (s: OnboardingState) => void }) {
-  function updateExpense(i: number, field: keyof Expense, value: string) {
-    const next = [...state.major_expenses];
-    next[i] = { ...next[i], [field]: field === "amount" ? Number(value) : value };
-    setState({ ...state, major_expenses: next });
-  }
-
-  function addExpense() {
-    setState({ ...state, major_expenses: [...state.major_expenses, { name: "", amount: 0 }] });
-  }
-
-  return (
-    <>
-      <Field label="Monthly rent / mortgage">
-        <input
-          type="number"
-          style={inputStyle}
-          placeholder="1500"
-          value={state.rent}
-          onChange={(e) => setState({ ...state, rent: e.target.value })}
-        />
-      </Field>
-      <Field label="Other fixed expenses (car, utilities, etc.)">
-        {state.major_expenses.map((exp, i) => (
-          <div key={i} style={{ display: "flex", gap: 8, marginBottom: 8 }}>
-            <input
-              style={{ ...inputStyle, flex: 2 }}
-              placeholder="Name"
-              value={exp.name}
-              onChange={(e) => updateExpense(i, "name", e.target.value)}
-            />
-            <input
-              type="number"
-              style={{ ...inputStyle, flex: 1 }}
-              placeholder="Amount"
-              value={exp.amount || ""}
-              onChange={(e) => updateExpense(i, "amount", e.target.value)}
-            />
-          </div>
-        ))}
-        <button type="button" onClick={addExpense} style={{ ...inputStyle, cursor: "pointer", color: "var(--on-dark-400)", textAlign: "left" }}>
-          + Add expense
-        </button>
-      </Field>
-    </>
-  );
-}
-
-function ChapterGoals({ state, setState }: { state: OnboardingState; setState: (s: OnboardingState) => void }) {
-  function updateGoal(i: number, field: keyof Goal, value: string) {
-    const next = [...state.goals];
-    next[i] = { ...next[i], [field]: field === "target_amount" ? Number(value) : value };
-    setState({ ...state, goals: next });
-  }
-
-  function addGoal() {
-    setState({ ...state, goals: [...state.goals, { title: "", target_amount: 0 }] });
-  }
-
-  return (
-    <Field label="Financial goals">
-      {state.goals.map((goal, i) => (
-        <div key={i} style={{ display: "flex", gap: 8, marginBottom: 8 }}>
-          <input
-            style={{ ...inputStyle, flex: 2 }}
-            placeholder="e.g. Emergency fund"
-            value={goal.title}
-            onChange={(e) => updateGoal(i, "title", e.target.value)}
-          />
-          <input
-            type="number"
-            style={{ ...inputStyle, flex: 1 }}
-            placeholder="Target $"
-            value={goal.target_amount || ""}
-            onChange={(e) => updateGoal(i, "target_amount", e.target.value)}
-          />
-        </div>
-      ))}
-      <button type="button" onClick={addGoal} style={{ ...inputStyle, cursor: "pointer", color: "var(--on-dark-400)", textAlign: "left" }}>
-        + Add goal
-      </button>
-    </Field>
-  );
-}
-
-function ChapterRisk({ state, setState }: { state: OnboardingState; setState: (s: OnboardingState) => void }) {
-  const options: { value: RiskTolerance; label: string; desc: string }[] = [
-    { value: "conservative", label: "Conservative", desc: "I prefer safety over growth" },
-    { value: "moderate", label: "Moderate", desc: "I'm comfortable with some risk" },
-    { value: "aggressive", label: "Aggressive", desc: "I prioritize growth over safety" },
-  ];
-
-  return (
-    <Field label="How do you think about financial risk?">
-      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        {options.map((opt) => (
-          <button
-            key={opt.value}
-            type="button"
-            onClick={() => setState({ ...state, risk_tolerance: opt.value })}
-            style={{
-              ...inputStyle,
-              cursor: "pointer",
-              textAlign: "left",
-              border: state.risk_tolerance === opt.value ? "1px solid var(--amber-600)" : "1px solid var(--surface-3)",
-            }}
-          >
-            <div style={{ fontWeight: 600 }}>{opt.label}</div>
-            <div style={{ fontSize: 12.5, color: "var(--on-dark-400)", marginTop: 2 }}>{opt.desc}</div>
-          </button>
-        ))}
-      </div>
-    </Field>
-  );
+function toNumber(v: string): number | undefined {
+  if (v === "") return undefined;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : undefined;
 }
 
 export default function OnboardingPage() {
   const router = useRouter();
   const [chapter, setChapter] = useState(0);
+  const [direction, setDirection] = useState(1);
   const [submitting, setSubmitting] = useState(false);
-  const [state, setState] = useState<OnboardingState>({
-    income: "",
-    pay_schedule: "",
-    rent: "",
-    major_expenses: [],
-    goals: [],
-    risk_tolerance: "",
-  });
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Partial<Record<keyof OnboardingState, string>>>({});
+  const [state, setState] = useState<OnboardingState>(INITIAL_STATE);
 
-  const isLastChapter = chapter === CHAPTER_TITLES.length - 1;
+  const isLastChapter = chapter === CHAPTERS.length - 1;
+  const Character = CHARACTERS[chapter];
+
+  function goTo(next: number) {
+    setDirection(next > chapter ? 1 : -1);
+    setChapter(next);
+  }
 
   async function handleNext() {
+    const chapterErrors = validateChapter(chapter, state);
+    if (Object.keys(chapterErrors).length > 0) {
+      setErrors(chapterErrors);
+      return;
+    }
+    setErrors({});
+
     if (!isLastChapter) {
-      setChapter((c) => c + 1);
+      goTo(chapter + 1);
       return;
     }
 
     setSubmitting(true);
-    await api.post("/onboarding", {
-      income: state.income ? Number(state.income) : undefined,
-      pay_schedule: state.pay_schedule || undefined,
-      rent: state.rent ? Number(state.rent) : undefined,
-      major_expenses: state.major_expenses,
-      goals: state.goals,
-      risk_tolerance: state.risk_tolerance || undefined,
-      completed: true,
-    });
-    router.push("/dashboard");
+    setSubmitError(null);
+    try {
+      await api.post("/onboarding", {
+        income: toNumber(state.income),
+        pay_schedule: state.pay_schedule || undefined,
+        income_stability: state.income_stability || undefined,
+        other_income: state.other_income ?? undefined,
+        rent: toNumber(state.rent),
+        major_expenses: state.major_expenses
+          .filter((e) => e.name && e.amount)
+          .map((e) => ({ name: e.name, amount: toNumber(e.amount) ?? 0 })),
+        debts: state.debts
+          .filter((d) => d.name && d.balance)
+          .map((d) => ({
+            name: d.name,
+            balance: toNumber(d.balance) ?? 0,
+            interest_rate: toNumber(d.interest_rate) ?? 0,
+            minimum_payment: toNumber(d.minimum_payment) ?? 0,
+          })),
+        goals: state.goals
+          .filter((g) => g.title && g.target_amount)
+          .map((g, i) => ({ title: g.title, target_amount: toNumber(g.target_amount) ?? 0, priority: i + 1 })),
+        risk_tolerance: state.risk_tolerance || undefined,
+        impulse_spender: state.impulse_spender || undefined,
+        spending_triggers: state.spending_triggers.length ? state.spending_triggers : undefined,
+        balance_check_frequency: state.balance_check_frequency || undefined,
+        payment_preference: state.payment_preference || undefined,
+        overdraft_frequency: state.overdraft_frequency || undefined,
+        buffer_preference: state.buffer_preference || undefined,
+        completed: true,
+      });
+      router.push("/dashboard");
+    } catch (e) {
+      setSubmitError(e instanceof Error ? e.message : "Something went wrong. Try again.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   function handleBack() {
-    if (chapter > 0) setChapter((c) => c - 1);
+    if (chapter > 0) goTo(chapter - 1);
   }
+
+  const chapterProps = { state, setState, errors };
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
-      <div style={{ width: "100%", maxWidth: 480 }}>
-        <div style={{ marginBottom: 28, textAlign: "center" }}>
-          <h1 style={{ fontFamily: "var(--font-display)", fontSize: 32, color: "var(--paper)", margin: 0 }}>
-            Let&apos;s get to know your finances
-          </h1>
-          <p style={{ fontFamily: "var(--font-sans)", fontSize: 14, color: "var(--on-dark-400)", marginTop: 8 }}>
-            {CHAPTER_TITLES[chapter]} · Step {chapter + 1} of {CHAPTER_TITLES.length}
-          </p>
-        </div>
+      <AmbientBackground />
 
-        <div style={{ display: "flex", gap: 6, marginBottom: 20 }}>
-          {CHAPTER_TITLES.map((title, i) => (
-            <div
-              key={title}
-              style={{
-                flex: 1,
-                height: 4,
-                borderRadius: "var(--r-pill)",
-                background: i <= chapter ? "var(--amber-600)" : "var(--surface-3)",
-                transition: "background .25s ease",
-              }}
-            />
-          ))}
-        </div>
-
+      <motion.div
+        initial={{ opacity: 0, scale: 0.97 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+        style={{
+          width: "100%",
+          maxWidth: 880,
+          minHeight: 560,
+          display: "flex",
+          borderRadius: 32,
+          overflow: "hidden",
+          boxShadow: "0 24px 80px rgba(0,0,0,0.5), 0 8px 24px rgba(0,0,0,0.3)",
+          border: "1px solid var(--surface-3)",
+        }}
+      >
+        {/* Left panel — character + chapter context */}
         <div
           style={{
-            background: "var(--surface-1)",
-            border: "1px solid var(--surface-3)",
-            borderRadius: "var(--r-lg)",
-            padding: 24,
+            width: "38%",
+            flexShrink: 0,
+            background: "linear-gradient(160deg, var(--surface-1) 0%, var(--surface-0) 100%)",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 32,
+            position: "relative",
           }}
         >
-          {chapter === 0 && <ChapterIncome state={state} setState={setState} />}
-          {chapter === 1 && <ChapterExpenses state={state} setState={setState} />}
-          {chapter === 2 && <ChapterGoals state={state} setState={setState} />}
-          {chapter === 3 && <ChapterRisk state={state} setState={setState} />}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={chapter}
+              initial={{ opacity: 0, y: 16, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -16, scale: 0.9 }}
+              transition={{ duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
+              style={{ textAlign: "center" }}
+            >
+              <Character />
+              <p style={{ fontFamily: "var(--font-display)", fontSize: 22, color: "var(--paper)", marginTop: 8 }}>
+                {CHAPTERS[chapter]}
+              </p>
+              <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "var(--on-dark-400)", marginTop: 4, maxWidth: 200 }}>
+                {CHAPTER_SUBTITLE[chapter]}
+              </p>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* Right panel — form */}
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "28px 32px" }}>
+          <div style={{ display: "flex", gap: 6, marginBottom: 24 }}>
+            {CHAPTERS.map((title, i) => (
+              <motion.div
+                key={title}
+                animate={{ background: i <= chapter ? "var(--amber-600)" : "var(--surface-3)" }}
+                transition={{ duration: 0.3 }}
+                style={{ flex: 1, height: 4, borderRadius: "var(--r-pill)" }}
+              />
+            ))}
+          </div>
+
+          <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
+            <AnimatePresence mode="wait" custom={direction}>
+              <motion.div
+                key={chapter}
+                custom={direction}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.28, ease: [0.23, 1, 0.32, 1] }}
+              >
+                {chapter === 0 && <ChapterIncome {...chapterProps} />}
+                {chapter === 1 && <ChapterExpenses {...chapterProps} />}
+                {chapter === 2 && <ChapterDebt {...chapterProps} />}
+                {chapter === 3 && <ChapterGoals {...chapterProps} />}
+                {chapter === 4 && <ChapterBehavior {...chapterProps} />}
+                {chapter === 5 && <ChapterRisk {...chapterProps} />}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          {submitError && (
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "var(--negative-bright)", marginBottom: 8 }}>
+              {submitError}
+            </p>
+          )}
 
           <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
-            <button
+            <motion.button
               type="button"
               onClick={handleBack}
               disabled={chapter === 0}
+              whileTap={{ scale: 0.95 }}
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -295,12 +241,14 @@ export default function OnboardingPage() {
               }}
             >
               <ArrowLeft size={15} /> Back
-            </button>
+            </motion.button>
 
-            <button
+            <motion.button
               type="button"
               onClick={handleNext}
               disabled={submitting}
+              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.02 }}
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -315,13 +263,15 @@ export default function OnboardingPage() {
                 fontSize: 14,
                 padding: "10px 18px",
                 opacity: submitting ? 0.6 : 1,
+                boxShadow: "0 6px 16px rgba(168,104,56,0.28)",
               }}
             >
-              {isLastChapter ? "Finish" : "Continue"} <ArrowRight size={15} />
-            </button>
+              {submitting ? "Saving…" : isLastChapter ? "Finish" : "Continue"}
+              {isLastChapter ? <Check size={15} /> : <ArrowRight size={15} />}
+            </motion.button>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
