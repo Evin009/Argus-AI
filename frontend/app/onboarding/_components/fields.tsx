@@ -14,7 +14,6 @@ export const inputStyle: React.CSSProperties = {
   border: "1px solid rgba(20,17,13,0.14)",
   borderRadius: "var(--r-md)",
   padding: "13px 15px",
-  outline: "none",
   boxSizing: "border-box",
   transition: "border-color .15s ease, box-shadow .15s ease",
 };
@@ -163,7 +162,7 @@ export function SelectField({
           borderColor: error ? "var(--negative-bright)" : open ? "var(--amber-600)" : "rgba(20,17,13,0.14)",
           borderBottomLeftRadius: open ? 0 : "var(--r-md)",
           borderBottomRightRadius: open ? 0 : "var(--r-md)",
-          color: selected ? "#1C1815" : "#877B6B",
+          color: selected ? "#1C1815" : "#6B6052",
         }}
       >
         <span>{selected ? selected.label : "Select…"}</span>
@@ -172,7 +171,7 @@ export function SelectField({
           transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
           style={{ display: "flex", flexShrink: 0 }}
         >
-          <ChevronDown size={17} strokeWidth={1.5} color="#877B6B" />
+          <ChevronDown size={17} strokeWidth={1.5} color="#6B6052" />
         </motion.span>
       </motion.button>
 
@@ -341,7 +340,7 @@ export function RepeatableRows<T extends Record<string, string | number>>({
   return (
     <div>
       {rows.length === 0 && (
-        <p style={{ fontFamily: "var(--font-sans)", fontSize: 13.5, color: "#877B6B", margin: "0 0 10px" }}>
+        <p style={{ fontFamily: "var(--font-sans)", fontSize: 13.5, color: "#6B6052", margin: "0 0 10px" }}>
           Nothing added yet — every entry helps Argus reason more precisely.
         </p>
       )}
@@ -379,12 +378,12 @@ export function RepeatableRows<T extends Record<string, string | number>>({
             whileHover={{ borderColor: "#B5462F", color: "#B5462F" }}
             style={{
               flexShrink: 0,
-              width: 36,
-              height: 36,
+              width: 44,
+              height: 44,
               borderRadius: "50%",
               border: "1px solid rgba(20,17,13,0.14)",
               background: "transparent",
-              color: "#877B6B",
+              color: "#6B6052",
               cursor: "pointer",
               display: "flex",
               alignItems: "center",

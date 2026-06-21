@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { AnimatePresence, motion, type Variants } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion, type Variants } from "framer-motion";
 import { ArrowRight, ArrowLeft, Check } from "lucide-react";
 import { api } from "@/lib/api";
 import { AmbientBackground } from "./_components/AmbientBackground";
@@ -58,11 +58,18 @@ const CHARACTERS = [
 // left panel, instead of the default small centered icon treatment.
 const CHARACTER_FILLS_PANEL = [true, true, true, false, false, false, false, false, false];
 
-const slideVariants: Variants = {
-  enter: (dir: number) => ({ opacity: 0, x: dir > 0 ? 24 : -24 }),
-  center: { opacity: 1, x: 0 },
-  exit: (dir: number) => ({ opacity: 0, x: dir > 0 ? -24 : 24 }),
-};
+// Horizontal movement is a common motion-sickness trigger — under reduced
+// motion this collapses to a plain opacity crossfade with no translation.
+function getSlideVariants(reduceMotion: boolean | null): Variants {
+  if (reduceMotion) {
+    return { enter: { opacity: 0 }, center: { opacity: 1 }, exit: { opacity: 0 } };
+  }
+  return {
+    enter: (dir: number) => ({ opacity: 0, x: dir > 0 ? 24 : -24 }),
+    center: { opacity: 1, x: 0 },
+    exit: (dir: number) => ({ opacity: 0, x: dir > 0 ? -24 : 24 }),
+  };
+}
 
 function SavingDots() {
   return (
@@ -114,6 +121,8 @@ function toNumber(v: string): number | undefined {
 
 export default function OnboardingPage() {
   const router = useRouter();
+  const reduceMotion = useReducedMotion();
+  const slideVariants = getSlideVariants(reduceMotion);
   const [chapter, setChapter] = useState(0);
   const [direction, setDirection] = useState(1);
   const [submitting, setSubmitting] = useState(false);
@@ -197,9 +206,9 @@ export default function OnboardingPage() {
       {/* Double-bezel: outer shell (machined frame) holding the inner card (the glass plate),
           concentric radii — 44px outer, 36px inner (44 - 8px shell padding). */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.96, filter: "blur(8px)" }}
-        animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+        initial={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.96, filter: "blur(8px)" }}
+        animate={reduceMotion ? { opacity: 1 } : { opacity: 1, scale: 1, filter: "blur(0px)" }}
+        transition={{ duration: reduceMotion ? 0.2 : 0.7, ease: [0.16, 1, 0.3, 1] }}
         style={{
           width: "100%",
           maxWidth: 1056,

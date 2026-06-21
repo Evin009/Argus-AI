@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 
 /* Notion-style line-art characters, custom-drawn in Argus brand colors.
    Shared anatomy (head/glasses/body) keeps the cast feeling like one
@@ -16,9 +16,10 @@ const POSITIVE = "#3F7D55";
 const PAPER = "#F6EFE2";
 
 function Bounce({ children }: { children: React.ReactNode }) {
+  const reduceMotion = useReducedMotion();
   return (
     <motion.div
-      animate={{ y: [0, -6, 0] }}
+      animate={reduceMotion ? undefined : { y: [0, -6, 0] }}
       transition={{ duration: 3.2, repeat: Infinity, ease: [0.45, 0, 0.55, 1] }}
       style={{ display: "inline-block" }}
     >

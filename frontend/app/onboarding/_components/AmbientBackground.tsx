@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 
 /* Full-screen ambient backdrop behind the onboarding card. Deep near-black base
    with a radial mesh of slow-drifting copper/ink glow orbs — "Ethereal Glass"
@@ -9,6 +9,9 @@ import { motion } from "framer-motion";
    (A negative z-index on a `position: fixed` element can paint behind the
    document's own background layer in some browsers — avoid it.) */
 export function AmbientBackground() {
+  // Continuous, non-user-initiated motion is exactly what prefers-reduced-motion
+  // exists for. Orbs stay visible at their resting position, just not drifting.
+  const reduceMotion = useReducedMotion();
   return (
     <div
       style={{
@@ -24,7 +27,7 @@ export function AmbientBackground() {
     >
       <motion.div
         className="grain"
-        animate={{ x: [0, 60, 0], y: [0, -40, 0], scale: [1, 1.08, 1] }}
+        animate={reduceMotion ? undefined : { x: [0, 60, 0], y: [0, -40, 0], scale: [1, 1.08, 1] }}
         transition={{ duration: 24, repeat: Infinity, ease: [0.45, 0, 0.55, 1] }}
         style={{
           position: "absolute",
@@ -39,7 +42,7 @@ export function AmbientBackground() {
         }}
       />
       <motion.div
-        animate={{ x: [0, -60, 0], y: [0, 50, 0], scale: [1, 1.1, 1] }}
+        animate={reduceMotion ? undefined : { x: [0, -60, 0], y: [0, 50, 0], scale: [1, 1.1, 1] }}
         transition={{ duration: 28, repeat: Infinity, ease: [0.45, 0, 0.55, 1] }}
         style={{
           position: "absolute",
@@ -54,7 +57,7 @@ export function AmbientBackground() {
         }}
       />
       <motion.div
-        animate={{ x: [0, 40, 0], y: [0, 35, 0] }}
+        animate={reduceMotion ? undefined : { x: [0, 40, 0], y: [0, 35, 0] }}
         transition={{ duration: 20, repeat: Infinity, ease: [0.45, 0, 0.55, 1] }}
         style={{
           position: "absolute",
@@ -69,7 +72,7 @@ export function AmbientBackground() {
         }}
       />
       <motion.div
-        animate={{ x: [0, -35, 0], y: [0, -30, 0] }}
+        animate={reduceMotion ? undefined : { x: [0, -35, 0], y: [0, -30, 0] }}
         transition={{ duration: 30, repeat: Infinity, ease: [0.45, 0, 0.55, 1] }}
         style={{
           position: "absolute",
