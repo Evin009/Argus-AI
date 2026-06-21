@@ -32,6 +32,13 @@ export function ChapterIncome({ state, setState, errors }: ChapterProps) {
           error={!!errors.pay_schedule}
         />
       </Field>
+    </>
+  );
+}
+
+export function ChapterIncomeDetails({ state, setState }: ChapterProps) {
+  return (
+    <>
       <Field label="Income stability">
         <div style={{ display: "flex", gap: 8 }}>
           <ChoiceCard
@@ -113,7 +120,7 @@ export function ChapterGoals({ state, setState }: ChapterProps) {
   );
 }
 
-export function ChapterBehavior({ state, setState }: ChapterProps) {
+export function ChapterSpendingHabits({ state, setState }: ChapterProps) {
   return (
     <>
       <Field label="Do you consider yourself an impulse spender?">
@@ -153,6 +160,13 @@ export function ChapterBehavior({ state, setState }: ChapterProps) {
           ]}
         />
       </Field>
+    </>
+  );
+}
+
+export function ChapterSpendingPreferences({ state, setState }: ChapterProps) {
+  return (
+    <>
       <Field label="How often do you check your balance?">
         <SelectField
           value={state.balance_check_frequency}
@@ -179,26 +193,31 @@ export function ChapterBehavior({ state, setState }: ChapterProps) {
   );
 }
 
-export function ChapterRisk({ state, setState, errors }: ChapterProps) {
+export function ChapterRiskTolerance({ state, setState, errors }: ChapterProps) {
+  return (
+    <Field label="How do you think about financial risk?" required error={errors.risk_tolerance}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {[
+          { v: "conservative", l: "Conservative", d: "I prefer safety over growth" },
+          { v: "moderate", l: "Moderate", d: "I'm comfortable with some risk" },
+          { v: "aggressive", l: "Aggressive", d: "I prioritize growth over safety" },
+        ].map((o) => (
+          <ChoiceCard
+            key={o.v}
+            selected={state.risk_tolerance === o.v}
+            onClick={() => setState({ ...state, risk_tolerance: o.v })}
+            title={o.l}
+            desc={o.d}
+          />
+        ))}
+      </div>
+    </Field>
+  );
+}
+
+export function ChapterRiskDetails({ state, setState }: ChapterProps) {
   return (
     <>
-      <Field label="How do you think about financial risk?" required error={errors.risk_tolerance}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          {[
-            { v: "conservative", l: "Conservative", d: "I prefer safety over growth" },
-            { v: "moderate", l: "Moderate", d: "I'm comfortable with some risk" },
-            { v: "aggressive", l: "Aggressive", d: "I prioritize growth over safety" },
-          ].map((o) => (
-            <ChoiceCard
-              key={o.v}
-              selected={state.risk_tolerance === o.v}
-              onClick={() => setState({ ...state, risk_tolerance: o.v })}
-              title={o.l}
-              desc={o.d}
-            />
-          ))}
-        </div>
-      </Field>
       <Field label="How often have you overdrafted in the last 6 months?">
         <SelectField
           value={state.overdraft_frequency}

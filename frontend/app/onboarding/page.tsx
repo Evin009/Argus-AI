@@ -14,13 +14,48 @@ import {
   BehaviorCharacter,
   RiskCharacter,
 } from "./_components/Characters";
-import { ChapterIncome, ChapterExpenses, ChapterDebt, ChapterGoals, ChapterBehavior, ChapterRisk } from "./_components/Chapters";
+import {
+  ChapterIncome,
+  ChapterIncomeDetails,
+  ChapterExpenses,
+  ChapterDebt,
+  ChapterGoals,
+  ChapterSpendingHabits,
+  ChapterSpendingPreferences,
+  ChapterRiskTolerance,
+  ChapterRiskDetails,
+} from "./_components/Chapters";
 import { CHAPTERS, INITIAL_STATE, type OnboardingState } from "./_components/types";
 
-const CHARACTERS = [IncomeCharacter, ExpensesCharacter, DebtCharacter, GoalsCharacter, BehaviorCharacter, RiskCharacter];
+// One component per chapter — index-aligned with CHAPTERS in types.ts.
+const CHAPTER_COMPONENTS = [
+  ChapterIncome,
+  ChapterIncomeDetails,
+  ChapterExpenses,
+  ChapterDebt,
+  ChapterGoals,
+  ChapterSpendingHabits,
+  ChapterSpendingPreferences,
+  ChapterRiskTolerance,
+  ChapterRiskDetails,
+];
+
+// Same character reused across sibling chapters of the same theme, so splitting
+// a dense chapter into two steps doesn't require new artwork.
+const CHARACTERS = [
+  IncomeCharacter,
+  IncomeCharacter,
+  ExpensesCharacter,
+  DebtCharacter,
+  GoalsCharacter,
+  BehaviorCharacter,
+  BehaviorCharacter,
+  RiskCharacter,
+  RiskCharacter,
+];
 // Chapters whose character is a full-bleed photo/illustration that should cover the entire
 // left panel, instead of the default small centered icon treatment.
-const CHARACTER_FILLS_PANEL = [false, true, false, false, false, false];
+const CHARACTER_FILLS_PANEL = [false, false, true, false, false, false, false, false, false];
 
 const slideVariants: Variants = {
   enter: (dir: number) => ({ opacity: 0, x: dir > 0 ? 24 : -24 }),
@@ -45,20 +80,26 @@ function SavingDots() {
 
 const CHAPTER_SUBTITLE = [
   "Let's start with what comes in.",
+  "A bit more about how it arrives.",
   "Now, what goes out every month.",
   "Anything you're paying down?",
   "What are you working toward?",
   "How do you actually spend?",
-  "Last one — how you feel about risk.",
+  "How you check in and pay.",
+  "How you feel about risk.",
+  "Last one — your safety net.",
 ];
+
+const INCOME_CHAPTER = 0;
+const RISK_TOLERANCE_CHAPTER = 7;
 
 function validateChapter(chapter: number, state: OnboardingState): Partial<Record<keyof OnboardingState, string>> {
   const errors: Partial<Record<keyof OnboardingState, string>> = {};
-  if (chapter === 0) {
+  if (chapter === INCOME_CHAPTER) {
     if (!state.income) errors.income = "Income is required";
     if (!state.pay_schedule) errors.pay_schedule = "Pick a pay schedule";
   }
-  if (chapter === 5) {
+  if (chapter === RISK_TOLERANCE_CHAPTER) {
     if (!state.risk_tolerance) errors.risk_tolerance = "Pick how you think about risk";
   }
   return errors;
@@ -82,6 +123,7 @@ export default function OnboardingPage() {
   const isLastChapter = chapter === CHAPTERS.length - 1;
   const Character = CHARACTERS[chapter];
   const fillsPanel = CHARACTER_FILLS_PANEL[chapter];
+  const CurrentChapter = CHAPTER_COMPONENTS[chapter];
 
   function goTo(next: number) {
     setDirection(next > chapter ? 1 : -1);
@@ -262,12 +304,7 @@ export default function OnboardingPage() {
                 exit="exit"
                 transition={{ duration: 0.28, ease: [0.23, 1, 0.32, 1] }}
               >
-                {chapter === 0 && <ChapterIncome {...chapterProps} />}
-                {chapter === 1 && <ChapterExpenses {...chapterProps} />}
-                {chapter === 2 && <ChapterDebt {...chapterProps} />}
-                {chapter === 3 && <ChapterGoals {...chapterProps} />}
-                {chapter === 4 && <ChapterBehavior {...chapterProps} />}
-                {chapter === 5 && <ChapterRisk {...chapterProps} />}
+                <CurrentChapter {...chapterProps} />
               </motion.div>
             </AnimatePresence>
           </div>

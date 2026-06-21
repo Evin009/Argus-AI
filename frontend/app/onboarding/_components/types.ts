@@ -38,4 +38,17 @@ export const INITIAL_STATE: OnboardingState = {
   buffer_preference: "",
 };
 
-export const CHAPTERS = ["Income", "Expenses", "Debt", "Goals", "Spending Behavior", "Risk Tolerance"] as const;
+// Split into 9 single-purpose steps (instead of 6 denser ones) so every
+// chapter's content height stays consistent with the lightest chapter
+// (Expenses) — no chapter should make the card taller than another.
+export const CHAPTERS = [
+  "Income",
+  "Income Details",
+  "Expenses",
+  "Debt",
+  "Goals",
+  "Spending Habits",
+  "Spending Preferences",
+  "Risk Tolerance",
+  "Risk Details",
+] as const;
