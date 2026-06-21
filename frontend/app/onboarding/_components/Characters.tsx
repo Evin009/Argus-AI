@@ -53,7 +53,7 @@ export function IncomeWCharacter() {
       src="/onboarding/income.png"
       alt=""
       fill
-      sizes="46vw"
+      sizes="52vw"
       style={{ objectFit: "cover" }}
       priority
     />
@@ -66,7 +66,7 @@ export function IncomeDetailsCharacter() {
       src="/onboarding/income-details.png"
       alt=""
       fill
-      sizes="46vw"
+      sizes="52vw"
       style={{ objectFit: "cover" }}
       priority
     />
@@ -100,7 +100,7 @@ export function ExpensesCharacter() {
       src="/onboarding/expenses.png"
       alt=""
       fill
-      sizes="38vw"
+      sizes="52vw"
       style={{ objectFit: "cover" }}
       priority
     />

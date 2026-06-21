@@ -6,6 +6,7 @@ import { Plus, X } from "lucide-react";
 export const inputStyle: React.CSSProperties = {
   width: "100%",
   fontFamily: "var(--font-sans)",
+  fontWeight: 600,
   fontSize: 17,
   color: "#1C1815",
   background: "#FFFFFF",
@@ -20,10 +21,11 @@ export const inputStyle: React.CSSProperties = {
 export const labelStyle: React.CSSProperties = {
   display: "block",
   fontFamily: "var(--font-mono)",
+  fontWeight: 700,
   fontSize: 13,
   letterSpacing: ".08em",
   textTransform: "uppercase",
-  color: "#6B6052",
+  color: "#4A433B",
   marginBottom: 8,
 };
 
@@ -53,7 +55,7 @@ export function Field({
         {label}
         {required && <span style={{ color: "var(--amber-700)" }}> *</span>}
       </label>
-      {hint && <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "#877B6B", margin: "-2px 0 8px" }}>{hint}</p>}
+      {hint && <p style={{ fontFamily: "var(--font-sans)", fontWeight: 500, fontSize: 13, color: "#6B6052", margin: "-2px 0 8px" }}>{hint}</p>}
       {children}
       {error && <p style={errorStyle}>{error}</p>}
     </div>
@@ -165,8 +167,8 @@ export function ChoiceCard({
         background: selected ? "#EFDFCB" : "#FFFFFF",
       }}
     >
-      <div style={{ fontWeight: 600, fontSize: 16.5 }}>{title}</div>
-      {desc && <div style={{ fontSize: 14, color: "#6B6052", marginTop: 3 }}>{desc}</div>}
+      <div style={{ fontWeight: 700, fontSize: 16.5 }}>{title}</div>
+      {desc && <div style={{ fontWeight: 500, fontSize: 14, color: "#4A433B", marginTop: 3 }}>{desc}</div>}
     </motion.button>
   );
 }

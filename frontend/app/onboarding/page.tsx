@@ -224,7 +224,7 @@ export default function OnboardingPage() {
         {/* Left panel — character + chapter context */}
         <div
           style={{
-            width: "46%",
+            width: "52%",
             flexShrink: 0,
             background: "linear-gradient(160deg, var(--surface-1) 0%, var(--surface-0) 100%)",
             display: "flex",
@@ -279,7 +279,7 @@ export default function OnboardingPage() {
           <p style={{ fontFamily: "var(--font-display)", fontSize: 32, color: "#1C1815", margin: 0 }}>
             {CHAPTERS[chapter]}
           </p>
-          <p style={{ fontFamily: "var(--font-sans)", fontSize: 15, color: "#6B6052", margin: "6px 0 26px" }}>
+          <p style={{ fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: 15, color: "#4A433B", margin: "6px 0 26px" }}>
             {CHAPTER_SUBTITLE[chapter]}
           </p>
 
