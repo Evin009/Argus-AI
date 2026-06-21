@@ -60,6 +60,19 @@ export function IncomeWCharacter() {
   );
 }
 
+export function IncomeDetailsCharacter() {
+  return (
+    <Image
+      src="/onboarding/income-details.png"
+      alt=""
+      fill
+      sizes="46vw"
+      style={{ objectFit: "cover" }}
+      priority
+    />
+  );
+}
+
 export function IncomeCharacter({ size = 140 }: { size?: number }) {
   return (
     <Bounce>
