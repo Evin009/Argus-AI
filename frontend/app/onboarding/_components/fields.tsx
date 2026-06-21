@@ -304,14 +304,14 @@ export function RepeatableRows<T extends Record<string, string | number>>({
         style={{
           ...inputStyle,
           cursor: "pointer",
-          color: "var(--amber-400)",
-          fontWeight: 600,
+          color: "var(--amber-700)",
+          fontWeight: 700,
           textAlign: "left",
           display: "flex",
           alignItems: "center",
           gap: 8,
-          background: "var(--surface-0)",
-          border: "1px solid var(--amber-700)",
+          background: "#EFDFCB",
+          border: "1px solid var(--amber-600)",
         }}
       >
         <Plus size={16} strokeWidth={1.5} /> {addLabel}
