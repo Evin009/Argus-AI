@@ -451,3 +451,22 @@ CashflowAgent  RiskAgent    DebtAgent
 | Vercel | Frontend hosting | High |
 | Railway / Fly.io | FastAPI backend hosting | High |
 
+---
+
+## 15. Development Workflow
+
+Follow this exactly when starting any phase or feature work:
+
+1. **Phase plan first.** Write the phase plan in `Phase Plans/Phase_X_Name.md`, matching the
+   existing convention (git branch tree, feature checklist, endpoints, schema, Definition of Done).
+   List every feature branch the phase needs.
+2. **One feature at a time.** Never start a second feature before the current one is fully closed out.
+3. **Within a feature, one task at a time, TDD style** (`superpowers:test-driven-development`):
+   write the failing test → write the code → run it → confirm it passes.
+4. **Stop after each task.** Give a short, clear, non-verbose explanation of what was done, then
+   prompt for a commit. Don't move to the next task until told to.
+5. **Stop after the feature is fully done.** Give a bulleted summary of everything the feature did,
+   then prompt for a commit covering the whole feature.
+
+Never commit or push automatically — always stop and ask.
+
