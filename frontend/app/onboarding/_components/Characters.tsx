@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 
 /* Notion-style line-art characters, custom-drawn in Argus brand colors.
@@ -70,18 +71,14 @@ export function IncomeCharacter({ size = 140 }: { size?: number }) {
 export function ExpensesCharacter({ size = 140 }: { size?: number }) {
   return (
     <Bounce>
-      <svg width={size} height={size} viewBox="0 0 200 200" fill="none">
-        <Body color={COPPER_DARK} />
-        <Head />
-        {/* receipt */}
-        <path d="M120 100 L150 96 L150 160 L120 156 Z" fill={PAPER} stroke={INK} strokeWidth="2.5" />
-        <line x1="126" y1="112" x2="144" y2="110" stroke={INK} strokeWidth="2" />
-        <line x1="126" y1="124" x2="144" y2="122" stroke={INK} strokeWidth="2" />
-        <line x1="126" y1="136" x2="144" y2="134" stroke={INK} strokeWidth="2" />
-        {/* magnifying glass */}
-        <circle cx="62" cy="150" r="13" fill="none" stroke={COPPER} strokeWidth="3.5" />
-        <line x1="71" y1="159" x2="82" y2="170" stroke={COPPER} strokeWidth="4" strokeLinecap="round" />
-      </svg>
+      <Image
+        src="/onboarding/expenses-character.png"
+        alt=""
+        width={size}
+        height={size}
+        style={{ objectFit: "contain", borderRadius: "var(--r-lg)" }}
+        priority
+      />
     </Bounce>
   );
 }
