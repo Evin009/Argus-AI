@@ -1,7 +1,8 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Plus, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ChevronDown, Plus, X } from "lucide-react";
 
 export const inputStyle: React.CSSProperties = {
   width: "100%",
@@ -115,6 +116,11 @@ export function TextField({
   );
 }
 
+/** Custom dropdown — native <select> can't be styled or animated, so this
+ * builds the trigger + panel by hand. The open panel intentionally goes dark
+ * (ink-900) against the light cream form, like a tooltip lifting off the page,
+ * rather than matching the light trigger.
+ */
 export function SelectField({
   value,
   onChange,
@@ -126,19 +132,102 @@ export function SelectField({
   options: { value: string; label: string }[];
   error?: boolean;
 }) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const selected = options.find((o) => o.value === value);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (rootRef.current && !rootRef.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
-    <select
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      style={{ ...inputStyle, borderColor: error ? "var(--negative-bright)" : "var(--surface-3)" }}
-    >
-      <option value="">Select…</option>
-      {options.map((opt) => (
-        <option key={opt.value} value={opt.value}>
-          {opt.label}
-        </option>
-      ))}
-    </select>
+    <div ref={rootRef} style={{ position: "relative" }}>
+      <motion.button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        whileTap={{ scale: 0.99 }}
+        style={{
+          ...inputStyle,
+          cursor: "pointer",
+          textAlign: "left",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 8,
+          borderColor: error ? "var(--negative-bright)" : open ? "var(--amber-600)" : "rgba(20,17,13,0.14)",
+          boxShadow: open ? "0 0 0 3px rgba(168,104,56,0.16)" : "none",
+          color: selected ? "#1C1815" : "#877B6B",
+        }}
+      >
+        <span>{selected ? selected.label : "Select…"}</span>
+        <motion.span
+          animate={{ rotate: open ? 180 : 0 }}
+          transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+          style={{ display: "flex", flexShrink: 0 }}
+        >
+          <ChevronDown size={17} strokeWidth={1.5} color="#877B6B" />
+        </motion.span>
+      </motion.button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -6, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -6, scale: 0.98 }}
+            transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+            style={{
+              position: "absolute",
+              top: "calc(100% + 6px)",
+              left: 0,
+              right: 0,
+              zIndex: 30,
+              background: "#1C1815",
+              border: "1px solid rgba(255,255,255,0.08)",
+              borderRadius: "var(--r-md)",
+              padding: 6,
+              boxShadow: "0 16px 40px rgba(0,0,0,0.35), 0 4px 12px rgba(0,0,0,0.25)",
+              transformOrigin: "top",
+            }}
+          >
+            {options.map((opt) => {
+              const isSelected = opt.value === value;
+              return (
+                <motion.button
+                  key={opt.value}
+                  type="button"
+                  whileHover={{ x: 2, backgroundColor: isSelected ? undefined : "rgba(255,255,255,0.07)" }}
+                  transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
+                  onClick={() => {
+                    onChange(opt.value);
+                    setOpen(false);
+                  }}
+                  style={{
+                    width: "100%",
+                    textAlign: "left",
+                    background: isSelected ? "var(--amber-600)" : "transparent",
+                    color: isSelected ? "#fff" : "#F0EAE0",
+                    border: "none",
+                    borderRadius: "var(--r-sm)",
+                    padding: "10px 12px",
+                    fontFamily: "var(--font-sans)",
+                    fontWeight: 600,
+                    fontSize: 15,
+                    cursor: "pointer",
+                  }}
+                >
+                  {opt.label}
+                </motion.button>
+              );
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
 
