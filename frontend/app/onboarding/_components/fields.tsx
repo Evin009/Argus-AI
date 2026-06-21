@@ -166,7 +166,7 @@ export function SelectField({
         <span>{selected ? selected.label : "Select…"}</span>
         <motion.span
           animate={{ rotate: open ? 180 : 0 }}
-          transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
           style={{ display: "flex", flexShrink: 0 }}
         >
           <ChevronDown size={17} strokeWidth={1.5} color="#877B6B" />
@@ -176,22 +176,25 @@ export function SelectField({
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, y: -6, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -6, scale: 0.98 }}
-            transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
             style={{
               position: "absolute",
               top: "calc(100% + 6px)",
               left: 0,
               right: 0,
               zIndex: 30,
-              background: "#1C1815",
+              background: "#3E2B20",
               border: "1px solid rgba(255,255,255,0.08)",
               borderRadius: "var(--r-md)",
               padding: 6,
               boxShadow: "0 16px 40px rgba(0,0,0,0.35), 0 4px 12px rgba(0,0,0,0.25)",
-              transformOrigin: "top",
+              maxHeight: 220,
+              overflowY: "auto",
+              scrollbarWidth: "thin",
+              scrollbarColor: "rgba(255,255,255,0.25) transparent",
             }}
           >
             {options.map((opt) => {
