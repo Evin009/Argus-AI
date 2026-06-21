@@ -191,13 +191,13 @@ export function SelectField({
               borderRadius: "var(--r-md)",
               padding: 6,
               boxShadow: "0 16px 40px rgba(0,0,0,0.35), 0 4px 12px rgba(0,0,0,0.25)",
-              maxHeight: 220,
+              maxHeight: 168,
               overflowY: "auto",
               scrollbarWidth: "thin",
-              scrollbarColor: "rgba(255,255,255,0.25) transparent",
+              scrollbarColor: "rgba(255,255,255,0.3) transparent",
             }}
           >
-            {options.map((opt) => {
+            {options.map((opt, i) => {
               const isSelected = opt.value === value;
               return (
                 <motion.button
@@ -217,6 +217,7 @@ export function SelectField({
                     border: "none",
                     borderRadius: "var(--r-sm)",
                     padding: "10px 12px",
+                    marginBottom: i === options.length - 1 ? 0 : 2,
                     fontFamily: "var(--font-sans)",
                     fontWeight: 600,
                     fontSize: 15,
