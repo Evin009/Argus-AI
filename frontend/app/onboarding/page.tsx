@@ -251,7 +251,7 @@ export default function OnboardingPage() {
 
         {/* Right panel — form. Deliberately light/cream against the dark character
             panel and ambient background, so it reads as the focal surface. */}
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "40px 44px", background: "#FCF8F0" }}>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "40px 44px", background: "#F3E7D6" }}>
           <AnimatePresence mode="wait">
             <motion.span
               key={chapter}
