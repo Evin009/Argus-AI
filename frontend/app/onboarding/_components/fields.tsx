@@ -247,7 +247,6 @@ export function ChoiceCard({
       type="button"
       onClick={onClick}
       whileTap={{ scale: 0.97 }}
-      whileHover={{ scale: 1.01 }}
       style={{
         ...inputStyle,
         cursor: "pointer",
@@ -366,7 +365,7 @@ export function RepeatableRows<T extends Record<string, string | number>>({
             onClick={() => removeRow(i)}
             aria-label="Remove"
             whileTap={{ scale: 0.9 }}
-            whileHover={{ scale: 1.05, borderColor: "#B5462F", color: "#B5462F" }}
+            whileHover={{ borderColor: "#B5462F", color: "#B5462F" }}
             style={{
               flexShrink: 0,
               width: 36,
@@ -388,10 +387,14 @@ export function RepeatableRows<T extends Record<string, string | number>>({
       <motion.button
         type="button"
         onClick={addRow}
+        initial="rest"
+        whileHover="hover"
         whileTap={{ scale: 0.97 }}
-        whileHover={{ scale: 1.01 }}
+        animate="rest"
         style={{
           ...inputStyle,
+          position: "relative",
+          overflow: "hidden",
           cursor: "pointer",
           color: "var(--amber-700)",
           fontWeight: 700,
@@ -403,7 +406,22 @@ export function RepeatableRows<T extends Record<string, string | number>>({
           border: "1px solid var(--amber-600)",
         }}
       >
-        <Plus size={16} strokeWidth={1.5} /> {addLabel}
+        {/* Glass-glance sweep — a light streak passes across the button on hover,
+            like glare crossing glass, instead of the button itself scaling. */}
+        <motion.span
+          variants={{ rest: { x: "-130%" }, hover: { x: "230%" } }}
+          transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "45%",
+            background: "linear-gradient(115deg, transparent, rgba(255,255,255,0.55), transparent)",
+            pointerEvents: "none",
+          }}
+        />
+        <span style={{ position: "relative", display: "flex", alignItems: "center", gap: 8 }}>
+          <Plus size={16} strokeWidth={1.5} /> {addLabel}
+        </span>
       </motion.button>
     </div>
   );
