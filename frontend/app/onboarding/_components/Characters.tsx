@@ -97,7 +97,7 @@ export function IncomeCharacter({ size = 140 }: { size?: number }) {
 export function ExpensesCharacter() {
   return (
     <Image
-      src="/onboarding/expenses-character.png"
+      src="/onboarding/expenses.png"
       alt=""
       fill
       sizes="38vw"
