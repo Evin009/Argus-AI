@@ -136,22 +136,33 @@ export default function OnboardingPage() {
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
       <AmbientBackground />
 
+      {/* Double-bezel: outer shell (machined frame) holding the inner card (the glass plate),
+          concentric radii — 44px outer, 36px inner (44 - 8px shell padding). */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.97 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+        initial={{ opacity: 0, scale: 0.96, filter: "blur(8px)" }}
+        animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
         style={{
           width: "100%",
-          maxWidth: 1040,
-          minHeight: 620,
-          display: "flex",
-          borderRadius: 32,
-          overflow: "hidden",
-          boxShadow: "0 24px 80px rgba(0,0,0,0.5), 0 8px 24px rgba(0,0,0,0.3)",
-          border: "1px solid var(--surface-3)",
-          background: "var(--surface-1)",
+          maxWidth: 1056,
+          padding: 8,
+          borderRadius: 44,
+          background: "rgba(20,17,13,0.35)",
+          border: "1px solid rgba(255,255,255,0.06)",
+          boxShadow: "0 30px 90px rgba(0,0,0,0.55), 0 10px 28px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04)",
         }}
       >
+        <div
+          style={{
+            display: "flex",
+            minHeight: 620,
+            borderRadius: 36,
+            overflow: "hidden",
+            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06)",
+            border: "1px solid var(--surface-3)",
+            background: "var(--surface-1)",
+          }}
+        >
         {/* Left panel — character + chapter context */}
         <div
           style={{
@@ -182,20 +193,44 @@ export default function OnboardingPage() {
 
         {/* Right panel — form. Deliberately light/cream against the dark character
             panel and ambient background, so it reads as the focal surface. */}
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "32px 36px", background: "#FCF8F0" }}>
-          <p style={{ fontFamily: "var(--font-display)", fontSize: 30, color: "#1C1815", margin: 0 }}>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "40px 44px", background: "#FCF8F0" }}>
+          <AnimatePresence mode="wait">
+            <motion.span
+              key={chapter}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.25 }}
+              style={{
+                alignSelf: "flex-start",
+                fontFamily: "var(--font-mono)",
+                fontSize: 10,
+                fontWeight: 600,
+                letterSpacing: ".2em",
+                textTransform: "uppercase",
+                color: "var(--amber-700)",
+                background: "#EFDFCB",
+                borderRadius: "var(--r-pill)",
+                padding: "5px 12px",
+                marginBottom: 14,
+              }}
+            >
+              Chapter {chapter + 1} of {CHAPTERS.length}
+            </motion.span>
+          </AnimatePresence>
+          <p style={{ fontFamily: "var(--font-display)", fontSize: 32, color: "#1C1815", margin: 0 }}>
             {CHAPTERS[chapter]}
           </p>
-          <p style={{ fontFamily: "var(--font-sans)", fontSize: 15, color: "#6B6052", margin: "6px 0 20px" }}>
+          <p style={{ fontFamily: "var(--font-sans)", fontSize: 15, color: "#6B6052", margin: "6px 0 26px" }}>
             {CHAPTER_SUBTITLE[chapter]}
           </p>
 
-          <div style={{ display: "flex", gap: 6, marginBottom: 24 }}>
+          <div style={{ display: "flex", gap: 6, marginBottom: 28 }}>
             {CHAPTERS.map((title, i) => (
               <motion.div
                 key={title}
                 animate={{ background: i <= chapter ? "var(--amber-600)" : "rgba(20,17,13,0.12)" }}
-                transition={{ duration: 0.3 }}
+                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                 style={{ flex: 1, height: 4, borderRadius: "var(--r-pill)" }}
               />
             ))}
@@ -247,32 +282,55 @@ export default function OnboardingPage() {
                 padding: "10px 4px",
               }}
             >
-              <ArrowLeft size={17} /> Back
+              <ArrowLeft size={16} strokeWidth={1.5} /> Back
             </motion.button>
 
+            {/* Button-in-button CTA: trailing icon lives in its own nested circular
+                badge, flush to the inner edge — not floating loose next to the text. */}
             <motion.button
               type="button"
               onClick={handleNext}
               disabled={submitting}
-              whileTap={{ scale: 0.95 }}
-              whileHover={{ scale: 1.02 }}
+              initial="rest"
+              whileHover="hover"
+              whileTap={{ scale: 0.97 }}
+              animate="rest"
               className="grain"
               style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 14,
                 border: "none",
-                borderRadius: "var(--r-md)",
+                borderRadius: "var(--r-pill)",
                 cursor: "pointer",
-                padding: "12px 22px",
+                padding: "8px 8px 8px 22px",
                 opacity: submitting ? 0.6 : 1,
                 background: "var(--grad-accent)",
-                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.18), 0 8px 22px rgba(168,65,43,0.34)",
+                boxShadow: "0 10px 28px rgba(168,65,43,0.3)",
               }}
             >
-              <span style={{ display: "flex", alignItems: "center", gap: 7, color: "#fff", fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: 16 }}>
+              <span style={{ color: "#fff", fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: 16 }}>
                 {submitting ? "Saving…" : isLastChapter ? "Finish" : "Continue"}
-                {isLastChapter ? <Check size={17} /> : <ArrowRight size={17} />}
               </span>
+              <motion.span
+                variants={{ rest: { x: 0, y: 0, scale: 1 }, hover: { x: 2, y: -1, scale: 1.06 } }}
+                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: "50%",
+                  background: "rgba(255,255,255,0.18)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
+                {isLastChapter ? <Check size={16} strokeWidth={1.75} color="#fff" /> : <ArrowRight size={16} strokeWidth={1.75} color="#fff" />}
+              </motion.span>
             </motion.button>
           </div>
+        </div>
         </div>
       </motion.div>
     </div>

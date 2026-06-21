@@ -280,7 +280,7 @@ export function RepeatableRows<T extends Record<string, string | number>>({
               justifyContent: "center",
             }}
           >
-            <X size={14} />
+            <X size={14} strokeWidth={1.5} />
           </button>
         </motion.div>
       ))}
@@ -302,7 +302,7 @@ export function RepeatableRows<T extends Record<string, string | number>>({
           border: "1px solid var(--amber-700)",
         }}
       >
-        <Plus size={16} /> {addLabel}
+        <Plus size={16} strokeWidth={1.5} /> {addLabel}
       </motion.button>
     </div>
   );
