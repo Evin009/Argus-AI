@@ -142,19 +142,20 @@ export default function OnboardingPage() {
         transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
         style={{
           width: "100%",
-          maxWidth: 880,
-          minHeight: 560,
+          maxWidth: 1040,
+          minHeight: 620,
           display: "flex",
           borderRadius: 32,
           overflow: "hidden",
           boxShadow: "0 24px 80px rgba(0,0,0,0.5), 0 8px 24px rgba(0,0,0,0.3)",
           border: "1px solid var(--surface-3)",
+          background: "var(--surface-1)",
         }}
       >
         {/* Left panel — character + chapter context */}
         <div
           style={{
-            width: "38%",
+            width: "46%",
             flexShrink: 0,
             background: "linear-gradient(160deg, var(--surface-1) 0%, var(--surface-0) 100%)",
             display: "flex",
@@ -180,11 +181,11 @@ export default function OnboardingPage() {
         </div>
 
         {/* Right panel — form */}
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "28px 32px" }}>
-          <p style={{ fontFamily: "var(--font-display)", fontSize: 24, color: "var(--paper)", margin: 0 }}>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "32px 36px", background: "var(--surface-2)" }}>
+          <p style={{ fontFamily: "var(--font-display)", fontSize: 30, color: "var(--paper)", margin: 0 }}>
             {CHAPTERS[chapter]}
           </p>
-          <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "var(--on-dark-400)", margin: "4px 0 18px" }}>
+          <p style={{ fontFamily: "var(--font-sans)", fontSize: 15, color: "var(--on-dark-600)", margin: "6px 0 20px" }}>
             {CHAPTER_SUBTITLE[chapter]}
           </p>
 
@@ -221,7 +222,7 @@ export default function OnboardingPage() {
           </div>
 
           {submitError && (
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "var(--negative-bright)", marginBottom: 8 }}>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: 14.5, color: "var(--negative-bright)", marginBottom: 8 }}>
               {submitError}
             </p>
           )}
@@ -235,17 +236,17 @@ export default function OnboardingPage() {
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: 6,
+                gap: 7,
                 background: "transparent",
                 border: "none",
                 cursor: chapter === 0 ? "default" : "pointer",
-                color: chapter === 0 ? "var(--surface-3)" : "var(--on-dark-400)",
+                color: chapter === 0 ? "var(--surface-3)" : "var(--on-dark-600)",
                 fontFamily: "var(--font-sans)",
-                fontSize: 14,
+                fontSize: 16,
                 padding: "10px 4px",
               }}
             >
-              <ArrowLeft size={15} /> Back
+              <ArrowLeft size={17} /> Back
             </motion.button>
 
             <motion.button
@@ -254,25 +255,21 @@ export default function OnboardingPage() {
               disabled={submitting}
               whileTap={{ scale: 0.95 }}
               whileHover={{ scale: 1.02 }}
+              className="grain"
               style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-                background: "var(--amber-600)",
-                color: "#fff",
                 border: "none",
                 borderRadius: "var(--r-md)",
                 cursor: "pointer",
-                fontFamily: "var(--font-sans)",
-                fontWeight: 600,
-                fontSize: 14,
-                padding: "10px 18px",
+                padding: "12px 22px",
                 opacity: submitting ? 0.6 : 1,
-                boxShadow: "0 6px 16px rgba(168,104,56,0.28)",
+                background: "var(--grad-accent)",
+                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.18), 0 8px 22px rgba(168,65,43,0.34)",
               }}
             >
-              {submitting ? "Saving…" : isLastChapter ? "Finish" : "Continue"}
-              {isLastChapter ? <Check size={15} /> : <ArrowRight size={15} />}
+              <span style={{ display: "flex", alignItems: "center", gap: 7, color: "#fff", fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: 16 }}>
+                {submitting ? "Saving…" : isLastChapter ? "Finish" : "Continue"}
+                {isLastChapter ? <Check size={17} /> : <ArrowRight size={17} />}
+              </span>
             </motion.button>
           </div>
         </div>

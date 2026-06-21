@@ -6,12 +6,12 @@ import { Plus, X } from "lucide-react";
 export const inputStyle: React.CSSProperties = {
   width: "100%",
   fontFamily: "var(--font-sans)",
-  fontSize: 15,
+  fontSize: 17,
   color: "var(--paper)",
-  background: "var(--surface-2)",
+  background: "var(--surface-1)",
   border: "1px solid var(--surface-3)",
   borderRadius: "var(--r-md)",
-  padding: "12px 14px",
+  padding: "13px 15px",
   outline: "none",
   boxSizing: "border-box",
   transition: "border-color .15s ease, box-shadow .15s ease",
@@ -20,16 +20,16 @@ export const inputStyle: React.CSSProperties = {
 export const labelStyle: React.CSSProperties = {
   display: "block",
   fontFamily: "var(--font-mono)",
-  fontSize: 11,
-  letterSpacing: ".1em",
+  fontSize: 13,
+  letterSpacing: ".08em",
   textTransform: "uppercase",
-  color: "var(--on-dark-400)",
-  marginBottom: 7,
+  color: "var(--on-dark-600)",
+  marginBottom: 8,
 };
 
 const errorStyle: React.CSSProperties = {
   fontFamily: "var(--font-sans)",
-  fontSize: 12,
+  fontSize: 14,
   color: "var(--negative-bright)",
   marginTop: 6,
 };
@@ -159,11 +159,11 @@ export function ChoiceCard({
         cursor: "pointer",
         textAlign: "left",
         border: selected ? "1.5px solid var(--amber-600)" : "1px solid var(--surface-3)",
-        background: selected ? "var(--amber-tint-dark)" : "var(--surface-2)",
+        background: selected ? "var(--amber-tint-dark)" : "var(--surface-1)",
       }}
     >
-      <div style={{ fontWeight: 600 }}>{title}</div>
-      {desc && <div style={{ fontSize: 12.5, color: "var(--on-dark-400)", marginTop: 2 }}>{desc}</div>}
+      <div style={{ fontWeight: 600, fontSize: 16.5 }}>{title}</div>
+      {desc && <div style={{ fontSize: 14, color: "var(--on-dark-600)", marginTop: 3 }}>{desc}</div>}
     </motion.button>
   );
 }
@@ -189,13 +189,13 @@ export function ChipMultiSelect({
             onClick={() => onToggle(opt.value)}
             style={{
               fontFamily: "var(--font-sans)",
-              fontSize: 13.5,
+              fontSize: 15,
               fontWeight: 600,
-              padding: "8px 14px",
+              padding: "9px 16px",
               borderRadius: "var(--r-pill)",
               border: active ? "1px solid var(--amber-600)" : "1px solid var(--surface-3)",
-              background: active ? "var(--amber-600)" : "transparent",
-              color: active ? "#fff" : "var(--on-dark-400)",
+              background: active ? "var(--amber-600)" : "var(--surface-1)",
+              color: active ? "#fff" : "var(--on-dark-600)",
               cursor: "pointer",
             }}
           >
@@ -284,21 +284,26 @@ export function RepeatableRows<T extends Record<string, string | number>>({
           </button>
         </motion.div>
       ))}
-      <button
+      <motion.button
         type="button"
         onClick={addRow}
+        whileTap={{ scale: 0.97 }}
+        whileHover={{ scale: 1.01 }}
         style={{
           ...inputStyle,
           cursor: "pointer",
-          color: "var(--on-dark-400)",
+          color: "var(--amber-400)",
+          fontWeight: 600,
           textAlign: "left",
           display: "flex",
           alignItems: "center",
-          gap: 6,
+          gap: 8,
+          background: "var(--surface-0)",
+          border: "1px solid var(--amber-700)",
         }}
       >
-        <Plus size={14} /> {addLabel}
-      </button>
+        <Plus size={16} /> {addLabel}
+      </motion.button>
     </div>
   );
 }
