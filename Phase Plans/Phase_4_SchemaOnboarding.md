@@ -36,20 +36,21 @@ develop
   - `ALTER TABLE accounts ADD COLUMN minimum_payment DECIMAL`
   - `CREATE TABLE onboarding_responses` — `user_id`, `income`, `pay_schedule`, `rent`, `major_expenses JSONB`, `goals JSONB`, `risk_tolerance`, `completed_at`
   - RLS enabled, `onboarding_responses_user_policy` scoped to `auth.uid()`
-- [ ] Apply migration to Supabase
-- [ ] Merge → `phase/4-schema-onboarding`
+- [x] Apply migration to Supabase — verified via `supabase db query --linked` (columns + table confirmed)
+- [x] Merge → `develop` — complete
 
 ---
 
-### `feature/onboarding-api` ⬜
+### `feature/onboarding-api` ✅
 *Persist onboarding answers, seed profile*
 
 **Backend:**
-- [ ] Build `backend/routers/onboarding.py` — `POST /onboarding`, `GET /onboarding/status`
-- [ ] Upsert into `onboarding_responses` (one row per user)
-- [ ] Seed `user_financial_profiles` from completed onboarding data
-- [ ] Write `backend/tests/test_onboarding.py`
-- [ ] Merge → `phase/4-schema-onboarding`
+- [x] Build `backend/routers/onboarding.py` — `POST /onboarding`
+- [x] Build `GET /onboarding/status`
+- [x] Upsert into `onboarding_responses` (one row per user)
+- [x] Seed `user_financial_profiles` from completed onboarding data
+- [x] Write `backend/tests/test_onboarding.py`
+- [x] Merge → `develop`
 
 ---
 
@@ -57,10 +58,10 @@ develop
 *4-chapter stepped flow*
 
 **Frontend:**
-- [ ] Build onboarding flow — Chapter 1: income/pay schedule, Chapter 2: fixed expenses, Chapter 3: goals, Chapter 4: spending nature/risk tolerance
+- [x] Build onboarding flow — Chapter 1: income/pay schedule, Chapter 2: fixed expenses, Chapter 3: goals, Chapter 4: spending nature/risk tolerance
 - [ ] Progress indicator per chapter
 - [ ] Gate bank linking behind onboarding completion — skip option with reminder
-- [ ] Merge → `phase/4-schema-onboarding`
+- [ ] Merge → `develop`
 
 ---
 
@@ -101,9 +102,9 @@ onboarding_responses (
 
 ## Definition of Done
 
-- [ ] Migration applied to Supabase
-- [ ] Onboarding flow live, gates bank linking
-- [ ] `user_financial_profiles` seeded from onboarding answers day one
+- [x] Migration applied to Supabase
+- [ ] Onboarding flow live, gates bank linking — blocked on remaining `feature/onboarding-ui` tasks
+- [x] `user_financial_profiles` seeded from onboarding answers day one
 - [ ] CI green on `main`
 
 ---
