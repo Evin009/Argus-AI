@@ -71,7 +71,7 @@ function SavingDots() {
         <motion.span
           key={i}
           animate={{ opacity: [0.3, 1, 0.3] }}
-          transition={{ duration: 1, repeat: Infinity, delay: i * 0.15, ease: "easeInOut" }}
+          transition={{ duration: 1, repeat: Infinity, delay: i * 0.15, ease: [0.45, 0, 0.55, 1] }}
           style={{ width: 5, height: 5, borderRadius: "50%", background: "#fff" }}
         />
       ))}
@@ -239,7 +239,7 @@ export default function OnboardingPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.5, ease: "easeInOut" }}
+              transition={{ duration: 0.5, ease: [0.45, 0, 0.55, 1] }}
               style={{
                 position: "absolute",
                 inset: 0,

@@ -19,7 +19,7 @@ function Bounce({ children }: { children: React.ReactNode }) {
   return (
     <motion.div
       animate={{ y: [0, -6, 0] }}
-      transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
+      transition={{ duration: 3.2, repeat: Infinity, ease: [0.45, 0, 0.55, 1] }}
       style={{ display: "inline-block" }}
     >
       {children}

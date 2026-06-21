@@ -25,7 +25,7 @@ export function AmbientBackground() {
       <motion.div
         className="grain"
         animate={{ x: [0, 60, 0], y: [0, -40, 0], scale: [1, 1.08, 1] }}
-        transition={{ duration: 24, repeat: Infinity, ease: "easeInOut" }}
+        transition={{ duration: 24, repeat: Infinity, ease: [0.45, 0, 0.55, 1] }}
         style={{
           position: "absolute",
           top: "-16%",
@@ -40,7 +40,7 @@ export function AmbientBackground() {
       />
       <motion.div
         animate={{ x: [0, -60, 0], y: [0, 50, 0], scale: [1, 1.1, 1] }}
-        transition={{ duration: 28, repeat: Infinity, ease: "easeInOut" }}
+        transition={{ duration: 28, repeat: Infinity, ease: [0.45, 0, 0.55, 1] }}
         style={{
           position: "absolute",
           bottom: "-20%",
@@ -55,7 +55,7 @@ export function AmbientBackground() {
       />
       <motion.div
         animate={{ x: [0, 40, 0], y: [0, 35, 0] }}
-        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+        transition={{ duration: 20, repeat: Infinity, ease: [0.45, 0, 0.55, 1] }}
         style={{
           position: "absolute",
           top: "35%",
@@ -70,7 +70,7 @@ export function AmbientBackground() {
       />
       <motion.div
         animate={{ x: [0, -35, 0], y: [0, -30, 0] }}
-        transition={{ duration: 30, repeat: Infinity, ease: "easeInOut" }}
+        transition={{ duration: 30, repeat: Infinity, ease: [0.45, 0, 0.55, 1] }}
         style={{
           position: "absolute",
           bottom: "10%",
