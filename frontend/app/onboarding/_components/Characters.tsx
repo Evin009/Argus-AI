@@ -50,7 +50,7 @@ function Body({ color = COPPER }: { color?: string }) {
 export function IncomeWCharacter() {
   return (
     <Image
-      src="/onboarding/income-w.jpg"
+      src="/onboarding/income.png"
       alt=""
       fill
       sizes="46vw"
