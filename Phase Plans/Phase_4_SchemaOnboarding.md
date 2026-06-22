@@ -55,13 +55,19 @@ develop
 ---
 
 ### `feature/onboarding-ui` ✅
-*6-chapter journey experience (expanded post-launch from the original 4-chapter spec — added Debt and Spending Behavior chapters, custom character illustrations, and a redesigned curved split-card layout; see migration 013 for the added schema fields)*
+*10-chapter journey experience (expanded twice post-launch from the original 4-chapter spec — see migration 013 for the Debt/Spending Behavior schema fields, migration 014 for the Plaid Liabilities fields below)*
 
 **Frontend:**
 - [x] Build onboarding flow — Chapter 1: income/pay schedule, Chapter 2: fixed expenses, Chapter 3: goals, Chapter 4: spending nature/risk tolerance
 - [x] Progress indicator per chapter
 - [x] Gate bank linking behind onboarding completion — skip option with reminder
 - [x] Merge → `develop`
+
+**Connect Accounts (replaces the original manual Debt chapter):**
+- [x] Add `liabilities` to `PLAID_PRODUCTS`, fetch `/liabilities/get` on account exchange, merge `minimum_payment`/`interest_rate` into `accounts` — migration 014
+- [x] `ChapterConnectAccounts` — Plaid Link embedded directly inside onboarding, mandatory (blocks Continue until ≥1 account connected), supports connecting multiple institutions
+- [x] Manual debt entry demoted to a collapsed fallback ("Have a debt Plaid can't see? Add it manually") for private loans / unsupported institutions
+- Rationale: Plaid Liabilities already returns balance/APR/minimum payment for connected cards and loans — asking the user to retype it during onboarding was redundant. Bank linking moved from "after onboarding" to "during onboarding" for this reason; the original post-onboarding gate on the Accounts page is left in place for edge cases but is no longer the primary linking path.
 
 ---
 
