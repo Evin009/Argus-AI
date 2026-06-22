@@ -210,6 +210,7 @@ export function SelectField({
                   key={opt.value}
                   type="button"
                   whileHover={{ backgroundColor: "rgba(255,255,255,0.1)" }}
+                  whileTap={{ scale: 0.98 }}
                   transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
                   onClick={() => {
                     onChange(opt.value);

@@ -162,18 +162,19 @@ function PlaidConnectButton({
   return (
     <div>
       {/* Button-in-button CTA matching the Continue button's pattern — trailing
-          icon nested in its own circular badge, magnetic hover via framer-motion
-          variant propagation, grain texture on the copper/red gradient fill. */}
+          icon nested in its own circular badge, grain texture on the
+          copper/red gradient fill. Hover is a sleek background darken, not
+          motion — the icon badge stays put instead of nudging on hover. */}
       <motion.button
         type="button"
         onClick={() => open()}
         disabled={!ready || connecting}
-        initial="rest"
-        whileHover="hover"
+        whileHover={{ backgroundColor: "rgba(0,0,0,0.12)" }}
         whileTap={{ scale: 0.98 }}
-        animate="rest"
+        transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
         className="grain"
         style={{
+          position: "relative",
           width: "100%",
           display: "flex",
           alignItems: "center",
@@ -185,6 +186,7 @@ function PlaidConnectButton({
           padding: "8px 8px 8px 22px",
           opacity: !ready ? 0.7 : 1,
           background: "var(--grad-accent)",
+          backgroundBlendMode: "overlay",
         }}
       >
         <span style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", color: "#fff" }}>
@@ -197,9 +199,7 @@ function PlaidConnectButton({
             </span>
           )}
         </span>
-        <motion.span
-          variants={{ rest: { x: 0, y: 0, scale: 1 }, hover: { x: 2, y: -1, scale: 1.06 } }}
-          transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+        <span
           style={{
             width: 40,
             height: 40,
@@ -212,7 +212,7 @@ function PlaidConnectButton({
           }}
         >
           {connecting ? <ConnectingDots /> : <Landmark size={18} strokeWidth={1.75} color="#fff" />}
-        </motion.span>
+        </span>
       </motion.button>
       {error && <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "#B5462F", margin: "8px 0 0" }}>{error}</p>}
     </div>
@@ -278,9 +278,11 @@ export function ChapterConnectAccounts({ state, setState, errors, plaidLinkToken
         />
       </Field>
 
-      <button
+      <motion.button
         type="button"
         onClick={() => setShowManual((s) => !s)}
+        whileTap={{ scale: 0.97 }}
+        whileHover={{ color: "#8A5429" }}
         style={{
           background: "none",
           border: "none",
@@ -295,7 +297,7 @@ export function ChapterConnectAccounts({ state, setState, errors, plaidLinkToken
         }}
       >
         {showManual ? "Hide manual entry" : "Have a debt Plaid can't see? Add it manually"}
-      </button>
+      </motion.button>
 
       {showManual && (
         <Field label="Other debts (private loans, cards Plaid can't reach)" hint="One entry per card or loan — balance, interest rate, and minimum payment">
