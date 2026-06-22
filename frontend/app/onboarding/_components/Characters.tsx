@@ -11,7 +11,6 @@ import { motion, useReducedMotion } from "framer-motion";
 const INK = "#1C1815";
 const SKIN = "#E7D8BF";
 const COPPER = "#BE7740";
-const COPPER_DARK = "#8A5429";
 const POSITIVE = "#3F7D55";
 const PAPER = "#F6EFE2";
 
@@ -160,20 +159,16 @@ export function SpendingTriggersCharacter() {
   );
 }
 
-export function BehaviorCharacter({ size = 140 }: { size?: number }) {
+export function SpendingPreferencesCharacter() {
   return (
-    <Bounce>
-      <svg width={size} height={size} viewBox="0 0 200 200" fill="none">
-        {/* cross-legged seated body */}
-        <path d="M62 175 Q70 150 100 150 Q130 150 138 175 Q100 190 62 175 Z" fill={COPPER_DARK} stroke={INK} strokeWidth="3" />
-        <Head cy={100} />
-        {/* thought bubble */}
-        <circle cx="148" cy="58" r="4" fill="none" stroke={INK} strokeWidth="2" />
-        <circle cx="158" cy="46" r="6" fill="none" stroke={INK} strokeWidth="2" />
-        <ellipse cx="174" cy="28" rx="20" ry="15" fill={PAPER} stroke={INK} strokeWidth="2.5" />
-        <path d="M166 24 Q174 18 182 24 Q182 32 174 34 Q166 32 166 24Z" fill={COPPER} opacity="0.5" />
-      </svg>
-    </Bounce>
+    <Image
+      src="/onboarding/spending-pref.png"
+      alt=""
+      fill
+      sizes="52vw"
+      style={{ objectFit: "cover" }}
+      priority
+    />
   );
 }
 
