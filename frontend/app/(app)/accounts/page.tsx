@@ -4,7 +4,59 @@ export const dynamic = "force-dynamic";
 
 import { useCallback, useEffect, useState } from "react";
 import { usePlaidLink, PlaidLinkOnSuccessMetadata } from "react-plaid-link";
+import Link from "next/link";
 import { api } from "@/lib/api";
+
+const SKIP_KEY = "argus-onboarding-skipped";
+
+function OnboardingGate({ children }: { children: React.ReactNode }) {
+  const [status, setStatus] = useState<"loading" | "incomplete" | "skipped" | "complete">("loading");
+
+  useEffect(() => {
+    api
+      .get<{ completed: boolean }>("/onboarding/status")
+      .then((d) => {
+        if (d.completed) {
+          setStatus("complete");
+        } else {
+          setStatus(localStorage.getItem(SKIP_KEY) === "true" ? "skipped" : "incomplete");
+        }
+      })
+      .catch(() => setStatus("complete")); // fail open — don't block linking on a status-check error
+  }, []);
+
+  function handleSkip() {
+    localStorage.setItem(SKIP_KEY, "true");
+    setStatus("skipped");
+  }
+
+  if (status === "loading") return null;
+
+  if (status === "incomplete") {
+    return (
+      <div className="rounded-lg border border-gray-700 bg-gray-800 px-4 py-3 text-sm text-gray-300 flex items-center gap-3">
+        <span>Finish onboarding for Argus to ground its insights in your real numbers.</span>
+        <Link href="/onboarding" className="text-indigo-400 hover:text-indigo-300 font-medium whitespace-nowrap">
+          Complete onboarding
+        </Link>
+        <button onClick={handleSkip} className="text-gray-500 hover:text-gray-300 whitespace-nowrap">
+          Skip for now
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-3">
+      {status === "skipped" && (
+        <Link href="/onboarding" className="text-xs text-amber-400 hover:text-amber-300 whitespace-nowrap">
+          Reminder: finish onboarding
+        </Link>
+      )}
+      {children}
+    </div>
+  );
+}
 
 type Account = {
   id: string;
@@ -172,7 +224,9 @@ export default function AccountsPage() {
               {syncing ? "Syncing..." : "Sync"}
             </button>
           )}
-          <PlaidLinkButton onSuccess={fetchAccounts} />
+          <OnboardingGate>
+            <PlaidLinkButton onSuccess={fetchAccounts} />
+          </OnboardingGate>
         </div>
       </div>
 
@@ -209,7 +263,9 @@ export default function AccountsPage() {
           <p className="text-gray-500 text-sm max-w-xs mb-6">
             Connect your bank or credit card to start tracking your finances with ArgusAI.
           </p>
-          <PlaidLinkButton onSuccess={fetchAccounts} />
+          <OnboardingGate>
+            <PlaidLinkButton onSuccess={fetchAccounts} />
+          </OnboardingGate>
         </div>
       ) : (
         <>

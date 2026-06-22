@@ -36,31 +36,38 @@ develop
   - `ALTER TABLE accounts ADD COLUMN minimum_payment DECIMAL`
   - `CREATE TABLE onboarding_responses` — `user_id`, `income`, `pay_schedule`, `rent`, `major_expenses JSONB`, `goals JSONB`, `risk_tolerance`, `completed_at`
   - RLS enabled, `onboarding_responses_user_policy` scoped to `auth.uid()`
-- [ ] Apply migration to Supabase
-- [ ] Merge → `phase/4-schema-onboarding`
+- [x] Apply migration to Supabase — verified via `supabase db query --linked` (columns + table confirmed)
+- [x] Merge → `develop` — complete
 
 ---
 
-### `feature/onboarding-api` ⬜
+### `feature/onboarding-api` ✅
 *Persist onboarding answers, seed profile*
 
 **Backend:**
-- [ ] Build `backend/routers/onboarding.py` — `POST /onboarding`, `GET /onboarding/status`
-- [ ] Upsert into `onboarding_responses` (one row per user)
-- [ ] Seed `user_financial_profiles` from completed onboarding data
-- [ ] Write `backend/tests/test_onboarding.py`
-- [ ] Merge → `phase/4-schema-onboarding`
+- [x] Build `backend/routers/onboarding.py` — `POST /onboarding`
+- [x] Build `GET /onboarding/status`
+- [x] Upsert into `onboarding_responses` (one row per user)
+- [x] Seed `user_financial_profiles` from completed onboarding data
+- [x] Write `backend/tests/test_onboarding.py`
+- [x] Merge → `develop`
 
 ---
 
-### `feature/onboarding-ui` ⬜
-*4-chapter stepped flow*
+### `feature/onboarding-ui` ✅
+*10-chapter journey experience (expanded twice post-launch from the original 4-chapter spec — see migration 013 for the Debt/Spending Behavior schema fields, migration 014 for the Plaid Liabilities fields below)*
 
 **Frontend:**
-- [ ] Build onboarding flow — Chapter 1: income/pay schedule, Chapter 2: fixed expenses, Chapter 3: goals, Chapter 4: spending nature/risk tolerance
-- [ ] Progress indicator per chapter
-- [ ] Gate bank linking behind onboarding completion — skip option with reminder
-- [ ] Merge → `phase/4-schema-onboarding`
+- [x] Build onboarding flow — Chapter 1: income/pay schedule, Chapter 2: fixed expenses, Chapter 3: goals, Chapter 4: spending nature/risk tolerance
+- [x] Progress indicator per chapter
+- [x] Gate bank linking behind onboarding completion — skip option with reminder
+- [x] Merge → `develop`
+
+**Connect Accounts (replaces the original manual Debt chapter):**
+- [x] Add `liabilities` to `PLAID_PRODUCTS`, fetch `/liabilities/get` on account exchange, merge `minimum_payment`/`interest_rate` into `accounts` — migration 014
+- [x] `ChapterConnectAccounts` — Plaid Link embedded directly inside onboarding, mandatory (blocks Continue until ≥1 account connected), supports connecting multiple institutions
+- [x] Manual debt entry demoted to a collapsed fallback ("Have a debt Plaid can't see? Add it manually") for private loans / unsupported institutions
+- Rationale: Plaid Liabilities already returns balance/APR/minimum payment for connected cards and loans — asking the user to retype it during onboarding was redundant. Bank linking moved from "after onboarding" to "during onboarding" for this reason; the original post-onboarding gate on the Accounts page is left in place for edge cases but is no longer the primary linking path.
 
 ---
 
@@ -101,9 +108,9 @@ onboarding_responses (
 
 ## Definition of Done
 
-- [ ] Migration applied to Supabase
-- [ ] Onboarding flow live, gates bank linking
-- [ ] `user_financial_profiles` seeded from onboarding answers day one
+- [x] Migration applied to Supabase
+- [x] Onboarding flow live, gates bank linking
+- [x] `user_financial_profiles` seeded from onboarding answers day one
 - [ ] CI green on `main`
 
 ---
