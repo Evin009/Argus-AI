@@ -163,18 +163,21 @@ function PlaidConnectButton({
     <div>
       {/* Button-in-button CTA matching the Continue button's pattern — trailing
           icon nested in its own circular badge, grain texture on the
-          copper/red gradient fill. Hover is a sleek background darken, not
-          motion — the icon badge stays put instead of nudging on hover. */}
+          copper/red gradient fill. Hover is a frosted-glass layer (blur +
+          edge highlight) fading in over the fill, not motion or a flat
+          color shift — the icon badge stays static. */}
       <motion.button
         type="button"
         onClick={() => open()}
         disabled={!ready || connecting}
-        whileHover={{ backgroundColor: "rgba(0,0,0,0.12)" }}
+        initial="rest"
+        whileHover="hover"
         whileTap={{ scale: 0.98 }}
-        transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+        animate="rest"
         className="grain"
         style={{
           position: "relative",
+          overflow: "hidden",
           width: "100%",
           display: "flex",
           alignItems: "center",
@@ -186,10 +189,24 @@ function PlaidConnectButton({
           padding: "8px 8px 8px 22px",
           opacity: !ready ? 0.7 : 1,
           background: "var(--grad-accent)",
-          backgroundBlendMode: "overlay",
         }}
       >
-        <span style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", color: "#fff" }}>
+        {/* Glass layer — translucent fill + blur + inset top highlight, the
+            "Liquid Glass Refraction" treatment, revealed only on hover. */}
+        <motion.span
+          variants={{ rest: { opacity: 0 }, hover: { opacity: 1 } }}
+          transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "rgba(255,255,255,0.1)",
+            backdropFilter: "blur(6px) saturate(160%)",
+            WebkitBackdropFilter: "blur(6px) saturate(160%)",
+            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.45), inset 0 -1px 0 rgba(0,0,0,0.08)",
+            pointerEvents: "none",
+          }}
+        />
+        <span style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "flex-start", color: "#fff" }}>
           <span style={{ fontFamily: "var(--font-sans)", fontWeight: 700, fontSize: 16 }}>
             {connecting ? "Connecting" : "Connect a bank account"}
           </span>
@@ -201,6 +218,7 @@ function PlaidConnectButton({
         </span>
         <span
           style={{
+            position: "relative",
             width: 40,
             height: 40,
             borderRadius: "50%",
