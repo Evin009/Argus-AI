@@ -134,6 +134,19 @@ export function GoalsCharacter() {
   );
 }
 
+export function SpendingHabitsCharacter() {
+  return (
+    <Image
+      src="/onboarding/spending_habit.png"
+      alt=""
+      fill
+      sizes="52vw"
+      style={{ objectFit: "cover" }}
+      priority
+    />
+  );
+}
+
 export function BehaviorCharacter({ size = 140 }: { size?: number }) {
   return (
     <Bounce>
