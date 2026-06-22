@@ -61,10 +61,15 @@ LangGraph multi-agent pipeline (enrichment + analyst + memory nodes), pgvector R
 
 ---
 
-## Phase 4 — Schema Fixes + Onboarding ⬜
+## Phase 4 — Schema Fixes + Onboarding ✅
 *Week 10 — Immediate, unblocked*
 
 **Goal:** Fix missing schema fields and build onboarding questionnaire before any Phase 5+ work begins.
+
+**Shipped — diverged from the original spec below as the build progressed; see `Phase Plans/Phase_4_SchemaOnboarding.md` for the full history:**
+- 10-chapter onboarding flow (expanded twice from the original 4 — added Debt/behavioral fields, then split dense chapters for uniform card sizing)
+- Bank linking moved from "gated behind onboarding completion" to a **mandatory Connect Accounts step inside onboarding itself**, using Plaid Link directly — Plaid Liabilities wired up so balance/APR/minimum payment are fetched automatically instead of typed by hand. Manual debt entry survives only as a fallback toggle for accounts Plaid can't see.
+- `closing_date`, `minimum_payment`, and `interest_rate` added to `accounts`; `onboarding_responses` table with the originally-spec'd fields plus debt/behavioral/risk fields from the expansion
 
 ### Schema migrations
 1. Add `closing_date DATE` and `minimum_payment DECIMAL` to `accounts` table — required for Pay Timing Intelligence and Credit Intelligence Hub
