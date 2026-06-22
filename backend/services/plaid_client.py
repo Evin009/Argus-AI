@@ -15,7 +15,7 @@ _PLAID_ENV_MAP = {
     "production": "https://production.plaid.com",
 }
 
-PLAID_PRODUCTS = [Products("transactions")]
+PLAID_PRODUCTS = [Products("transactions"), Products("liabilities")]
 PLAID_COUNTRY_CODES = [CountryCode("US")]
 
 
