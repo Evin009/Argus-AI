@@ -67,16 +67,23 @@ Follow this exactly when starting any phase or feature work:
    existing convention (git branch tree, feature checklist, endpoints, schema, Definition of Done).
    List every feature branch the phase needs.
 2. **One feature at a time.** Never start a second feature before the current one is fully closed out.
+   Create each feature branch off the phase branch automatically — no need to ask.
 3. **Within a feature, one task at a time, TDD style** (`superpowers:test-driven-development`):
-   write the failing test → write the code → run it → confirm it passes.
-4. **Stop after each task.** Give a short, clear, non-verbose explanation of what was done, then
-   prompt for a commit. Don't move to the next task until told to.
-5. **Update the phase plan checklist after every single task** is completed — check it off in
+   write the failing test → write the code → run it → confirm it passes → commit immediately.
+   Keep iterating task to task without stopping to ask — quick, continuous commits.
+4. **Update the phase plan checklist after every single task** is completed — check it off in
    `Phase Plans/Phase_X_Name.md` before moving on, not just at the end of the feature.
-6. **Stop after the feature is fully done.** Give a bulleted summary of everything the feature did,
-   then prompt for a commit covering the whole feature.
+5. **Stop only once the feature is fully done.** Give a concise, bulleted, one-line-per-point
+   summary of what was implemented (architecture/approach) — not verbose, no long prose.
+6. **Merge the feature branch into the phase branch autonomously** — but always pause and ask
+   ("merge about to happen, proceed?") before that merge actually executes. Same rule applies to
+   merging the phase branch into `develop`, opening the `develop` → `main` PR, and the final merge
+   to `main`: handle CI fixes and the mechanics solo, but never execute a merge or open a PR
+   without an explicit go-ahead first.
 
-Never commit or push automatically — always stop and ask.
+Never commit code changes automatically without asking — except the task-by-task commits inside
+an in-progress feature, which proceed without stopping. Merges and PR creation always require
+an explicit go-ahead first, no exceptions.
 
 ---
 
