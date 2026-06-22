@@ -189,6 +189,9 @@ export function SelectField({
               right: 0,
               zIndex: 30,
               transformOrigin: "top",
+              // Blur lives on this static shell only, never on the scrolling
+              // content below — backdrop-filter on a scrolling element forces
+              // a re-composite every frame while scrolling.
               background: "rgba(40,28,18,0.85)",
               backdropFilter: "blur(18px)",
               WebkitBackdropFilter: "blur(18px)",
@@ -196,45 +199,51 @@ export function SelectField({
               borderTop: "none",
               borderBottomLeftRadius: "var(--r-md)",
               borderBottomRightRadius: "var(--r-md)",
-              padding: 6,
-              maxHeight: 168,
-              overflowY: "auto",
-              scrollbarWidth: "thin",
-              scrollbarColor: "rgba(255,255,255,0.3) transparent",
+              overflow: "hidden",
             }}
           >
-            {options.map((opt, i) => {
-              const isSelected = opt.value === value;
-              return (
-                <motion.button
-                  key={opt.value}
-                  type="button"
-                  whileHover={{ backgroundColor: "rgba(255,255,255,0.1)" }}
-                  whileTap={{ scale: 0.98 }}
-                  transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
-                  onClick={() => {
-                    onChange(opt.value);
-                    setOpen(false);
-                  }}
-                  style={{
-                    width: "100%",
-                    textAlign: "left",
-                    background: "transparent",
-                    color: isSelected ? "var(--amber-400)" : "#F0EAE0",
-                    border: "none",
-                    borderRadius: "var(--r-sm)",
-                    padding: "10px 12px",
-                    marginBottom: i === options.length - 1 ? 0 : 2,
-                    fontFamily: "var(--font-sans)",
-                    fontWeight: isSelected ? 700 : 600,
-                    fontSize: 15,
-                    cursor: "pointer",
-                  }}
-                >
-                  {opt.label}
-                </motion.button>
-              );
-            })}
+            <div
+              style={{
+                padding: 6,
+                maxHeight: 168,
+                overflowY: "auto",
+                scrollbarWidth: "thin",
+                scrollbarColor: "rgba(255,255,255,0.3) transparent",
+              }}
+            >
+              {options.map((opt, i) => {
+                const isSelected = opt.value === value;
+                return (
+                  <motion.button
+                    key={opt.value}
+                    type="button"
+                    whileHover={{ backgroundColor: "rgba(255,255,255,0.1)" }}
+                    whileTap={{ scale: 0.98 }}
+                    transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
+                    onClick={() => {
+                      onChange(opt.value);
+                      setOpen(false);
+                    }}
+                    style={{
+                      width: "100%",
+                      textAlign: "left",
+                      background: "transparent",
+                      color: isSelected ? "var(--amber-400)" : "#F0EAE0",
+                      border: "none",
+                      borderRadius: "var(--r-sm)",
+                      padding: "10px 12px",
+                      marginBottom: i === options.length - 1 ? 0 : 2,
+                      fontFamily: "var(--font-sans)",
+                      fontWeight: isSelected ? 700 : 600,
+                      fontSize: 15,
+                      cursor: "pointer",
+                    }}
+                  >
+                    {opt.label}
+                  </motion.button>
+                );
+              })}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

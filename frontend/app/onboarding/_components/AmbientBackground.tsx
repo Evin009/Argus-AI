@@ -19,6 +19,7 @@ export function AmbientBackground() {
         inset: 0,
         zIndex: 0,
         overflow: "hidden",
+        pointerEvents: "none",
         background:
           "radial-gradient(ellipse 80% 60% at 30% 20%, rgba(190,119,64,0.10), transparent 60%)," +
           "radial-gradient(ellipse 70% 60% at 75% 80%, rgba(168,65,43,0.08), transparent 60%)," +
