@@ -15,6 +15,7 @@ import {
   SpendingHabitsCharacter,
   SpendingTriggersCharacter,
   SpendingPreferencesCharacter,
+  RiskToleranceCharacter,
   RiskCharacter,
 } from "./_components/Characters";
 import {
@@ -56,12 +57,12 @@ const CHARACTERS = [
   SpendingHabitsCharacter,
   SpendingTriggersCharacter,
   SpendingPreferencesCharacter,
-  RiskCharacter,
+  RiskToleranceCharacter,
   RiskCharacter,
 ];
 // Chapters whose character is a full-bleed photo/illustration that should cover the entire
 // left panel, instead of the default small centered icon treatment.
-const CHARACTER_FILLS_PANEL = [true, true, true, true, true, true, true, true, false, false];
+const CHARACTER_FILLS_PANEL = [true, true, true, true, true, true, true, true, true, false];
 
 // Horizontal movement is a common motion-sickness trigger — under reduced
 // motion this collapses to a plain opacity crossfade with no translation.

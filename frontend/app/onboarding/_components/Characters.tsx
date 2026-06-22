@@ -172,6 +172,19 @@ export function SpendingPreferencesCharacter() {
   );
 }
 
+export function RiskToleranceCharacter() {
+  return (
+    <Image
+      src="/onboarding/risk-toelrence.png"
+      alt=""
+      fill
+      sizes="52vw"
+      style={{ objectFit: "cover" }}
+      priority
+    />
+  );
+}
+
 export function RiskCharacter({ size = 140 }: { size?: number }) {
   return (
     <Bounce>
