@@ -9,6 +9,7 @@ export type OnboardingState = {
   other_income: boolean | null;
   rent: string;
   major_expenses: Expense[];
+  connectedAccountsCount: number;
   debts: Debt[];
   goals: Goal[];
   risk_tolerance: string;
@@ -27,6 +28,7 @@ export const INITIAL_STATE: OnboardingState = {
   other_income: null,
   rent: "",
   major_expenses: [],
+  connectedAccountsCount: 0,
   debts: [],
   goals: [],
   risk_tolerance: "",
@@ -45,7 +47,7 @@ export const CHAPTERS = [
   "Income",
   "Income Details",
   "Expenses",
-  "Debt",
+  "Connect Accounts",
   "Goals",
   "Spending Habits",
   "Spending Triggers",

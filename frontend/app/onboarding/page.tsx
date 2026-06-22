@@ -22,7 +22,7 @@ import {
   ChapterIncome,
   ChapterIncomeDetails,
   ChapterExpenses,
-  ChapterDebt,
+  ChapterConnectAccounts,
   ChapterGoals,
   ChapterSpendingHabits,
   ChapterSpendingTriggers,
@@ -37,7 +37,7 @@ const CHAPTER_COMPONENTS = [
   ChapterIncome,
   ChapterIncomeDetails,
   ChapterExpenses,
-  ChapterDebt,
+  ChapterConnectAccounts,
   ChapterGoals,
   ChapterSpendingHabits,
   ChapterSpendingTriggers,
@@ -93,7 +93,7 @@ const CHAPTER_SUBTITLE = [
   "Let's start with what comes in.",
   "A bit more about how it arrives.",
   "Now, what goes out every month.",
-  "Anything you're paying down?",
+  "Link your accounts securely.",
   "What are you working toward?",
   "How do you actually spend?",
   "What sets it off.",
@@ -103,6 +103,7 @@ const CHAPTER_SUBTITLE = [
 ];
 
 const INCOME_CHAPTER = 0;
+const CONNECT_ACCOUNTS_CHAPTER = 3;
 const RISK_TOLERANCE_CHAPTER = 8;
 
 function validateChapter(chapter: number, state: OnboardingState): Partial<Record<keyof OnboardingState, string>> {
@@ -111,6 +112,11 @@ function validateChapter(chapter: number, state: OnboardingState): Partial<Recor
     if (!state.income) errors.income = "Income is required";
     else if (Number(state.income) <= 0) errors.income = "Income must be greater than 0";
     if (!state.pay_schedule) errors.pay_schedule = "Pick a pay schedule";
+  }
+  if (chapter === CONNECT_ACCOUNTS_CHAPTER) {
+    if (state.connectedAccountsCount <= 0) {
+      errors.connectedAccountsCount = "Connect at least one account to continue";
+    }
   }
   if (chapter === RISK_TOLERANCE_CHAPTER) {
     if (!state.risk_tolerance) errors.risk_tolerance = "Pick how you think about risk";

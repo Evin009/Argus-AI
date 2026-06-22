@@ -1,5 +1,9 @@
 "use client";
 
+import { useCallback, useEffect, useState } from "react";
+import { usePlaidLink, type PlaidLinkOnSuccessMetadata } from "react-plaid-link";
+import { CheckCircle2, Landmark } from "lucide-react";
+import { api } from "@/lib/api";
 import { Field, NumberField, SelectField, ChoiceCard, ChipMultiSelect, RepeatableRows } from "./fields";
 import type { OnboardingState } from "./types";
 
@@ -86,21 +90,134 @@ export function ChapterExpenses({ state, setState }: ChapterProps) {
   );
 }
 
-export function ChapterDebt({ state, setState }: ChapterProps) {
+function PlaidConnectButton({ onConnected }: { onConnected: (accountCount: number) => void }) {
+  const [linkToken, setLinkToken] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [connecting, setConnecting] = useState(false);
+
+  useEffect(() => {
+    api
+      .post<{ link_token: string }>("/plaid/link-token")
+      .then((d) => setLinkToken(d.link_token))
+      .catch((e: Error) => setError(e.message));
+  }, []);
+
+  const handleSuccess = useCallback(
+    async (publicToken: string, metadata: PlaidLinkOnSuccessMetadata) => {
+      setConnecting(true);
+      setError(null);
+      try {
+        await api.post("/plaid/exchange-token", {
+          public_token: publicToken,
+          institution_id: metadata.institution?.institution_id ?? "",
+          institution_name: metadata.institution?.name ?? "",
+        });
+        const { accounts } = await api.get<{ accounts: unknown[] }>("/plaid/accounts");
+        onConnected(accounts.length);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Couldn't connect that account. Try again.");
+      } finally {
+        setConnecting(false);
+      }
+    },
+    [onConnected]
+  );
+
+  const { open, ready } = usePlaidLink({ token: linkToken ?? "", onSuccess: handleSuccess });
+
   return (
-    <Field label="Debts (credit cards, loans)" hint="One entry per card or loan — add the balance, interest rate, and minimum payment so Argus can compare payoff strategies">
-      <RepeatableRows
-        rows={state.debts}
-        onChange={(rows) => setState({ ...state, debts: rows })}
-        fields={[
-          { key: "name", placeholder: "e.g. Chase Sapphire", label: "Card or loan name" },
-          { key: "balance", placeholder: "1200", numeric: true, label: "Balance owed $" },
-          { key: "interest_rate", placeholder: "22.5", numeric: true, label: "Interest rate %", newLine: true },
-          { key: "minimum_payment", placeholder: "35", numeric: true, label: "Min. payment $" },
-        ]}
-        addLabel="Add debt"
-      />
-    </Field>
+    <div>
+      <ChoiceCard selected={false} onClick={() => open()} title={connecting ? "Connecting…" : "Connect a bank account"} desc="Add another card or account" />
+      {!ready && !error && (
+        <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "#6B6052", margin: "8px 0 0" }}>Preparing secure connection…</p>
+      )}
+      {error && <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "#B5462F", margin: "8px 0 0" }}>{error}</p>}
+    </div>
+  );
+}
+
+export function ChapterConnectAccounts({ state, setState, errors }: ChapterProps) {
+  const [showManual, setShowManual] = useState(false);
+  const connected = state.connectedAccountsCount > 0;
+
+  return (
+    <>
+      <Field label="Connect your accounts" required error={errors.connectedAccountsCount}>
+        {connected ? (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              padding: "13px 15px",
+              background: "#EFDFCB",
+              border: "1px solid var(--amber-600)",
+              borderRadius: "var(--r-md)",
+              marginBottom: 10,
+            }}
+          >
+            <CheckCircle2 size={20} strokeWidth={1.75} color="var(--amber-700)" />
+            <span style={{ fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: 15, color: "#1C1815" }}>
+              {state.connectedAccountsCount} {state.connectedAccountsCount === 1 ? "account" : "accounts"} connected
+            </span>
+          </div>
+        ) : (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              padding: "11px 15px",
+              marginBottom: 10,
+              color: "#6B6052",
+            }}
+          >
+            <Landmark size={18} strokeWidth={1.5} />
+            <span style={{ fontFamily: "var(--font-sans)", fontSize: 13.5 }}>
+              Connect at least one bank or credit card to continue — this is how Argus reasons about your real numbers.
+            </span>
+          </div>
+        )}
+        <PlaidConnectButton
+          onConnected={(count) => setState({ ...state, connectedAccountsCount: count })}
+        />
+      </Field>
+
+      <button
+        type="button"
+        onClick={() => setShowManual((s) => !s)}
+        style={{
+          background: "none",
+          border: "none",
+          padding: 0,
+          marginBottom: showManual ? 10 : 0,
+          fontFamily: "var(--font-sans)",
+          fontSize: 13.5,
+          fontWeight: 600,
+          color: "var(--amber-700)",
+          cursor: "pointer",
+          textDecoration: "underline",
+        }}
+      >
+        {showManual ? "Hide manual entry" : "Have a debt Plaid can't see? Add it manually"}
+      </button>
+
+      {showManual && (
+        <Field label="Other debts (private loans, cards Plaid can't reach)" hint="One entry per card or loan — balance, interest rate, and minimum payment">
+          <RepeatableRows
+            rows={state.debts}
+            onChange={(rows) => setState({ ...state, debts: rows })}
+            fields={[
+              { key: "name", placeholder: "e.g. Family loan", label: "Card or loan name" },
+              { key: "balance", placeholder: "1200", numeric: true, label: "Balance owed $" },
+              { key: "interest_rate", placeholder: "22.5", numeric: true, label: "Interest rate %", newLine: true },
+              { key: "minimum_payment", placeholder: "35", numeric: true, label: "Min. payment $" },
+            ]}
+            addLabel="Add debt"
+          />
+        </Field>
+      )}
+    </>
   );
 }
 
