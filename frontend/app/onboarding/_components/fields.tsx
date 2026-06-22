@@ -311,6 +311,18 @@ export function ChipMultiSelect({
 }
 
 /** Generic add/remove row list for expenses, goals, debts. */
+type RowField<T> = { key: keyof T; placeholder: string; label: string; numeric?: boolean; newLine?: boolean };
+
+/** Splits a flat field list into visual lines wherever `newLine` is set. */
+function toLines<T>(fields: RowField<T>[]): RowField<T>[][] {
+  const lines: RowField<T>[][] = [[]];
+  for (const f of fields) {
+    if (f.newLine) lines.push([]);
+    lines[lines.length - 1].push(f);
+  }
+  return lines;
+}
+
 export function RepeatableRows<T extends Record<string, string | number>>({
   rows,
   onChange,
@@ -319,9 +331,11 @@ export function RepeatableRows<T extends Record<string, string | number>>({
 }: {
   rows: T[];
   onChange: (rows: T[]) => void;
-  fields: { key: keyof T; placeholder: string; numeric?: boolean }[];
+  fields: RowField<T>[];
   addLabel: string;
 }) {
+  const lines = toLines(fields);
+
   function updateRow(i: number, key: keyof T, raw: string) {
     const next = [...rows];
     next[i] = { ...next[i], [key]: raw };
@@ -368,27 +382,52 @@ export function RepeatableRows<T extends Record<string, string | number>>({
             key={i}
             initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
-            style={{ display: "flex", gap: 8, marginBottom: 8, alignItems: "center" }}
+            style={{
+              display: "flex",
+              gap: 8,
+              marginBottom: 10,
+              padding: 10,
+              background: "rgba(20,17,13,0.03)",
+              border: "1px solid rgba(20,17,13,0.08)",
+              borderRadius: "var(--r-md)",
+            }}
           >
-            {fields.map((f) =>
-              f.numeric ? (
-                <div key={String(f.key)} style={{ flex: f.key === fields[0].key ? 2 : 1 }}>
-                  <NumberField
-                    value={String(row[f.key] ?? "")}
-                    onChange={(v) => updateRow(i, f.key, v)}
-                    placeholder={f.placeholder}
-                  />
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 8 }}>
+              {lines.map((line, lineIdx) => (
+                <div key={lineIdx} style={{ display: "flex", gap: 8 }}>
+                  {line.map((f) => (
+                    <div key={String(f.key)} style={{ flex: f.numeric ? 1 : 1.6 }}>
+                      <span
+                        style={{
+                          display: "block",
+                          fontFamily: "var(--font-mono)",
+                          fontSize: 10,
+                          letterSpacing: ".06em",
+                          textTransform: "uppercase",
+                          color: "#877B6B",
+                          marginBottom: 3,
+                        }}
+                      >
+                        {f.label}
+                      </span>
+                      {f.numeric ? (
+                        <NumberField
+                          value={String(row[f.key] ?? "")}
+                          onChange={(v) => updateRow(i, f.key, v)}
+                          placeholder={f.placeholder}
+                        />
+                      ) : (
+                        <TextField
+                          value={String(row[f.key] ?? "")}
+                          onChange={(v) => updateRow(i, f.key, v)}
+                          placeholder={f.placeholder}
+                        />
+                      )}
+                    </div>
+                  ))}
                 </div>
-              ) : (
-                <div key={String(f.key)} style={{ flex: f.key === fields[0].key ? 2 : 1 }}>
-                  <TextField
-                    value={String(row[f.key] ?? "")}
-                    onChange={(v) => updateRow(i, f.key, v)}
-                    placeholder={f.placeholder}
-                  />
-                </div>
-              )
-            )}
+              ))}
+            </div>
             <motion.button
               type="button"
               onClick={() => removeRow(i)}

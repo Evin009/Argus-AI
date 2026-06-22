@@ -76,8 +76,8 @@ export function ChapterExpenses({ state, setState }: ChapterProps) {
           rows={state.major_expenses}
           onChange={(rows) => setState({ ...state, major_expenses: rows })}
           fields={[
-            { key: "name", placeholder: "Name" },
-            { key: "amount", placeholder: "Amount", numeric: true },
+            { key: "name", placeholder: "e.g. Car payment", label: "What" },
+            { key: "amount", placeholder: "320", numeric: true, label: "Monthly $" },
           ]}
           addLabel="Add expense"
         />
@@ -88,15 +88,15 @@ export function ChapterExpenses({ state, setState }: ChapterProps) {
 
 export function ChapterDebt({ state, setState }: ChapterProps) {
   return (
-    <Field label="Debts (credit cards, loans)" hint="Balance, APR, and minimum payment for each">
+    <Field label="Debts (credit cards, loans)" hint="One entry per card or loan — add the balance, interest rate, and minimum payment so Argus can compare payoff strategies">
       <RepeatableRows
         rows={state.debts}
         onChange={(rows) => setState({ ...state, debts: rows })}
         fields={[
-          { key: "name", placeholder: "Name" },
-          { key: "balance", placeholder: "Balance", numeric: true },
-          { key: "interest_rate", placeholder: "APR %", numeric: true },
-          { key: "minimum_payment", placeholder: "Min payment", numeric: true },
+          { key: "name", placeholder: "e.g. Chase Sapphire", label: "Card or loan name" },
+          { key: "balance", placeholder: "1200", numeric: true, label: "Balance owed $" },
+          { key: "interest_rate", placeholder: "22.5", numeric: true, label: "Interest rate %", newLine: true },
+          { key: "minimum_payment", placeholder: "35", numeric: true, label: "Min. payment $" },
         ]}
         addLabel="Add debt"
       />
@@ -111,8 +111,8 @@ export function ChapterGoals({ state, setState }: ChapterProps) {
         rows={state.goals}
         onChange={(rows) => setState({ ...state, goals: rows })}
         fields={[
-          { key: "title", placeholder: "e.g. Emergency fund" },
-          { key: "target_amount", placeholder: "Target $", numeric: true },
+          { key: "title", placeholder: "e.g. Emergency fund", label: "Goal" },
+          { key: "target_amount", placeholder: "5000", numeric: true, label: "Target $" },
         ]}
         addLabel="Add goal"
       />
