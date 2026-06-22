@@ -85,6 +85,12 @@ Never commit code changes automatically without asking — except the task-by-ta
 an in-progress feature, which proceed without stopping. Merges and PR creation always require
 an explicit go-ahead first, no exceptions.
 
+**Subagents:** only spawn one when the task is genuinely independent (parallel research/exploration,
+isolated implementation pieces with no shared state, or context-heavy lookups worth keeping out of
+the main thread) — not for sequential work where each step needs the last step's result, which is
+most of what building a feature looks like. Before spawning any subagent, say so and what it's for
+first; don't spawn silently.
+
 ---
 
 ## Communication Style
