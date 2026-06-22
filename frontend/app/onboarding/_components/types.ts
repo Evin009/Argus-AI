@@ -48,6 +48,7 @@ export const CHAPTERS = [
   "Debt",
   "Goals",
   "Spending Habits",
+  "Spending Triggers",
   "Spending Preferences",
   "Risk Tolerance",
   "Risk Details",

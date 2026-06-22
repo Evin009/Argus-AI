@@ -122,45 +122,48 @@ export function ChapterGoals({ state, setState }: ChapterProps) {
 
 export function ChapterSpendingHabits({ state, setState }: ChapterProps) {
   return (
-    <>
-      <Field label="Do you consider yourself an impulse spender?">
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          {[
-            { v: "never", l: "Never", d: "I stick to what I plan to spend" },
-            { v: "sometimes", l: "Sometimes", d: "It happens occasionally" },
-            { v: "often", l: "Often", d: "I buy things I didn't plan for regularly" },
-          ].map((o) => (
-            <ChoiceCard
-              key={o.v}
-              selected={state.impulse_spender === o.v}
-              onClick={() => setState({ ...state, impulse_spender: o.v })}
-              title={o.l}
-              desc={o.d}
-            />
-          ))}
-        </div>
-      </Field>
-      <Field label="What usually triggers extra spending? (pick any)">
-        <ChipMultiSelect
-          selected={state.spending_triggers}
-          onToggle={(v) =>
-            setState({
-              ...state,
-              spending_triggers: state.spending_triggers.includes(v)
-                ? state.spending_triggers.filter((t) => t !== v)
-                : [...state.spending_triggers, v],
-            })
-          }
-          options={[
-            { value: "stress", label: "Stress" },
-            { value: "boredom", label: "Boredom" },
-            { value: "social", label: "Social events" },
-            { value: "sales", label: "Sales / deals" },
-            { value: "none", label: "None of these" },
-          ]}
-        />
-      </Field>
-    </>
+    <Field label="Do you consider yourself an impulse spender?">
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {[
+          { v: "never", l: "Never", d: "I stick to what I plan to spend" },
+          { v: "sometimes", l: "Sometimes", d: "It happens occasionally" },
+          { v: "often", l: "Often", d: "I buy things I didn't plan for regularly" },
+        ].map((o) => (
+          <ChoiceCard
+            key={o.v}
+            selected={state.impulse_spender === o.v}
+            onClick={() => setState({ ...state, impulse_spender: o.v })}
+            title={o.l}
+            desc={o.d}
+          />
+        ))}
+      </div>
+    </Field>
+  );
+}
+
+export function ChapterSpendingTriggers({ state, setState }: ChapterProps) {
+  return (
+    <Field label="What usually triggers extra spending? (pick any)">
+      <ChipMultiSelect
+        selected={state.spending_triggers}
+        onToggle={(v) =>
+          setState({
+            ...state,
+            spending_triggers: state.spending_triggers.includes(v)
+              ? state.spending_triggers.filter((t) => t !== v)
+              : [...state.spending_triggers, v],
+          })
+        }
+        options={[
+          { value: "stress", label: "Stress" },
+          { value: "boredom", label: "Boredom" },
+          { value: "social", label: "Social events" },
+          { value: "sales", label: "Sales / deals" },
+          { value: "none", label: "None of these" },
+        ]}
+      />
+    </Field>
   );
 }
 

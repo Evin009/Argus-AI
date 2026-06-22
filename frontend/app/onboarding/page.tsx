@@ -22,6 +22,7 @@ import {
   ChapterDebt,
   ChapterGoals,
   ChapterSpendingHabits,
+  ChapterSpendingTriggers,
   ChapterSpendingPreferences,
   ChapterRiskTolerance,
   ChapterRiskDetails,
@@ -36,6 +37,7 @@ const CHAPTER_COMPONENTS = [
   ChapterDebt,
   ChapterGoals,
   ChapterSpendingHabits,
+  ChapterSpendingTriggers,
   ChapterSpendingPreferences,
   ChapterRiskTolerance,
   ChapterRiskDetails,
@@ -51,12 +53,13 @@ const CHARACTERS = [
   GoalsCharacter,
   BehaviorCharacter,
   BehaviorCharacter,
+  BehaviorCharacter,
   RiskCharacter,
   RiskCharacter,
 ];
 // Chapters whose character is a full-bleed photo/illustration that should cover the entire
 // left panel, instead of the default small centered icon treatment.
-const CHARACTER_FILLS_PANEL = [true, true, true, true, true, false, false, false, false];
+const CHARACTER_FILLS_PANEL = [true, true, true, true, true, false, false, false, false, false];
 
 // Horizontal movement is a common motion-sickness trigger — under reduced
 // motion this collapses to a plain opacity crossfade with no translation.
@@ -93,13 +96,14 @@ const CHAPTER_SUBTITLE = [
   "Anything you're paying down?",
   "What are you working toward?",
   "How do you actually spend?",
+  "What sets it off.",
   "How you check in and pay.",
   "How you feel about risk.",
   "Last one — your safety net.",
 ];
 
 const INCOME_CHAPTER = 0;
-const RISK_TOLERANCE_CHAPTER = 7;
+const RISK_TOLERANCE_CHAPTER = 8;
 
 function validateChapter(chapter: number, state: OnboardingState): Partial<Record<keyof OnboardingState, string>> {
   const errors: Partial<Record<keyof OnboardingState, string>> = {};
