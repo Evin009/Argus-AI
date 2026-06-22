@@ -344,56 +344,67 @@ export function RepeatableRows<T extends Record<string, string | number>>({
           Nothing added yet — every entry helps Argus reason more precisely.
         </p>
       )}
-      {rows.map((row, i) => (
-        <motion.div
-          key={i}
-          initial={{ opacity: 0, y: -6 }}
-          animate={{ opacity: 1, y: 0 }}
-          style={{ display: "flex", gap: 8, marginBottom: 8, alignItems: "center" }}
-        >
-          {fields.map((f) =>
-            f.numeric ? (
-              <div key={String(f.key)} style={{ flex: f.key === fields[0].key ? 2 : 1 }}>
-                <NumberField
-                  value={String(row[f.key] ?? "")}
-                  onChange={(v) => updateRow(i, f.key, v)}
-                  placeholder={f.placeholder}
-                />
-              </div>
-            ) : (
-              <div key={String(f.key)} style={{ flex: f.key === fields[0].key ? 2 : 1 }}>
-                <TextField
-                  value={String(row[f.key] ?? "")}
-                  onChange={(v) => updateRow(i, f.key, v)}
-                  placeholder={f.placeholder}
-                />
-              </div>
-            )
-          )}
-          <motion.button
-            type="button"
-            onClick={() => removeRow(i)}
-            aria-label="Remove"
-            whileTap={{ scale: 0.9 }}
-            whileHover={{ borderColor: "#B5462F", color: "#B5462F" }}
-            style={{
-              flexShrink: 0,
-              width: 44,
-              height: 44,
-              borderRadius: "50%",
-              border: "1px solid rgba(20,17,13,0.14)",
-              background: "transparent",
-              color: "#6B6052",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
+      <div
+        style={{
+          maxHeight: rows.length > 3 ? 220 : "none",
+          overflowY: rows.length > 3 ? "auto" : "visible",
+          paddingRight: rows.length > 3 ? 4 : 0,
+          marginBottom: rows.length > 0 ? 8 : 0,
+          scrollbarWidth: "thin",
+          scrollbarColor: "rgba(20,17,13,0.25) transparent",
+        }}
+      >
+        {rows.map((row, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            style={{ display: "flex", gap: 8, marginBottom: 8, alignItems: "center" }}
           >
-            <X size={14} strokeWidth={1.5} />
-          </motion.button>
-        </motion.div>
-      ))}
+            {fields.map((f) =>
+              f.numeric ? (
+                <div key={String(f.key)} style={{ flex: f.key === fields[0].key ? 2 : 1 }}>
+                  <NumberField
+                    value={String(row[f.key] ?? "")}
+                    onChange={(v) => updateRow(i, f.key, v)}
+                    placeholder={f.placeholder}
+                  />
+                </div>
+              ) : (
+                <div key={String(f.key)} style={{ flex: f.key === fields[0].key ? 2 : 1 }}>
+                  <TextField
+                    value={String(row[f.key] ?? "")}
+                    onChange={(v) => updateRow(i, f.key, v)}
+                    placeholder={f.placeholder}
+                  />
+                </div>
+              )
+            )}
+            <motion.button
+              type="button"
+              onClick={() => removeRow(i)}
+              aria-label="Remove"
+              whileTap={{ scale: 0.9 }}
+              whileHover={{ borderColor: "#B5462F", color: "#B5462F" }}
+              style={{
+                flexShrink: 0,
+                width: 44,
+                height: 44,
+                borderRadius: "50%",
+                border: "1px solid rgba(20,17,13,0.14)",
+                background: "transparent",
+                color: "#6B6052",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <X size={14} strokeWidth={1.5} />
+            </motion.button>
+          </motion.div>
+        ))}
+      </div>
       <motion.button
         type="button"
         onClick={addRow}

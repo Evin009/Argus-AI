@@ -109,6 +109,7 @@ function validateChapter(chapter: number, state: OnboardingState): Partial<Recor
   const errors: Partial<Record<keyof OnboardingState, string>> = {};
   if (chapter === INCOME_CHAPTER) {
     if (!state.income) errors.income = "Income is required";
+    else if (Number(state.income) <= 0) errors.income = "Income must be greater than 0";
     if (!state.pay_schedule) errors.pay_schedule = "Pick a pay schedule";
   }
   if (chapter === RISK_TOLERANCE_CHAPTER) {

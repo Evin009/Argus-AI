@@ -129,6 +129,13 @@ def test_post_onboarding_rejects_negative_income():
     assert resp.status_code == 422
 
 
+def test_post_onboarding_rejects_zero_income():
+    mock = _mock_supabase_completion({"user_id": "test-user-id"})
+    with patch("routers.onboarding.get_supabase", return_value=mock):
+        resp = client.post("/onboarding", json={"income": 0})
+    assert resp.status_code == 422
+
+
 def test_post_onboarding_rejects_negative_rent():
     mock = _mock_supabase_completion({"user_id": "test-user-id"})
     with patch("routers.onboarding.get_supabase", return_value=mock):

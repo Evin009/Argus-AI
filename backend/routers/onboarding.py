@@ -43,7 +43,7 @@ class Debt(BaseModel):
 
 
 class OnboardingRequest(BaseModel):
-    income: Optional[float] = Field(default=None, ge=0)
+    income: Optional[float] = Field(default=None, gt=0)
     pay_schedule: Optional[str] = None
     income_stability: Optional[str] = None
     other_income: Optional[bool] = None
