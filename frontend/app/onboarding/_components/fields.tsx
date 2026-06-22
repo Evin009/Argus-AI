@@ -339,16 +339,23 @@ export function RepeatableRows<T extends Record<string, string | number>>({
 
   return (
     <div>
-      {rows.length === 0 && (
+      {rows.length === 0 ? (
         <p style={{ fontFamily: "var(--font-sans)", fontSize: 13.5, color: "#6B6052", margin: "0 0 10px" }}>
           Nothing added yet — every entry helps Argus reason more precisely.
         </p>
+      ) : (
+        <p style={{ fontFamily: "var(--font-mono)", fontSize: 12, fontWeight: 600, letterSpacing: ".04em", color: "var(--amber-700)", margin: "0 0 8px" }}>
+          {rows.length} {rows.length === 1 ? "entry" : "entries"} added
+        </p>
       )}
+      {/* Fixed height from the very first row — adding entries scrolls inside this
+          box instead of growing the chapter card, so the card stays a constant
+          size no matter how many rows exist. */}
       <div
         style={{
-          maxHeight: rows.length > 3 ? 220 : "none",
-          overflowY: rows.length > 3 ? "auto" : "visible",
-          paddingRight: rows.length > 3 ? 4 : 0,
+          maxHeight: rows.length > 0 ? 190 : 0,
+          overflowY: rows.length > 0 ? "auto" : "hidden",
+          paddingRight: rows.length > 0 ? 4 : 0,
           marginBottom: rows.length > 0 ? 8 : 0,
           scrollbarWidth: "thin",
           scrollbarColor: "rgba(20,17,13,0.25) transparent",
