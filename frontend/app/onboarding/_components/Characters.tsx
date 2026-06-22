@@ -121,19 +121,16 @@ export function DebtCharacter() {
   );
 }
 
-export function GoalsCharacter({ size = 140 }: { size?: number }) {
+export function GoalsCharacter() {
   return (
-    <Bounce>
-      <svg width={size} height={size} viewBox="0 0 200 200" fill="none">
-        {/* hill */}
-        <path d="M30 185 Q70 140 100 150 Q130 158 170 185 Z" fill="#EFDFCB" stroke={INK} strokeWidth="2.5" />
-        <Body color={COPPER} />
-        <Head cx={95} cy={68} />
-        {/* flag */}
-        <line x1="135" y1="100" x2="135" y2="150" stroke={INK} strokeWidth="3" strokeLinecap="round" />
-        <path d="M135 100 L160 110 L135 120 Z" fill={POSITIVE} stroke={INK} strokeWidth="2" />
-      </svg>
-    </Bounce>
+    <Image
+      src="/onboarding/goals.png"
+      alt=""
+      fill
+      sizes="52vw"
+      style={{ objectFit: "cover" }}
+      priority
+    />
   );
 }
 
