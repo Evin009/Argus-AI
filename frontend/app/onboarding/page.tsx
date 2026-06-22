@@ -60,9 +60,6 @@ const CHARACTERS = [
   RiskToleranceCharacter,
   RiskCharacter,
 ];
-// Chapters whose character is a full-bleed photo/illustration that should cover the entire
-// left panel, instead of the default small centered icon treatment.
-const CHARACTER_FILLS_PANEL = [true, true, true, true, true, true, true, true, true, false];
 
 // Horizontal movement is a common motion-sickness trigger — under reduced
 // motion this collapses to a plain opacity crossfade with no translation.
@@ -139,7 +136,6 @@ export default function OnboardingPage() {
 
   const isLastChapter = chapter === CHAPTERS.length - 1;
   const Character = CHARACTERS[chapter];
-  const fillsPanel = CHARACTER_FILLS_PANEL[chapter];
   const CurrentChapter = CHAPTER_COMPONENTS[chapter];
 
   function goTo(next: number) {
@@ -256,15 +252,7 @@ export default function OnboardingPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.5, ease: [0.45, 0, 0.55, 1] }}
-              style={{
-                position: "absolute",
-                inset: 0,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: fillsPanel ? 0 : 32,
-                textAlign: fillsPanel ? undefined : "center",
-              }}
+              style={{ position: "absolute", inset: 0 }}
             >
               <Character />
             </motion.div>
