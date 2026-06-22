@@ -191,18 +191,16 @@ function PlaidConnectButton({
           background: "var(--grad-accent)",
         }}
       >
-        {/* Glass layer — translucent fill + blur + inset top highlight, the
-            "Liquid Glass Refraction" treatment, revealed only on hover. */}
+        {/* Glass-glance sweep — a light streak passes across the button on
+            hover, like glare crossing glass, matching the Add buttons. */}
         <motion.span
-          variants={{ rest: { opacity: 0 }, hover: { opacity: 1 } }}
-          transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+          variants={{ rest: { x: "-130%" }, hover: { x: "230%" } }}
+          transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
           style={{
             position: "absolute",
             inset: 0,
-            background: "rgba(255,255,255,0.1)",
-            backdropFilter: "blur(6px) saturate(160%)",
-            WebkitBackdropFilter: "blur(6px) saturate(160%)",
-            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.45), inset 0 -1px 0 rgba(0,0,0,0.08)",
+            width: "45%",
+            background: "linear-gradient(115deg, transparent, rgba(255,255,255,0.55), transparent)",
             pointerEvents: "none",
           }}
         />
