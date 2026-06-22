@@ -147,6 +147,19 @@ export function SpendingHabitsCharacter() {
   );
 }
 
+export function SpendingTriggersCharacter() {
+  return (
+    <Image
+      src="/onboarding/spending_trigger.png"
+      alt=""
+      fill
+      sizes="52vw"
+      style={{ objectFit: "cover" }}
+      priority
+    />
+  );
+}
+
 export function BehaviorCharacter({ size = 140 }: { size?: number }) {
   return (
     <Bounce>
