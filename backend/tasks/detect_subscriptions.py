@@ -39,9 +39,9 @@ def _split_amounts_by_period(
 
 
 def _build_subscriptions(
-    bills: list[dict], transactions: list[dict], user_id: str
+    bills: list[dict], transactions: list[dict], user_id: str, reference_date: date | None = None
 ) -> list[dict]:
-    today = date.today()
+    today = reference_date or date.today()
     subscriptions = []
     for bill in bills:
         if bill.get("recurrence_pattern") != "monthly":
