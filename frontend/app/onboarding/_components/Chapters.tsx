@@ -27,6 +27,10 @@ type ChapterProps = {
   state: OnboardingState;
   setState: (s: OnboardingState) => void;
   errors: Partial<Record<keyof OnboardingState, string>>;
+  // Prefetched at page mount (well before this chapter is reached) so the
+  // button never has to show its own loading state on a normal walkthrough.
+  plaidLinkToken?: string | null;
+  plaidPrefetchFailed?: boolean;
 };
 
 export function ChapterIncome({ state, setState, errors }: ChapterProps) {
@@ -106,17 +110,31 @@ export function ChapterExpenses({ state, setState }: ChapterProps) {
   );
 }
 
-function PlaidConnectButton({ onConnected }: { onConnected: (accountCount: number) => void }) {
-  const [linkToken, setLinkToken] = useState<string | null>(null);
+function PlaidConnectButton({
+  linkToken,
+  prefetchFailed,
+  onConnected,
+}: {
+  linkToken?: string | null;
+  prefetchFailed?: boolean;
+  onConnected: (accountCount: number) => void;
+}) {
+  const [fallbackToken, setFallbackToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [connecting, setConnecting] = useState(false);
 
+  // Page-level prefetch is the normal path. This only fires if that prefetch
+  // actually failed — not while it's merely still in flight — so the common
+  // case never makes a redundant second request.
   useEffect(() => {
+    if (!prefetchFailed || linkToken) return;
     api
       .post<{ link_token: string }>("/plaid/link-token")
-      .then((d) => setLinkToken(d.link_token))
+      .then((d) => setFallbackToken(d.link_token))
       .catch((e: Error) => setError(e.message));
-  }, []);
+  }, [prefetchFailed, linkToken]);
+
+  const resolvedToken = linkToken ?? fallbackToken;
 
   const handleSuccess = useCallback(
     async (publicToken: string, metadata: PlaidLinkOnSuccessMetadata) => {
@@ -139,7 +157,7 @@ function PlaidConnectButton({ onConnected }: { onConnected: (accountCount: numbe
     [onConnected]
   );
 
-  const { open, ready } = usePlaidLink({ token: linkToken ?? "", onSuccess: handleSuccess });
+  const { open, ready } = usePlaidLink({ token: resolvedToken ?? "", onSuccess: handleSuccess });
 
   return (
     <div>
@@ -161,13 +179,12 @@ function PlaidConnectButton({ onConnected }: { onConnected: (accountCount: numbe
           alignItems: "center",
           justifyContent: "space-between",
           gap: 14,
-          border: "none",
+          border: "1px solid rgba(255,255,255,0.35)",
           borderRadius: "var(--r-pill)",
           cursor: ready && !connecting ? "pointer" : "default",
           padding: "8px 8px 8px 22px",
-          opacity: !ready ? 0.6 : 1,
+          opacity: !ready ? 0.7 : 1,
           background: "var(--grad-accent)",
-          boxShadow: "0 10px 28px rgba(168,65,43,0.3)",
         }}
       >
         <span style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", color: "#fff" }}>
@@ -197,15 +214,12 @@ function PlaidConnectButton({ onConnected }: { onConnected: (accountCount: numbe
           {connecting ? <ConnectingDots /> : <Landmark size={18} strokeWidth={1.75} color="#fff" />}
         </motion.span>
       </motion.button>
-      {!ready && !error && (
-        <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "#6B6052", margin: "8px 0 0" }}>Preparing secure connection…</p>
-      )}
       {error && <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "#B5462F", margin: "8px 0 0" }}>{error}</p>}
     </div>
   );
 }
 
-export function ChapterConnectAccounts({ state, setState, errors }: ChapterProps) {
+export function ChapterConnectAccounts({ state, setState, errors, plaidLinkToken, plaidPrefetchFailed }: ChapterProps) {
   const [showManual, setShowManual] = useState(false);
   const connected = state.connectedAccountsCount > 0;
 
@@ -258,6 +272,8 @@ export function ChapterConnectAccounts({ state, setState, errors }: ChapterProps
           </div>
         )}
         <PlaidConnectButton
+          linkToken={plaidLinkToken}
+          prefetchFailed={plaidPrefetchFailed}
           onConnected={(count) => setState({ ...state, connectedAccountsCount: count })}
         />
       </Field>

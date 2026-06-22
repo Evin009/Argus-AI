@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion, type Variants } from "framer-motion";
 import { ArrowRight, ArrowLeft, Check } from "lucide-react";
@@ -140,6 +140,22 @@ export default function OnboardingPage() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [errors, setErrors] = useState<Partial<Record<keyof OnboardingState, string>>>({});
   const [state, setState] = useState<OnboardingState>(INITIAL_STATE);
+  const [plaidLinkToken, setPlaidLinkToken] = useState<string | null>(null);
+  const [plaidPrefetchFailed, setPlaidPrefetchFailed] = useState(false);
+
+  // Prefetched on mount, not when the Connect Accounts chapter renders — by
+  // the time a user reaches chapter 4, the token has had several chapters'
+  // worth of time to load, so the button is ready immediately instead of
+  // visibly flipping from a loading state to ready. If this fails, the flag
+  // tells the button (a mandatory step) to fall back to fetching its own —
+  // a silent failure here would otherwise strand the user with no way to
+  // finish onboarding.
+  useEffect(() => {
+    api
+      .post<{ link_token: string }>("/plaid/link-token")
+      .then((d) => setPlaidLinkToken(d.link_token))
+      .catch(() => setPlaidPrefetchFailed(true));
+  }, []);
 
   const isLastChapter = chapter === CHAPTERS.length - 1;
   const Character = CHARACTERS[chapter];
@@ -207,7 +223,7 @@ export default function OnboardingPage() {
     if (chapter > 0) goTo(chapter - 1);
   }
 
-  const chapterProps = { state, setState, errors };
+  const chapterProps = { state, setState, errors, plaidLinkToken, plaidPrefetchFailed };
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
