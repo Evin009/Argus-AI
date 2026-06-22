@@ -150,7 +150,7 @@ export function SpendingHabitsCharacter() {
 export function SpendingTriggersCharacter() {
   return (
     <Image
-      src="/onboarding/spending_trigger.png"
+      src="/onboarding/spending-trigg.png"
       alt=""
       fill
       sizes="52vw"
