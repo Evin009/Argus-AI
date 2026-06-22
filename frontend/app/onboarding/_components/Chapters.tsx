@@ -1,11 +1,27 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { usePlaidLink, type PlaidLinkOnSuccessMetadata } from "react-plaid-link";
-import { CheckCircle2, Landmark } from "lucide-react";
+import { CheckCircle2, Landmark, ShieldCheck } from "lucide-react";
 import { api } from "@/lib/api";
 import { Field, NumberField, SelectField, ChoiceCard, ChipMultiSelect, RepeatableRows } from "./fields";
 import type { OnboardingState } from "./types";
+
+function ConnectingDots() {
+  return (
+    <span style={{ display: "flex", gap: 3 }}>
+      {[0, 1, 2].map((i) => (
+        <motion.span
+          key={i}
+          animate={{ opacity: [0.3, 1, 0.3] }}
+          transition={{ duration: 1, repeat: Infinity, delay: i * 0.15, ease: [0.45, 0, 0.55, 1] }}
+          style={{ width: 5, height: 5, borderRadius: "50%", background: "#fff" }}
+        />
+      ))}
+    </span>
+  );
+}
 
 type ChapterProps = {
   state: OnboardingState;
@@ -127,7 +143,60 @@ function PlaidConnectButton({ onConnected }: { onConnected: (accountCount: numbe
 
   return (
     <div>
-      <ChoiceCard selected={false} onClick={() => open()} title={connecting ? "Connecting…" : "Connect a bank account"} desc="Add another card or account" />
+      {/* Button-in-button CTA matching the Continue button's pattern — trailing
+          icon nested in its own circular badge, magnetic hover via framer-motion
+          variant propagation, grain texture on the copper/red gradient fill. */}
+      <motion.button
+        type="button"
+        onClick={() => open()}
+        disabled={!ready || connecting}
+        initial="rest"
+        whileHover="hover"
+        whileTap={{ scale: 0.98 }}
+        animate="rest"
+        className="grain"
+        style={{
+          width: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 14,
+          border: "none",
+          borderRadius: "var(--r-pill)",
+          cursor: ready && !connecting ? "pointer" : "default",
+          padding: "8px 8px 8px 22px",
+          opacity: !ready ? 0.6 : 1,
+          background: "var(--grad-accent)",
+          boxShadow: "0 10px 28px rgba(168,65,43,0.3)",
+        }}
+      >
+        <span style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", color: "#fff" }}>
+          <span style={{ fontFamily: "var(--font-sans)", fontWeight: 700, fontSize: 16 }}>
+            {connecting ? "Connecting" : "Connect a bank account"}
+          </span>
+          {!connecting && (
+            <span style={{ display: "flex", alignItems: "center", gap: 4, fontFamily: "var(--font-sans)", fontWeight: 500, fontSize: 11.5, opacity: 0.85 }}>
+              <ShieldCheck size={12} strokeWidth={2} /> Secured by Plaid
+            </span>
+          )}
+        </span>
+        <motion.span
+          variants={{ rest: { x: 0, y: 0, scale: 1 }, hover: { x: 2, y: -1, scale: 1.06 } }}
+          transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: "50%",
+            background: "rgba(255,255,255,0.18)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+          }}
+        >
+          {connecting ? <ConnectingDots /> : <Landmark size={18} strokeWidth={1.75} color="#fff" />}
+        </motion.span>
+      </motion.button>
       {!ready && !error && (
         <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "#6B6052", margin: "8px 0 0" }}>Preparing secure connection…</p>
       )}
@@ -144,7 +213,10 @@ export function ChapterConnectAccounts({ state, setState, errors }: ChapterProps
     <>
       <Field label="Connect your accounts" required error={errors.connectedAccountsCount}>
         {connected ? (
-          <div
+          <motion.div
+            initial={{ opacity: 0, y: -6, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
             style={{
               display: "flex",
               alignItems: "center",
@@ -156,11 +228,18 @@ export function ChapterConnectAccounts({ state, setState, errors }: ChapterProps
               marginBottom: 10,
             }}
           >
-            <CheckCircle2 size={20} strokeWidth={1.75} color="var(--amber-700)" />
+            <motion.span
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.35, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+              style={{ display: "flex" }}
+            >
+              <CheckCircle2 size={20} strokeWidth={1.75} color="var(--amber-700)" />
+            </motion.span>
             <span style={{ fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: 15, color: "#1C1815" }}>
               {state.connectedAccountsCount} {state.connectedAccountsCount === 1 ? "account" : "accounts"} connected
             </span>
-          </div>
+          </motion.div>
         ) : (
           <div
             style={{
