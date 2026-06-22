@@ -75,7 +75,12 @@ def _mock_supabase_completion(upsert_row: dict):
     return mock
 
 
-_COMPLETE_PAYLOAD = {"income": 5000, "pay_schedule": "biweekly", "risk_tolerance": "moderate", "completed": True}
+_COMPLETE_PAYLOAD = {
+    "income": 5000,
+    "pay_schedule": "biweekly",
+    "risk_tolerance": "moderate",
+    "completed": True,
+}
 
 
 def test_post_onboarding_completed_sets_completed_at():
@@ -152,18 +157,17 @@ def test_post_onboarding_rejects_non_numeric_income():
 
 def test_post_onboarding_rejects_negative_debt_balance():
     mock = _mock_supabase_completion({"user_id": "test-user-id"})
+    debt = {"name": "Visa", "balance": -500, "interest_rate": 22, "minimum_payment": 50}
     with patch("routers.onboarding.get_supabase", return_value=mock):
-        resp = client.post(
-            "/onboarding",
-            json={"debts": [{"name": "Visa", "balance": -500, "interest_rate": 22, "minimum_payment": 50}]},
-        )
+        resp = client.post("/onboarding", json={"debts": [debt]})
     assert resp.status_code == 422
 
 
 def test_post_onboarding_rejects_negative_goal_target():
     mock = _mock_supabase_completion({"user_id": "test-user-id"})
+    goal = {"title": "Emergency fund", "target_amount": -1}
     with patch("routers.onboarding.get_supabase", return_value=mock):
-        resp = client.post("/onboarding", json={"goals": [{"title": "Emergency fund", "target_amount": -1}]})
+        resp = client.post("/onboarding", json={"goals": [goal]})
     assert resp.status_code == 422
 
 

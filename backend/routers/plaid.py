@@ -91,8 +91,10 @@ async def exchange_public_token(
         # account is debt-bearing, and some institutions don't support it.
         liability_fields: dict = {}
         try:
-            liabilities_response = client.liabilities_get(LiabilitiesGetRequest(access_token=access_token))
-            liability_fields = extract_liability_fields(liabilities_response["liabilities"].to_dict())
+            liabilities_request = LiabilitiesGetRequest(access_token=access_token)
+            liabilities_response = client.liabilities_get(liabilities_request)
+            liabilities_data = liabilities_response["liabilities"].to_dict()
+            liability_fields = extract_liability_fields(liabilities_data)
         except Exception:
             pass
 

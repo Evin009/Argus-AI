@@ -1,5 +1,4 @@
 from datetime import UTC, datetime
-from typing import Optional
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field, model_validator
@@ -32,7 +31,7 @@ class Expense(BaseModel):
 class Goal(BaseModel):
     title: str
     target_amount: float = Field(ge=0)
-    priority: Optional[int] = None
+    priority: int | None = None
 
 
 class Debt(BaseModel):
@@ -43,27 +42,30 @@ class Debt(BaseModel):
 
 
 class OnboardingRequest(BaseModel):
-    income: Optional[float] = Field(default=None, gt=0)
-    pay_schedule: Optional[str] = None
-    income_stability: Optional[str] = None
-    other_income: Optional[bool] = None
-    rent: Optional[float] = Field(default=None, ge=0)
-    major_expenses: Optional[list[Expense]] = None
-    debts: Optional[list[Debt]] = None
-    goals: Optional[list[Goal]] = None
-    risk_tolerance: Optional[str] = None
-    impulse_spender: Optional[str] = None
-    spending_triggers: Optional[list[str]] = None
-    balance_check_frequency: Optional[str] = None
-    payment_preference: Optional[str] = None
-    overdraft_frequency: Optional[str] = None
-    buffer_preference: Optional[str] = None
-    completed: Optional[bool] = None
+    income: float | None = Field(default=None, gt=0)
+    pay_schedule: str | None = None
+    income_stability: str | None = None
+    other_income: bool | None = None
+    rent: float | None = Field(default=None, ge=0)
+    major_expenses: list[Expense] | None = None
+    debts: list[Debt] | None = None
+    goals: list[Goal] | None = None
+    risk_tolerance: str | None = None
+    impulse_spender: str | None = None
+    spending_triggers: list[str] | None = None
+    balance_check_frequency: str | None = None
+    payment_preference: str | None = None
+    overdraft_frequency: str | None = None
+    buffer_preference: str | None = None
+    completed: bool | None = None
 
     @model_validator(mode="after")
     def _required_fields_when_completing(self):
-        if self.completed and (self.income is None or not self.pay_schedule or not self.risk_tolerance):
-            raise ValueError("income, pay_schedule, and risk_tolerance are required to complete onboarding")
+        missing_required = self.income is None or not self.pay_schedule or not self.risk_tolerance
+        if self.completed and missing_required:
+            raise ValueError(
+                "income, pay_schedule, and risk_tolerance are required to complete onboarding"
+            )
         return self
 
 
