@@ -3,6 +3,7 @@ from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException
 from plaid.model.item_public_token_exchange_request import ItemPublicTokenExchangeRequest
+from plaid.model.liabilities_get_request import LiabilitiesGetRequest
 from plaid.model.link_token_create_request import LinkTokenCreateRequest
 from plaid.model.link_token_create_request_user import LinkTokenCreateRequestUser
 from pydantic import BaseModel
@@ -10,6 +11,7 @@ from pydantic import BaseModel
 from db.client import get_supabase
 from middleware.auth import get_current_user
 from services.encryption import encrypt_token
+from services.liabilities import extract_liability_fields
 from services.plaid_client import PLAID_COUNTRY_CODES, PLAID_PRODUCTS, get_plaid_client
 
 router = APIRouter(prefix="/plaid", tags=["plaid"])
@@ -85,8 +87,20 @@ async def exchange_public_token(
         )
         plaid_item_id = item_row.data["id"]
 
+        # Liabilities (APR, minimum payment) is best-effort — not every linked
+        # account is debt-bearing, and some institutions don't support it.
+        liability_fields: dict = {}
+        try:
+            liabilities_request = LiabilitiesGetRequest(access_token=access_token)
+            liabilities_response = client.liabilities_get(liabilities_request)
+            liabilities_data = liabilities_response["liabilities"].to_dict()
+            liability_fields = extract_liability_fields(liabilities_data)
+        except Exception:
+            pass
+
         for acct in accounts:
             balances = acct["balances"]
+            liability = liability_fields.get(acct["account_id"], {})
             supabase.table("accounts").upsert(
                 {
                     "id": str(uuid.uuid4()),
@@ -99,6 +113,8 @@ async def exchange_public_token(
                     else str(acct["type"]),
                     "balance": balances.get("current") or balances.get("available") or 0,
                     "credit_limit": balances.get("limit"),
+                    "minimum_payment": liability.get("minimum_payment"),
+                    "interest_rate": liability.get("interest_rate"),
                     "last_synced": datetime.now(UTC).isoformat(),
                 },
                 on_conflict="plaid_account_id",

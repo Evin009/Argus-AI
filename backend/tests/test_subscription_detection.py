@@ -95,7 +95,7 @@ def test_build_subscriptions_detects_monthly_bill():
         {"merchant": "Netflix", "amount": 15.99, "timestamp": "2026-03-15"},
         {"merchant": "Netflix", "amount": 12.99, "timestamp": "2026-02-10"},
     ]
-    subs = _build_subscriptions(bills, transactions, "user-123")
+    subs = _build_subscriptions(bills, transactions, "user-123", reference_date=date(2026, 5, 1))
     assert len(subs) == 1
     assert subs[0]["merchant"] == "Netflix"
     assert subs[0]["user_id"] == "user-123"
@@ -116,7 +116,7 @@ def test_build_subscriptions_skips_non_monthly():
     transactions = [
         {"merchant": "Weekly Cleaner", "amount": 25.0, "timestamp": "2026-04-24"},
     ]
-    subs = _build_subscriptions(bills, transactions, "user-123")
+    subs = _build_subscriptions(bills, transactions, "user-123", reference_date=date(2026, 5, 1))
     assert len(subs) == 0
 
 
@@ -135,7 +135,7 @@ def test_build_subscriptions_price_creep_detected():
         {"merchant": "Spotify", "amount": 11.99, "timestamp": "2026-03-15"},
         {"merchant": "Spotify", "amount": 9.99, "timestamp": "2026-02-10"},
     ]
-    subs = _build_subscriptions(bills, transactions, "user-123")
+    subs = _build_subscriptions(bills, transactions, "user-123", reference_date=date(2026, 5, 1))
     assert len(subs) == 1
     assert subs[0]["price_change_pct"] > 5.0
 
@@ -155,6 +155,6 @@ def test_build_subscriptions_no_price_creep():
         {"merchant": "Netflix", "amount": 15.99, "timestamp": "2026-03-15"},
         {"merchant": "Netflix", "amount": 15.99, "timestamp": "2026-02-10"},
     ]
-    subs = _build_subscriptions(bills, transactions, "user-123")
+    subs = _build_subscriptions(bills, transactions, "user-123", reference_date=date(2026, 5, 1))
     assert len(subs) == 1
     assert subs[0]["price_change_pct"] == pytest.approx(0.0, abs=0.01)

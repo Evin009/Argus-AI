@@ -63,13 +63,20 @@ Local dev: `infra/dev-up.sh` starts API + Celery + Redis via Docker Compose. See
 
 Follow this exactly when starting any phase or feature work:
 
-1. **Write the phase plan** in `Phase Plans/` (format: `Phase_X_Name.md`, see existing files for convention) — what's being built and why, scoped to that phase.
-2. **List the feature branches** that phase needs, inside that same phase-plan doc.
-3. **Work one feature at a time**, TDD style, using the `superpowers:test-driven-development` skill:
-   write the failing test → write the code → run the test → confirm it passes.
-4. **Stop after each feature.** Give a short summary (what / why / how, no fluff), then stop and prompt for commit + push — never commit or push automatically.
+1. **Phase plan first.** Write the phase plan in `Phase Plans/Phase_X_Name.md`, matching the
+   existing convention (git branch tree, feature checklist, endpoints, schema, Definition of Done).
+   List every feature branch the phase needs.
+2. **One feature at a time.** Never start a second feature before the current one is fully closed out.
+3. **Within a feature, one task at a time, TDD style** (`superpowers:test-driven-development`):
+   write the failing test → write the code → run it → confirm it passes.
+4. **Stop after each task.** Give a short, clear, non-verbose explanation of what was done, then
+   prompt for a commit. Don't move to the next task until told to.
+5. **Update the phase plan checklist after every single task** is completed — check it off in
+   `Phase Plans/Phase_X_Name.md` before moving on, not just at the end of the feature.
+6. **Stop after the feature is fully done.** Give a bulleted summary of everything the feature did,
+   then prompt for a commit covering the whole feature.
 
-No skipping ahead to the next feature before that prompt-and-stop happens.
+Never commit or push automatically — always stop and ask.
 
 ---
 
