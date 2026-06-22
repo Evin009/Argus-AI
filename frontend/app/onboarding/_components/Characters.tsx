@@ -108,21 +108,16 @@ export function ExpensesCharacter() {
   );
 }
 
-export function DebtCharacter({ size = 140 }: { size?: number }) {
+export function DebtCharacter() {
   return (
-    <Bounce>
-      <svg width={size} height={size} viewBox="0 0 200 200" fill="none">
-        <Body color="#A8412B" />
-        <Head />
-        {/* broken chain */}
-        <ellipse cx="58" cy="130" rx="11" ry="15" fill="none" stroke={INK} strokeWidth="3" />
-        <ellipse cx="58" cy="158" rx="11" ry="15" fill="none" stroke="#A8412B" strokeWidth="3" strokeDasharray="4 4" />
-        {/* scissors hand */}
-        <path d="M70 120 L92 110" stroke={INK} strokeWidth="3" strokeLinecap="round" />
-        <path d="M92 110 L106 100 M92 110 L106 118" stroke={COPPER} strokeWidth="3.5" strokeLinecap="round" />
-        <circle cx="92" cy="110" r="3" fill={INK} />
-      </svg>
-    </Bounce>
+    <Image
+      src="/onboarding/debt.png"
+      alt=""
+      fill
+      sizes="52vw"
+      style={{ objectFit: "cover" }}
+      priority
+    />
   );
 }
 
