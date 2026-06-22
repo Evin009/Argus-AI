@@ -348,12 +348,14 @@ export function RepeatableRows<T extends Record<string, string | number>>({
           {rows.length} {rows.length === 1 ? "entry" : "entries"} added
         </p>
       )}
-      {/* Fixed height from the very first row — adding entries scrolls inside this
-          box instead of growing the chapter card, so the card stays a constant
-          size no matter how many rows exist. */}
+      {/* Fixed (not max) height from the very first row — height alone would let
+          the box shrink-to-fit below the cap and still grow row by row. A true
+          fixed height reserves the full space immediately, so the box is the
+          same size whether it holds 1 row or 20; only the scroll position
+          changes, never the chapter card's size. */}
       <div
         style={{
-          maxHeight: rows.length > 0 ? 190 : 0,
+          height: rows.length > 0 ? 190 : 0,
           overflowY: rows.length > 0 ? "auto" : "hidden",
           paddingRight: rows.length > 0 ? 4 : 0,
           marginBottom: rows.length > 0 ? 8 : 0,
