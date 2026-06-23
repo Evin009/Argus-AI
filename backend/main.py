@@ -29,7 +29,7 @@ app = FastAPI(
 frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
 
 # In development allow any localhost port; in production restrict to FRONTEND_URL
-_dev_origins = [f"http://localhost:{p}" for p in range(3000, 3010)]
+_dev_origins = [f"http://localhost:{p}" for p in range(3000, 3100)]
 allow_origins = list({frontend_url, *_dev_origins})
 
 app.add_middleware(
