@@ -368,6 +368,10 @@ export default function ProfilePage() {
     );
   }
 
+  const hasTransactionData = overview && Object.keys(overview.spending_by_category).length > 0;
+  const hasMerchantData = merchants.length > 0;
+  const hasAnyData = hasTransactionData || hasMerchantData;
+
   // ── Level 1: Overview ──
   return (
     <div style={containerStyle}>
@@ -375,14 +379,44 @@ export default function ProfilePage() {
         <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: "var(--paper)" }}>Financial Profile</h1>
       </div>
 
-      {overview && (
+      {!hasAnyData && overview && (
+        <div style={{
+          ...cardStyle,
+          display: "flex", flexDirection: "column", alignItems: "center",
+          justifyContent: "center", gap: 12, padding: 48, textAlign: "center",
+        }}>
+          <div style={{ fontSize: 32 }}>📊</div>
+          <div style={{ fontSize: 16, fontWeight: 600, color: "var(--paper)" }}>No spending data yet</div>
+          <div style={{ fontSize: 13, color: "var(--on-dark-400)", maxWidth: 320 }}>
+            Link a bank account and sync transactions to see your spending breakdown, merchant history, and financial profile.
+          </div>
+          <a
+            href="/accounts"
+            style={{
+              marginTop: 8, padding: "8px 20px", borderRadius: "var(--r-md)",
+              background: "var(--copper)", color: "#fff", fontSize: 13, fontWeight: 600,
+              textDecoration: "none",
+            }}
+          >
+            Connect a bank →
+          </a>
+        </div>
+      )}
+
+      {overview && hasAnyData && (
         <>
           {/* Spending ring */}
           <div style={cardStyle}>
             <div style={{ fontSize: 12, color: "var(--on-dark-400)", marginBottom: 16, letterSpacing: "0.06em", textTransform: "uppercase", fontWeight: 600 }}>
               Spending by category
             </div>
-            <SpendingRing data={overview.spending_by_category} />
+            {hasTransactionData ? (
+              <SpendingRing data={overview.spending_by_category} />
+            ) : (
+              <div style={{ fontSize: 13, color: "var(--on-dark-400)", padding: "16px 0" }}>
+                No categorized transactions yet. Sync your bank to populate this.
+              </div>
+            )}
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 20 }}>
               {Object.keys(overview.spending_by_category).map((cat) => (
                 <button
@@ -430,20 +464,27 @@ export default function ProfilePage() {
         </>
       )}
 
-      {/* Merchant rankings */}
-      <div style={cardStyle}>
-        <div style={{ fontSize: 12, color: "var(--on-dark-400)", marginBottom: 14, textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.06em" }}>
-          Top merchants by spend
+      {hasAnyData && (
+        <div style={cardStyle}>
+          <div style={{ fontSize: 12, color: "var(--on-dark-400)", marginBottom: 14, textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.06em" }}>
+            Top merchants by spend
+          </div>
+          {hasMerchantData ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {merchants.slice(0, 10).map((m) => (
+                <MerchantCard key={m.merchant} m={m} onClick={() => openMerchant(m.merchant)} />
+              ))}
+            </div>
+          ) : (
+            <div style={{ fontSize: 13, color: "var(--on-dark-400)", padding: "8px 0" }}>
+              No merchant data yet.
+            </div>
+          )}
+          {detailLoading && (
+            <div style={{ color: "var(--on-dark-400)", fontSize: 13, marginTop: 12 }}>Loading…</div>
+          )}
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          {merchants.slice(0, 10).map((m) => (
-            <MerchantCard key={m.merchant} m={m} onClick={() => openMerchant(m.merchant)} />
-          ))}
-        </div>
-        {detailLoading && (
-          <div style={{ color: "var(--on-dark-400)", fontSize: 13, marginTop: 12 }}>Loading…</div>
-        )}
-      </div>
+      )}
     </div>
   );
 }
