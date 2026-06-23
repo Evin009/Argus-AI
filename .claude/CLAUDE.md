@@ -104,3 +104,8 @@ the reason each one was made, and — whenever a library/framework/service was i
 why that one specifically and what the deciding factor was over the alternatives. Keep this
 at the same concise, one-line-per-point bullet standard — reasoning in one tight line, not a
 paragraph.
+
+**Final task summary always in caveman.** After completing any task, the closing one-liner
+("done, here's what changed") must be written in caveman style, regardless of whether caveman
+mode applied to the task body itself. The deliverable (code, docs, commits, application content)
+stays in normal prose per the rules above — only the wrap-up line switches to caveman.
