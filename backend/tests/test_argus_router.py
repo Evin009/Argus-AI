@@ -74,6 +74,24 @@ def test_chat_logs_prediction_when_present():
     mock_log.assert_called_once_with("test-user-id", prediction)
 
 
+def test_chat_passes_page_to_brief():
+    mock_anthropic_client = MagicMock()
+    mock_anthropic_client.messages.stream.side_effect = lambda **_: _fake_stream(["text"])
+
+    with patch("routers.argus._retrieve_chat_context", return_value={
+        "tool_results": {}, "profile": {}, "past_predictions": [], "distilled_insights": [],
+    }), patch("routers.argus._build_chat_brief", return_value="brief") as mock_brief, \
+         patch("routers.argus.anthropic.Anthropic", return_value=mock_anthropic_client), \
+         patch("routers.argus._extract_prediction_block", return_value=None):
+        resp = client.post(
+            "/argus/chat", json={"query": "what bills do I have", "page": "/bills"}
+        )
+
+    assert resp.status_code == 200
+    _, kwargs = mock_brief.call_args
+    assert kwargs["page"] == "/bills"
+
+
 def test_chat_requires_auth():
     app.dependency_overrides.pop(get_current_user, None)
     resp = client.post("/argus/chat", json={"query": "hi"})

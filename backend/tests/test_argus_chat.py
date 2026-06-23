@@ -13,6 +13,7 @@ os.environ.setdefault("PLAID_ENV", "sandbox")
 os.environ.setdefault("PLAID_TOKEN_ENCRYPTION_KEY", "a" * 64)
 
 from agents.chat import (  # noqa: E402
+    _build_chat_brief,
     _extract_card_blocks,
     _extract_prediction_block,
     _log_prediction,
@@ -162,3 +163,26 @@ def test_strip_card_blocks_removes_cards():
 
 def test_strip_card_blocks_no_op_when_no_cards():
     assert _strip_card_blocks("plain text") == "plain text"
+
+
+def test_build_chat_brief_includes_current_screen_when_given():
+    context = {
+        "profile": {},
+        "tool_results": {},
+        "distilled_insights": [],
+        "past_predictions": [],
+    }
+    brief = _build_chat_brief("what's this", context, page="/bills")
+    assert "CURRENT SCREEN" in brief
+    assert "/bills" in brief
+
+
+def test_build_chat_brief_omits_current_screen_when_absent():
+    context = {
+        "profile": {},
+        "tool_results": {},
+        "distilled_insights": [],
+        "past_predictions": [],
+    }
+    brief = _build_chat_brief("what's this", context)
+    assert "CURRENT SCREEN" not in brief
