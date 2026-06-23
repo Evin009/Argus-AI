@@ -60,10 +60,10 @@ develop
 *The endpoint the frontend actually talks to*
 
 **Backend:**
-- [ ] `backend/routers/argus.py` — `POST /argus/chat` SSE streaming endpoint
-- [ ] RAG retrieval wired in: hot transactions (pgvector, last 90 days) + distilled monthly summaries (`ai_insights`) + profile (`user_financial_profiles`) + outcome ledger (relevant past predictions + accuracy for this user)
-- [ ] Every response that makes a prediction/recommendation logs to `ai_predictions`
-- [ ] Tests for the endpoint (mocked RAG + supervisor)
+- [x] `backend/routers/argus.py` — `POST /argus/chat` SSE streaming endpoint
+- [x] RAG retrieval wired in: hot transactions (pgvector, last 90 days) + distilled monthly summaries (`ai_insights`) + profile (`user_financial_profiles`) + outcome ledger (relevant past predictions + accuracy for this user)
+- [x] Every response that makes a prediction/recommendation logs to `ai_predictions`
+- [x] Tests for the endpoint (mocked RAG + supervisor)
 - [ ] Merge → `develop`
 
 ---
