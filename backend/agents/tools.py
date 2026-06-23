@@ -87,3 +87,21 @@ def _get_spending_by_category_tool(user_id: str) -> dict:
         .execute()
     )
     return {"transactions": result.data or []}
+
+
+@register_tool(
+    "get_safe_to_spend",
+    "Returns how much money is safe to spend today without risking upcoming bills",
+    keywords=["safe to spend", "safe amount", "how much can i spend", "available money"],
+)
+def _get_safe_to_spend_tool(user_id: str) -> dict:
+    supabase = get_supabase()
+    cached = (
+        supabase.table("safe_to_spend_cache")
+        .select("safe_amount, breakdown, computed_at")
+        .eq("user_id", user_id)
+        .execute()
+    ).data or []
+    if cached:
+        return cached[0]
+    return {"safe_amount": None, "breakdown": {}, "computed_at": None}
