@@ -140,6 +140,17 @@ LangGraph multi-agent pipeline (enrichment + analyst + memory nodes), pgvector R
 
 ---
 
+## Phase 6.5 — UI Design Overhaul ⬜
+*After Phase 6*
+
+**Goal:** Bring every app page into the Argus design language. Pages were built functional-first with zero token usage. This phase makes the product look cohesive before Phase 7 ships new surfaces.
+
+Pages redesigned: login, signup, verify-email, transactions, bills, bills calendar, subscriptions, accounts, settings, intelligence feed, Argus chat page + response cards, Argus side panel.
+
+**Deliverable:** Every page uses design tokens consistently — no raw color/spacing utilities, typography scale applied everywhere, side panel visually matches the main chat page.
+
+---
+
 ## Phase 7 — Financial Profile + Guardian ⬜
 *Weeks 15–16*
 
