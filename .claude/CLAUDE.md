@@ -75,6 +75,10 @@ Follow this exactly when starting any phase or feature work:
    `Phase Plans/Phase_X_Name.md` before moving on, not just at the end of the feature.
 5. **Stop only once the feature is fully done.** Give a concise, bulleted, one-line-per-point
    summary of what was implemented (architecture/approach) — not verbose, no long prose.
+   Write bullets in caveman style. Strip technical terms — explain what the user can now *do*
+   or what the app can now *do*, not how it works internally. At phase close, add a plain-English
+   paragraph (2–3 sentences max, caveman tone) covering what the phase aimed to achieve and what
+   was actually built.
 6. **Merge the feature branch into the phase branch autonomously** — but always pause and ask
    ("merge about to happen, proceed?") before that merge actually executes. Same rule applies to
    merging the phase branch into `develop`, opening the `develop` → `main` PR, and the final merge
