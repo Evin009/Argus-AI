@@ -82,10 +82,10 @@ develop
 *Argus everywhere, not just its own page*
 
 **Frontend:**
-- [ ] Side panel component — slides in from right (380px)
-- [ ] Cmd+K trigger from any screen
-- [ ] Context-aware per current screen (knows what page the user is on)
-- [ ] Conversation persists across navigation (not reset per route change)
+- [x] Side panel component — slides in from right (380px)
+- [x] Cmd+K trigger from any screen
+- [x] Context-aware per current screen (knows what page the user is on)
+- [x] Conversation persists across navigation (not reset per route change)
 - [ ] Merge → `develop`
 
 ---
