@@ -38,6 +38,7 @@ export async function streamChat(
   query: string,
   onChunk: (text: string) => void,
   onDone: (fullText: string, cards: unknown[]) => void,
+  page?: string,
 ): Promise<void> {
   const token = await getToken();
   const res = await fetch(`${API_URL}/argus/chat`, {
@@ -46,7 +47,7 @@ export async function streamChat(
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ query }),
+    body: JSON.stringify({ query, page }),
   });
 
   if (!res.ok || !res.body) {

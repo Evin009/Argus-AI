@@ -6,6 +6,8 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
 
+import { ArgusSidePanel } from "./_components/ArgusSidePanel";
+
 const NAV = [
   {
     href: "/dashboard",
@@ -152,11 +154,24 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const [argusPanelOpen, setArgusPanelOpen] = useState(false);
 
   useEffect(() => {
     const stored = (localStorage.getItem("argus-theme") as "dark" | "light") ?? "dark";
     setTheme(stored);
     document.body.classList.toggle("light", stored === "light");
+  }, []);
+
+  useEffect(() => {
+    function handleKeydown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setArgusPanelOpen((prev) => !prev);
+      }
+      if (e.key === "Escape") setArgusPanelOpen(false);
+    }
+    window.addEventListener("keydown", handleKeydown);
+    return () => window.removeEventListener("keydown", handleKeydown);
   }, []);
 
   function toggleTheme(mode: "dark" | "light") {
@@ -253,6 +268,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <main style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", overflowY: "auto" }}>
         {children}
       </main>
+
+      <ArgusSidePanel
+        open={argusPanelOpen}
+        onClose={() => setArgusPanelOpen(false)}
+        page={pathname}
+      />
     </div>
   );
 }

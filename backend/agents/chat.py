@@ -143,8 +143,10 @@ def _retrieve_chat_context(user_id: str, query: str) -> dict:
     }
 
 
-def _build_chat_brief(query: str, context: dict) -> str:
+def _build_chat_brief(query: str, context: dict, page: str | None = None) -> str:
+    screen_line = f"CURRENT SCREEN: {page}\n\n" if page else ""
     return (
+        f"{screen_line}"
         f"USER QUESTION:\n{query}\n\n"
         f"USER PROFILE:\n{json.dumps(context['profile'], indent=2)}\n\n"
         f"RELEVANT LIVE DATA:\n{json.dumps(context['tool_results'], indent=2)}\n\n"

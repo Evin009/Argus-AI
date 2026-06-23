@@ -24,11 +24,14 @@ router = APIRouter(prefix="/argus", tags=["argus"])
 
 class ChatRequest(BaseModel):
     query: str
+    page: str | None = None
 
 
-async def _stream_chat_response(user_id: str, query: str) -> AsyncGenerator[str, None]:
+async def _stream_chat_response(
+    user_id: str, query: str, page: str | None = None
+) -> AsyncGenerator[str, None]:
     context = _retrieve_chat_context(user_id, query)
-    brief = _build_chat_brief(query, context)
+    brief = _build_chat_brief(query, context, page=page)
 
     client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
     full_text = ""
@@ -60,6 +63,6 @@ async def _stream_chat_response(user_id: str, query: str) -> AsyncGenerator[str,
 @router.post("/chat")
 async def chat(payload: ChatRequest, user_id: str = Depends(get_current_user)):
     return StreamingResponse(
-        _stream_chat_response(user_id, payload.query),
+        _stream_chat_response(user_id, payload.query, page=payload.page),
         media_type="text/event-stream",
     )
