@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 from main import app
 from middleware.auth import get_current_user
 
-app.dependency_overrides[get_current_user] = lambda: "user-1"
+app.dependency_overrides[get_current_user] = lambda: "test-user-id"
 client = TestClient(app)
 
 
@@ -50,12 +50,10 @@ def test_calendar_returns_sorted_entries():
             "next_due_date": (today + timedelta(days=2)).isoformat(),
         }
     ]
-
     mock_supabase = make_supabase(bills, subs)
-    with (
-        patch("routers.calendar.get_supabase", return_value=mock_supabase),
-        patch("services.merchant_logos.requests.head") as h,
-    ):
+    with patch("routers.calendar.get_supabase", return_value=mock_supabase), patch(
+        "services.merchant_logos.requests.head"
+    ) as h:
         h.return_value.status_code = 404
         resp = client.get("/calendar")
 
@@ -76,12 +74,10 @@ def test_calendar_urgency_high_within_3_days():
             "next_due_date": (today + timedelta(days=1)).isoformat(),
         }
     ]
-
     mock_supabase = make_supabase(bills, [])
-    with (
-        patch("routers.calendar.get_supabase", return_value=mock_supabase),
-        patch("services.merchant_logos.requests.head") as h,
-    ):
+    with patch("routers.calendar.get_supabase", return_value=mock_supabase), patch(
+        "services.merchant_logos.requests.head"
+    ) as h:
         h.return_value.status_code = 404
         resp = client.get("/calendar")
 
@@ -99,12 +95,10 @@ def test_calendar_urgency_medium_within_7_days():
             "next_due_date": (today + timedelta(days=5)).isoformat(),
         }
     ]
-
     mock_supabase = make_supabase(bills, [])
-    with (
-        patch("routers.calendar.get_supabase", return_value=mock_supabase),
-        patch("services.merchant_logos.requests.head") as h,
-    ):
+    with patch("routers.calendar.get_supabase", return_value=mock_supabase), patch(
+        "services.merchant_logos.requests.head"
+    ) as h:
         h.return_value.status_code = 404
         resp = client.get("/calendar")
 

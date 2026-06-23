@@ -5,7 +5,7 @@ from fastapi.testclient import TestClient
 from main import app
 from middleware.auth import get_current_user
 
-app.dependency_overrides[get_current_user] = lambda: "user-1"
+app.dependency_overrides[get_current_user] = lambda: "test-user-id"
 client = TestClient(app)
 
 

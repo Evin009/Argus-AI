@@ -5,7 +5,7 @@ from fastapi.testclient import TestClient
 from main import app
 from middleware.auth import get_current_user
 
-app.dependency_overrides[get_current_user] = lambda: "user-1"
+app.dependency_overrides[get_current_user] = lambda: "test-user-id"
 client = TestClient(app)
 
 
@@ -46,7 +46,9 @@ def test_get_safe_to_spend_live_compute_when_no_cache():
         if name == "safe_to_spend_cache":
             m.select.return_value.eq.return_value.execute.return_value.data = []
         elif name == "accounts":
-            m.select.return_value.eq.return_value.execute.return_value.data = [{"balance": 800.0}]
+            m.select.return_value.eq.return_value.execute.return_value.data = [
+                {"balance": 800.0}
+            ]
         elif name == "bills":
             m.select.return_value.eq.return_value.execute.return_value.data = []
         elif name == "onboarding_responses":
