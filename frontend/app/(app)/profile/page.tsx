@@ -2,7 +2,7 @@
 
 export const dynamic = "force-dynamic";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -168,8 +168,8 @@ function HeatmapGrid({ data }: { data: Record<string, Record<string, number>> })
           <div key={w} style={{ fontSize: 11, color: "var(--on-dark-400)", textAlign: "center" }}>{w}</div>
         ))}
         {days.map((day, di) => (
-          <>
-            <div key={`day-${di}`} style={{ fontSize: 11, color: "var(--on-dark-400)", display: "flex", alignItems: "center" }}>{day}</div>
+          <React.Fragment key={`row-${di}`}>
+            <div style={{ fontSize: 11, color: "var(--on-dark-400)", display: "flex", alignItems: "center" }}>{day}</div>
             {weeks.map((_, wi) => {
               const count = (data[String(di)] ?? {})[String(wi)] ?? 0;
               const intensity = count / maxVal;
@@ -184,7 +184,7 @@ function HeatmapGrid({ data }: { data: Record<string, Record<string, number>> })
                 />
               );
             })}
-          </>
+          </React.Fragment>
         ))}
       </div>
     </div>
