@@ -37,7 +37,7 @@ export const api = {
 export async function streamChat(
   query: string,
   onChunk: (text: string) => void,
-  onDone: (fullText: string) => void,
+  onDone: (fullText: string, cards: unknown[]) => void,
 ): Promise<void> {
   const token = await getToken();
   const res = await fetch(`${API_URL}/argus/chat`, {
@@ -71,9 +71,10 @@ export async function streamChat(
       const payload = JSON.parse(line.slice("data: ".length)) as {
         text?: string;
         done?: boolean;
+        cards?: unknown[];
       };
       if (payload.done) {
-        onDone(payload.text ?? "");
+        onDone(payload.text ?? "", payload.cards ?? []);
       } else if (payload.text) {
         onChunk(payload.text);
       }

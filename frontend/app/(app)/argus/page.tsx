@@ -8,10 +8,14 @@ import { Sparkles, ArrowUp } from "lucide-react";
 
 import { streamChat } from "@/lib/api";
 
+import { ArgusCard, type ArgusCardModel } from "./_components/Cards";
+
 type ChatMessage = {
   id: string;
   role: "user" | "argus";
   text: string;
+  cards: ArgusCardModel[];
+  pending: boolean;
 };
 
 export default function ArgusChatPage() {
@@ -47,29 +51,44 @@ function ArgusChat() {
     const trimmed = query.trim();
     if (!trimmed || streaming) return;
 
-    const userMessage: ChatMessage = { id: crypto.randomUUID(), role: "user", text: trimmed };
+    const userMessage: ChatMessage = {
+      id: crypto.randomUUID(),
+      role: "user",
+      text: trimmed,
+      cards: [],
+      pending: false,
+    };
     const argusId = crypto.randomUUID();
-    setMessages((prev) => [...prev, userMessage, { id: argusId, role: "argus", text: "" }]);
+    setMessages((prev) => [
+      ...prev,
+      userMessage,
+      { id: argusId, role: "argus", text: "", cards: [], pending: true },
+    ]);
     setInput("");
     setStreaming(true);
 
     streamChat(
       trimmed,
-      (chunk) => {
-        setMessages((prev) =>
-          prev.map((m) => (m.id === argusId ? { ...m, text: m.text + chunk } : m))
-        );
+      () => {
+        // Card JSON streams in fenced blocks mid-flight — not shown raw;
+        // the "thinking" indicator covers it until the parsed cards land.
       },
-      (fullText) => {
+      (fullText, cards) => {
         setMessages((prev) =>
-          prev.map((m) => (m.id === argusId ? { ...m, text: fullText } : m))
+          prev.map((m) =>
+            m.id === argusId
+              ? { ...m, text: fullText, cards: cards as ArgusCardModel[], pending: false }
+              : m
+          )
         );
         setStreaming(false);
       }
     ).catch((err) => {
       setMessages((prev) =>
         prev.map((m) =>
-          m.id === argusId ? { ...m, text: `Couldn't reach Argus: ${err.message}` } : m
+          m.id === argusId
+            ? { ...m, text: `Couldn't reach Argus: ${err.message}`, pending: false }
+            : m
         )
       );
       setStreaming(false);
@@ -95,18 +114,30 @@ function ArgusChat() {
             <p className="text-xs text-gray-600 mt-1">Ask Argus anything about your money.</p>
           </div>
         ) : (
-          messages.map((m) => (
-            <div
-              key={m.id}
-              className={`rounded-2xl border px-5 py-3.5 text-sm leading-relaxed whitespace-pre-wrap ${
-                m.role === "user"
-                  ? "bg-indigo-900/30 border-indigo-800/40 text-indigo-100 ml-auto max-w-[80%]"
-                  : "bg-gray-900 border-gray-800 text-gray-200 max-w-[85%]"
-              }`}
-            >
-              {m.text || (streaming && m.role === "argus" ? "…" : "")}
-            </div>
-          ))
+          messages.map((m) =>
+            m.role === "user" ? (
+              <div
+                key={m.id}
+                className="rounded-2xl border px-5 py-3.5 text-sm leading-relaxed whitespace-pre-wrap bg-indigo-900/30 border-indigo-800/40 text-indigo-100 ml-auto max-w-[80%]"
+              >
+                {m.text}
+              </div>
+            ) : (
+              <div key={m.id} className="max-w-[85%] space-y-3">
+                {m.pending ? (
+                  <div className="bg-gray-900 rounded-2xl border border-gray-800 px-5 py-3.5 text-sm text-gray-500">
+                    Argus is thinking…
+                  </div>
+                ) : m.cards.length > 0 ? (
+                  m.cards.map((card, ci) => <ArgusCard key={ci} card={card} />)
+                ) : (
+                  <div className="bg-gray-900 rounded-2xl border border-gray-800 px-5 py-3.5 text-sm leading-relaxed whitespace-pre-wrap text-gray-200">
+                    {m.text}
+                  </div>
+                )}
+              </div>
+            )
+          )
         )}
         <div ref={bottomRef} />
       </div>
