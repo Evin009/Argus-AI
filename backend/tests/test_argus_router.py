@@ -23,11 +23,20 @@ def test_chat_streams_sse_response():
         ["You'll ", "overdraft on the 27th."]
     )
 
-    with patch("routers.argus._retrieve_chat_context", return_value={
-        "tool_results": {}, "profile": {}, "past_predictions": [], "distilled_insights": [],
-    }), patch("routers.argus._build_chat_brief", return_value="brief"), \
-         patch("routers.argus.anthropic.Anthropic", return_value=mock_anthropic_client), \
-         patch("routers.argus._extract_prediction_block", return_value=None):
+    with (
+        patch(
+            "routers.argus._retrieve_chat_context",
+            return_value={
+                "tool_results": {},
+                "profile": {},
+                "past_predictions": [],
+                "distilled_insights": [],
+            },
+        ),
+        patch("routers.argus._build_chat_brief", return_value="brief"),
+        patch("routers.argus.anthropic.Anthropic", return_value=mock_anthropic_client),
+        patch("routers.argus._extract_prediction_block", return_value=None),
+    ):
         resp = client.post("/argus/chat", json={"query": "when will I overdraft"})
 
     assert resp.status_code == 200
@@ -41,12 +50,21 @@ def test_chat_returns_cards_in_done_payload():
     mock_anthropic_client.messages.stream.side_effect = lambda **_: _fake_stream(["text"])
     cards = [{"type": "verdict", "data": {"label": "Safe to spend", "value": "$214"}}]
 
-    with patch("routers.argus._retrieve_chat_context", return_value={
-        "tool_results": {}, "profile": {}, "past_predictions": [], "distilled_insights": [],
-    }), patch("routers.argus._build_chat_brief", return_value="brief"), \
-         patch("routers.argus.anthropic.Anthropic", return_value=mock_anthropic_client), \
-         patch("routers.argus._extract_prediction_block", return_value=None), \
-         patch("routers.argus._extract_card_blocks", return_value=cards):
+    with (
+        patch(
+            "routers.argus._retrieve_chat_context",
+            return_value={
+                "tool_results": {},
+                "profile": {},
+                "past_predictions": [],
+                "distilled_insights": [],
+            },
+        ),
+        patch("routers.argus._build_chat_brief", return_value="brief"),
+        patch("routers.argus.anthropic.Anthropic", return_value=mock_anthropic_client),
+        patch("routers.argus._extract_prediction_block", return_value=None),
+        patch("routers.argus._extract_card_blocks", return_value=cards),
+    ):
         resp = client.post("/argus/chat", json={"query": "can I afford this"})
 
     assert resp.status_code == 200
@@ -62,12 +80,21 @@ def test_chat_logs_prediction_when_present():
         "resolves_at": "2026-06-27T00:00:00Z",
     }
 
-    with patch("routers.argus._retrieve_chat_context", return_value={
-        "tool_results": {}, "profile": {}, "past_predictions": [], "distilled_insights": [],
-    }), patch("routers.argus._build_chat_brief", return_value="brief"), \
-         patch("routers.argus.anthropic.Anthropic", return_value=mock_anthropic_client), \
-         patch("routers.argus._extract_prediction_block", return_value=prediction), \
-         patch("routers.argus._log_prediction") as mock_log:
+    with (
+        patch(
+            "routers.argus._retrieve_chat_context",
+            return_value={
+                "tool_results": {},
+                "profile": {},
+                "past_predictions": [],
+                "distilled_insights": [],
+            },
+        ),
+        patch("routers.argus._build_chat_brief", return_value="brief"),
+        patch("routers.argus.anthropic.Anthropic", return_value=mock_anthropic_client),
+        patch("routers.argus._extract_prediction_block", return_value=prediction),
+        patch("routers.argus._log_prediction") as mock_log,
+    ):
         resp = client.post("/argus/chat", json={"query": "when will I overdraft"})
 
     assert resp.status_code == 200
@@ -78,14 +105,21 @@ def test_chat_passes_page_to_brief():
     mock_anthropic_client = MagicMock()
     mock_anthropic_client.messages.stream.side_effect = lambda **_: _fake_stream(["text"])
 
-    with patch("routers.argus._retrieve_chat_context", return_value={
-        "tool_results": {}, "profile": {}, "past_predictions": [], "distilled_insights": [],
-    }), patch("routers.argus._build_chat_brief", return_value="brief") as mock_brief, \
-         patch("routers.argus.anthropic.Anthropic", return_value=mock_anthropic_client), \
-         patch("routers.argus._extract_prediction_block", return_value=None):
-        resp = client.post(
-            "/argus/chat", json={"query": "what bills do I have", "page": "/bills"}
-        )
+    with (
+        patch(
+            "routers.argus._retrieve_chat_context",
+            return_value={
+                "tool_results": {},
+                "profile": {},
+                "past_predictions": [],
+                "distilled_insights": [],
+            },
+        ),
+        patch("routers.argus._build_chat_brief", return_value="brief") as mock_brief,
+        patch("routers.argus.anthropic.Anthropic", return_value=mock_anthropic_client),
+        patch("routers.argus._extract_prediction_block", return_value=None),
+    ):
+        resp = client.post("/argus/chat", json={"query": "what bills do I have", "page": "/bills"})
 
     assert resp.status_code == 200
     _, kwargs = mock_brief.call_args

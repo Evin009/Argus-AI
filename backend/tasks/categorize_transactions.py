@@ -29,8 +29,7 @@ def _filter_uncategorized(transactions: list[dict]) -> list[dict]:
 
 def _build_categorization_prompt(transactions: list[dict]) -> str:
     txn_lines = "\n".join(
-        f'- id: {t["id"]}, merchant: {t["merchant"]}, amount: {t["amount"]}'
-        for t in transactions
+        f"- id: {t['id']}, merchant: {t['merchant']}, amount: {t['amount']}" for t in transactions
     )
     categories = (
         "FOOD_AND_DRINK, SHOPPING, TRANSPORTATION, ENTERTAINMENT, UTILITIES, "
@@ -44,7 +43,7 @@ def _build_categorization_prompt(transactions: list[dict]) -> str:
         f"Classify each transaction into one of these categories:\n{categories}\n\n"
         f"Also provide a short subcategory (e.g. {subcategory_examples}).\n\n"
         f"Transactions:\n{txn_lines}\n\n"
-        f'Return ONLY a valid JSON array with no explanation. '
+        f"Return ONLY a valid JSON array with no explanation. "
         f'Each item must have: "id", "category", "subcategory".\n'
         f'Example: [{{"id": "abc", "category": "FOOD_AND_DRINK", '
         f'"subcategory": "restaurants"}}]'

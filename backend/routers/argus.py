@@ -39,11 +39,13 @@ async def _stream_chat_response(
     with client.messages.stream(
         model="claude-sonnet-4-6",
         max_tokens=2048,
-        system=[{
-            "type": "text",
-            "text": _CHAT_SYSTEM_PROMPT,
-            "cache_control": {"type": "ephemeral"},
-        }],
+        system=[
+            {
+                "type": "text",
+                "text": _CHAT_SYSTEM_PROMPT,
+                "cache_control": {"type": "ephemeral"},
+            }
+        ],
         messages=[{"role": "user", "content": brief}],
     ) as stream:
         for chunk in stream.text_stream:

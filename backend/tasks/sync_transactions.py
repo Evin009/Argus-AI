@@ -14,11 +14,7 @@ def _normalize_transaction(plaid_txn: dict, account_id: str) -> dict:
         "id": str(uuid.uuid4()),
         "account_id": account_id,
         "plaid_transaction_id": plaid_txn.get("transaction_id", ""),
-        "merchant": (
-            plaid_txn.get("merchant_name")
-            or plaid_txn.get("name")
-            or "Unknown"
-        ),
+        "merchant": (plaid_txn.get("merchant_name") or plaid_txn.get("name") or "Unknown"),
         "amount": float(plaid_txn.get("amount", 0)),
         "category": _extract_category(plaid_txn),
         "subcategory": _extract_subcategory(plaid_txn),
@@ -92,6 +88,7 @@ def sync_transactions_for_user(user_id: str) -> dict:
                 ).execute()
 
                 from tasks.generate_embeddings import generate_embedding_for_transaction
+
                 generate_embedding_for_transaction.delay(normalized["id"])
                 total_added += 1
 
@@ -100,11 +97,10 @@ def sync_transactions_for_user(user_id: str) -> dict:
                     "plaid_transaction_id", removed_txn.get("transaction_id", "")
                 ).execute()
 
-        supabase.table("plaid_items").update({"cursor": cursor}).eq(
-            "id", item["id"]
-        ).execute()
+        supabase.table("plaid_items").update({"cursor": cursor}).eq("id", item["id"]).execute()
 
     from tasks.detect_bills import detect_recurring_bills_for_user
+
     detect_recurring_bills_for_user.delay(user_id)
 
     return {"user_id": user_id, "transactions_synced": total_added}

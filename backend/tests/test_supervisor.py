@@ -42,8 +42,10 @@ def test_select_tools_falls_back_to_all_when_no_match():
 def test_route_and_execute_node_calls_selected_tools():
     state = {"user_id": "user-123", "query": "what bills do I have"}
 
-    with patch("agents.supervisor.get_registered_tools", return_value=_FAKE_TOOLS), \
-         patch("agents.supervisor.call_tool", return_value={"bills": []}) as mock_call:
+    with (
+        patch("agents.supervisor.get_registered_tools", return_value=_FAKE_TOOLS),
+        patch("agents.supervisor.call_tool", return_value={"bills": []}) as mock_call,
+    ):
         result = route_and_execute_node(state)
 
     mock_call.assert_called_once_with("get_bills", "user-123")

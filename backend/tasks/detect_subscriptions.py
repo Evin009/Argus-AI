@@ -49,15 +49,17 @@ def _build_subscriptions(
         merchant = bill["merchant"]
         recent, old = _split_amounts_by_period(transactions, merchant, today)
         price_change_pct = _compute_price_change_pct(recent, old)
-        subscriptions.append({
-            "id": str(uuid.uuid4()),
-            "user_id": user_id,
-            "merchant": merchant,
-            "avg_amount": bill["avg_amount"],
-            "billing_cycle": "monthly",
-            "price_change_pct": price_change_pct,
-            "is_active": True,
-        })
+        subscriptions.append(
+            {
+                "id": str(uuid.uuid4()),
+                "user_id": user_id,
+                "merchant": merchant,
+                "avg_amount": bill["avg_amount"],
+                "billing_cycle": "monthly",
+                "price_change_pct": price_change_pct,
+                "is_active": True,
+            }
+        )
     return subscriptions
 
 
@@ -89,11 +91,10 @@ def detect_subscriptions_for_user(user_id: str) -> dict:
     subs = _build_subscriptions(bills_result.data, txn_result.data, user_id)
 
     for sub in subs:
-        supabase.table("subscriptions").upsert(
-            sub, on_conflict="user_id,merchant"
-        ).execute()
+        supabase.table("subscriptions").upsert(sub, on_conflict="user_id,merchant").execute()
 
     from tasks.run_intelligence_pipeline import run_intelligence_pipeline_for_user
+
     run_intelligence_pipeline_for_user.delay(user_id)
 
     return {"user_id": user_id, "subscriptions_detected": len(subs)}

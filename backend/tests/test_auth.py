@@ -34,7 +34,5 @@ def test_sync_user_unauthenticated():
 
 
 def test_sync_user_invalid_token():
-    response = client.post(
-        "/api/users/sync", headers={"Authorization": "Bearer not-a-real-token"}
-    )
+    response = client.post("/api/users/sync", headers={"Authorization": "Bearer not-a-real-token"})
     assert response.status_code == 401
