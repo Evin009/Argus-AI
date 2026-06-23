@@ -105,3 +105,27 @@ def _get_safe_to_spend_tool(user_id: str) -> dict:
     if cached:
         return cached[0]
     return {"safe_amount": None, "breakdown": {}, "computed_at": None}
+
+
+@register_tool(
+    "get_pay_timing",
+    "Returns when and how much to pay on each credit card to stay under 8% utilization, plus dangerous bill stacking windows",
+    keywords=["pay timing", "when to pay", "credit utilization", "bill stacking", "pay my card"],
+)
+def _get_pay_timing_tool(user_id: str) -> dict:
+    from engines.pay_timing import compute_pay_timing
+    supabase = get_supabase()
+    accounts = (
+        supabase.table("accounts")
+        .select("id, account_type, balance, credit_limit, closing_date")
+        .eq("user_id", user_id)
+        .execute()
+    ).data or []
+    bills = (
+        supabase.table("bills")
+        .select("avg_amount, next_due_date, merchant")
+        .eq("user_id", user_id)
+        .execute()
+    ).data or []
+    balance = sum(a.get("balance") or 0 for a in accounts if a.get("account_type") != "credit")
+    return compute_pay_timing(accounts=accounts, bills=bills, balance=balance)
