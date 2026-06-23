@@ -13,9 +13,11 @@ os.environ.setdefault("PLAID_ENV", "sandbox")
 os.environ.setdefault("PLAID_TOKEN_ENCRYPTION_KEY", "a" * 64)
 
 from agents.chat import (  # noqa: E402
+    _extract_card_blocks,
     _extract_prediction_block,
     _log_prediction,
     _retrieve_chat_context,
+    _strip_card_blocks,
     _strip_prediction_block,
 )
 
@@ -104,3 +106,59 @@ def test_retrieve_chat_context_combines_sources():
     assert result["distilled_insights"] == [{"summary": "x"}]
     assert len(result["past_predictions"]) == 1
     assert result["past_predictions"][0]["was_accurate"] is True
+
+
+_VERDICT_CARD = (
+    "```argus-card\n"
+    '{"type": "verdict", "data": {"label": "Safe to spend", "value": "$214",'
+    ' "detail": "After Netflix $15.99 due Jul 1"}}\n'
+    "```"
+)
+_TABLE_CARD = (
+    "```argus-card\n"
+    '{"type": "table", "data": {"title": "Bills", "columns": ["Merchant", "Amount"],'
+    ' "rows": [["Netflix", "$15.99"]]}}\n'
+    "```"
+)
+
+
+def test_extract_card_blocks_parses_single_card():
+    result = _extract_card_blocks(_VERDICT_CARD)
+    assert len(result) == 1
+    assert result[0]["type"] == "verdict"
+    assert result[0]["data"]["value"] == "$214"
+
+
+def test_extract_card_blocks_parses_multiple_cards():
+    text = f"{_VERDICT_CARD}\n\n{_TABLE_CARD}"
+    result = _extract_card_blocks(text)
+    assert [c["type"] for c in result] == ["verdict", "table"]
+
+
+def test_extract_card_blocks_skips_unknown_type():
+    text = '```argus-card\n{"type": "paragraph", "data": {}}\n```'
+    assert _extract_card_blocks(text) == []
+
+
+def test_extract_card_blocks_skips_malformed_json():
+    text = "```argus-card\nnot json\n```"
+    assert _extract_card_blocks(text) == []
+
+
+def test_extract_card_blocks_skips_missing_data():
+    text = '```argus-card\n{"type": "verdict"}\n```'
+    assert _extract_card_blocks(text) == []
+
+
+def test_extract_card_blocks_returns_empty_when_no_blocks():
+    assert _extract_card_blocks("plain text") == []
+
+
+def test_strip_card_blocks_removes_cards():
+    result = _strip_card_blocks(_VERDICT_CARD)
+    assert "argus-card" not in result
+    assert result == ""
+
+
+def test_strip_card_blocks_no_op_when_no_cards():
+    assert _strip_card_blocks("plain text") == "plain text"

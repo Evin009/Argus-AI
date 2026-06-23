@@ -36,6 +36,23 @@ def test_chat_streams_sse_response():
     assert "overdraft on the 27th." in resp.text
 
 
+def test_chat_returns_cards_in_done_payload():
+    mock_anthropic_client = MagicMock()
+    mock_anthropic_client.messages.stream.side_effect = lambda **_: _fake_stream(["text"])
+    cards = [{"type": "verdict", "data": {"label": "Safe to spend", "value": "$214"}}]
+
+    with patch("routers.argus._retrieve_chat_context", return_value={
+        "tool_results": {}, "profile": {}, "past_predictions": [], "distilled_insights": [],
+    }), patch("routers.argus._build_chat_brief", return_value="brief"), \
+         patch("routers.argus.anthropic.Anthropic", return_value=mock_anthropic_client), \
+         patch("routers.argus._extract_prediction_block", return_value=None), \
+         patch("routers.argus._extract_card_blocks", return_value=cards):
+        resp = client.post("/argus/chat", json={"query": "can I afford this"})
+
+    assert resp.status_code == 200
+    assert '"cards": [{"type": "verdict"' in resp.text
+
+
 def test_chat_logs_prediction_when_present():
     mock_anthropic_client = MagicMock()
     mock_anthropic_client.messages.stream.side_effect = lambda **_: _fake_stream(["answer"])

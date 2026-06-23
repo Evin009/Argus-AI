@@ -10,9 +10,11 @@ from pydantic import BaseModel
 from agents.chat import (
     _CHAT_SYSTEM_PROMPT,
     _build_chat_brief,
+    _extract_card_blocks,
     _extract_prediction_block,
     _log_prediction,
     _retrieve_chat_context,
+    _strip_card_blocks,
     _strip_prediction_block,
 )
 from middleware.auth import get_current_user
@@ -49,7 +51,10 @@ async def _stream_chat_response(user_id: str, query: str) -> AsyncGenerator[str,
     if prediction is not None:
         _log_prediction(user_id, prediction)
 
-    yield f"data: {json.dumps({'done': True, 'text': _strip_prediction_block(full_text)})}\n\n"
+    cards = _extract_card_blocks(full_text)
+    remaining_text = _strip_card_blocks(_strip_prediction_block(full_text))
+
+    yield f"data: {json.dumps({'done': True, 'text': remaining_text, 'cards': cards})}\n\n"
 
 
 @router.post("/chat")
