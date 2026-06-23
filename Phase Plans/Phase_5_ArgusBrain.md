@@ -72,8 +72,8 @@ develop
 *Where users actually talk to Argus*
 
 **Frontend:**
-- [ ] `app/(app)/argus/page.tsx` — chat page, SSE streaming consumption
-- [ ] Responses render as charts/tables/verdict cards — no paragraph-only responses (per the Specificity rule in `Argus Details/product-detail.md`)
+- [x] `app/(app)/argus/page.tsx` — chat page, SSE streaming consumption
+- [x] Responses render as charts/tables/verdict cards — no paragraph-only responses (per the Specificity rule in `Argus Details/product-detail.md`)
 - [ ] Merge → `develop`
 
 ---
