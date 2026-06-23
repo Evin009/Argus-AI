@@ -36,9 +36,8 @@ export function AskArgusBar() {
   }, [askIdx]);
 
   function submit() {
-    // Routes to /intelligence pending a dedicated AI Copilot chat route (see project plan: "Copilot + Simulations" phase)
     const q = askInput.trim();
-    router.push(q ? `/intelligence?q=${encodeURIComponent(q)}` : "/intelligence");
+    router.push(q ? `/argus?q=${encodeURIComponent(q)}` : "/argus");
   }
 
   return (

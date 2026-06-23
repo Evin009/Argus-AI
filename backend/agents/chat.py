@@ -8,6 +8,8 @@ from db.client import get_supabase
 from tasks.run_intelligence_pipeline import _retrieve_relevant_insights
 
 _PREDICTION_BLOCK_RE = re.compile(r"```prediction\s*(\{.*?\})\s*```", re.DOTALL)
+_CARD_BLOCK_RE = re.compile(r"```argus-card\s*(\{.*?\})\s*```", re.DOTALL)
+_CARD_TYPES = {"verdict", "table", "chart"}
 
 _CHAT_SYSTEM_PROMPT = """You are Argus, ArgusAI's financial brain. You speak with merchant
 names, dollar amounts, and timeframes — never vague generalities. If you cannot back a
@@ -15,19 +17,63 @@ statement with a specific merchant, amount, and timeframe, stay silent on that p
 
 You never invent a number — only reason over the data given to you.
 
-When you make a verifiable prediction (e.g. "you'll overdraft on the 27th"), emit a fenced
-block immediately after your answer in this exact form so it can be logged and graded later:
+Never answer in plain paragraphs. Every answer is delivered as one or more fenced
+```argus-card blocks of structured JSON — the UI renders these as cards, not prose.
+Each block has this shape:
+
+```argus-card
+{"type": "verdict", "data": {"label": "<short label>", "value": "<headline value>",
+"detail": "<one-line specific detail with merchant/amount/date>"}}
+```
+
+```argus-card
+{"type": "table", "data": {"title": "<title>", "columns": ["<col1>", "<col2>"],
+"rows": [["<cell>", "<cell>"]]}}
+```
+
+```argus-card
+{"type": "chart", "data": {"title": "<title>", "points": [{"label": "<x>", "value": <y>}]}}
+```
+
+Use "verdict" for a single answer (e.g. affordability, a yes/no, a dollar figure).
+Use "table" for lists (bills, subscriptions, merchants). Use "chart" for trends over time.
+Emit only the card blocks needed to answer — no surrounding text.
+
+When you make a verifiable prediction (e.g. "you'll overdraft on the 27th"), also emit a
+fenced block immediately after your cards in this exact form so it can be logged and
+graded later:
 
 ```prediction
 {"prediction_type": "balance_below_threshold", "payload": {"account_id": "<id>",
 "threshold": <number>}, "resolves_at": "<ISO 8601 datetime>"}
 ```
 
-Omit the block entirely if you made no verifiable prediction."""
+Omit the prediction block entirely if you made no verifiable prediction."""
 
 
 def _strip_prediction_block(response_text: str) -> str:
     return _PREDICTION_BLOCK_RE.sub("", response_text).strip()
+
+
+def _extract_card_blocks(response_text: str) -> list[dict]:
+    cards = []
+    for match in _CARD_BLOCK_RE.finditer(response_text):
+        try:
+            parsed = json.loads(match.group(1))
+        except (json.JSONDecodeError, ValueError):
+            continue
+        if not isinstance(parsed, dict):
+            continue
+        if parsed.get("type") not in _CARD_TYPES:
+            continue
+        if "data" not in parsed:
+            continue
+        cards.append(parsed)
+    return cards
+
+
+def _strip_card_blocks(response_text: str) -> str:
+    return _CARD_BLOCK_RE.sub("", response_text).strip()
 
 
 def _extract_prediction_block(response_text: str) -> dict | None:

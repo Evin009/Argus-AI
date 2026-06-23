@@ -62,6 +62,16 @@ const NAV = [
       </svg>
     ),
   },
+  {
+    href: "/argus",
+    title: "Argus",
+    icon: (
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2.25 4.5 6v6c0 5 3.2 8.5 7.5 9.75 4.3-1.25 7.5-4.75 7.5-9.75V6L12 2.25z"/>
+        <path d="M9.5 12.25 11.25 14 15 9.5"/>
+      </svg>
+    ),
+  },
 ];
 
 const BOTTOM = [
