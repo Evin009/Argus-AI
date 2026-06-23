@@ -90,7 +90,7 @@ LangGraph multi-agent pipeline (enrichment + analyst + memory nodes), pgvector R
 
 ---
 
-## Phase 5 — Argus Brain: Skeleton ⬜
+## Phase 5 — Argus Brain: Skeleton ✅
 *Weeks 11–12*
 
 **Goal:** Stand up Argus as living infrastructure early — alive with whatever tools exist today, built to grow as later phases add engines. This is the most important phase in the remaining roadmap; everything after this is Argus gaining new senses.
@@ -111,7 +111,7 @@ LangGraph multi-agent pipeline (enrichment + analyst + memory nodes), pgvector R
 
 ---
 
-## Phase 6 — Daily Intelligence ⬜
+## Phase 6 — Daily Intelligence ✅
 *Weeks 13–14*
 
 **Goal:** Safe to Spend Today and Smart Payment Calendar — the two features users open every morning. Both register as new Argus tools on completion.
