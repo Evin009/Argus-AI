@@ -42,33 +42,33 @@ develop
 ### `feature/profile-endpoints`
 
 **Overview endpoint**
-- [ ] `GET /profile/overview` — spending breakdown by category (computed from transactions), habit streaks (consecutive weeks under budget per category), subscription count + total monthly cost, credit utilization summary across all cards
-- [ ] `backend/routers/profile.py` — new router, registered in `main.py`
-- [ ] `backend/tests/test_profile_overview.py`
+- [x] `GET /profile/overview` — spending breakdown by category (computed from transactions), habit streaks (consecutive weeks under budget per category), subscription count + total monthly cost, credit utilization summary across all cards
+- [x] `backend/routers/profile.py` — new router, registered in `main.py`
+- [x] `backend/tests/test_profile_overview.py`
 
 **Merchant endpoints**
-- [ ] `GET /profile/merchants` — all merchants user has transacted with, ranked by total spend descending, each entry includes merchant name, total spend, transaction count, 30-day trend (up/down/flat)
-- [ ] `GET /profile/merchants/{merchant_id}` — single merchant detail: weekly/monthly/yearly spend breakdown, transaction frequency heatmap data (day-of-week × week-of-month grid), cost trend over last 6 months, one Argus-generated insight specific to that merchant and that user
-- [ ] `backend/tests/test_profile_merchants.py`
+- [x] `GET /profile/merchants` — all merchants user has transacted with, ranked by total spend descending, each entry includes merchant name, total spend, transaction count, 30-day trend (up/down/flat)
+- [x] `GET /profile/merchants/{merchant_id}` — single merchant detail: weekly/monthly/yearly spend breakdown, transaction frequency heatmap data (day-of-week × week-of-month grid), cost trend over last 6 months, one Argus-generated insight specific to that merchant and that user
+- [x] `backend/tests/test_profile_merchants.py`
 
-- [ ] Merge → `phase/7A-financial-profile`
+- [x] Merge → `phase/7A-financial-profile`
 
 ---
 
 ### `feature/profile-argus-tools`
 
-- [ ] `get_profile_overview` registered in `backend/agents/tools.py` — returns spending breakdown, streaks, utilization summary
-- [ ] `get_merchant_history` registered in `backend/agents/tools.py` — takes merchant name, returns full history + trend for that user
-- [ ] `backend/tests/test_profile_tools.py`
+- [x] `get_profile_overview` registered in `backend/agents/tools.py` — returns spending breakdown, streaks, utilization summary
+- [x] `get_merchant_history` registered in `backend/agents/tools.py` — takes merchant name, returns full history + trend for that user
+- [x] `backend/tests/test_profile_tools.py`
 
-- [ ] Merge → `phase/7A-financial-profile`
+- [x] Merge → `phase/7A-financial-profile`
 
 ---
 
 ### `feature/profile-frontend`
 
 **Level 1 — Overview**
-- [ ] `frontend/app/(app)/profile/page.tsx` — top level shows:
+- [x] `frontend/app/(app)/profile/page.tsx` — top level shows:
   - Spending ring: category breakdown as proportional arc chart
   - Streaks grid: GitHub contribution-style grid, one cell per week, colored by whether user stayed under budget that week per category
   - Subscription logo grid: logos of all active subscriptions with total monthly cost
@@ -76,28 +76,28 @@ develop
   - Biggest spend day chart: bar chart of spend by day of week
 
 **Level 2 — Category drill-down**
-- [ ] Tapping a category segment on spending ring opens category view — lists all merchants within that category ranked by spend, each with logo, total, transaction count
+- [x] Tapping a category segment on spending ring opens category view — lists all merchants within that category ranked by spend, each with logo, total, transaction count
 
 **Level 3 — Merchant Intelligence**
-- [ ] Tapping a merchant opens merchant detail page/drawer — shows:
+- [x] Tapping a merchant opens merchant detail page/drawer — shows:
   - Weekly/monthly/yearly spend tabs
   - Frequency heatmap (day-of-week grid)
   - Cost trend sparkline (6 months)
   - One Argus insight for that specific merchant — dynamically generated, specific to that user's pattern with that merchant
-- [ ] Merchant Intelligence pages only exist for merchants user actually transacts with — no empty shells
+- [x] Merchant Intelligence pages only exist for merchants user actually transacts with — no empty shells
 
 **Nav**
-- [ ] Profile nav item added to sidebar in `frontend/app/(app)/layout.tsx`
+- [x] Profile nav item added to sidebar in `frontend/app/(app)/layout.tsx`
 
-- [ ] Merge → `phase/7A-financial-profile`
+- [x] Merge → `phase/7A-financial-profile`
 
 ---
 
 ### Phase 7A Close
-- [ ] Merge `phase/7A-financial-profile` → `develop`
-- [ ] Open PR `develop` → `main`, wait for CI, merge
-- [ ] Delete all feature branches + `phase/7A-financial-profile`
-- [ ] Mark Phase 7A as ✅ Complete in `Argus Details/product-plan.md`
+- [x] Merge `phase/7A-financial-profile` → `develop`
+- [x] Open PR `develop` → `main`, wait for CI, merge
+- [x] Delete all feature branches + `phase/7A-financial-profile`
+- [x] Mark Phase 7A as ✅ Complete in `Argus Details/product-plan.md`
 
 ---
 
