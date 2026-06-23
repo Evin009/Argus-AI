@@ -97,3 +97,10 @@ first; don't spawn silently.
 
 Be concise. No filler, no over-explaining, no restating the obvious. Same standard
 applies to any doc, plan, or explanation written for this project.
+
+**Every explanation includes the "why," not just the "what."** When explaining work done
+(a feature summary, a bug fix, anything), also cover: the key architectural choices made,
+the reason each one was made, and — whenever a library/framework/service was introduced —
+why that one specifically and what the deciding factor was over the alternatives. Keep this
+at the same concise, one-line-per-point bullet standard — reasoning in one tight line, not a
+paragraph.
