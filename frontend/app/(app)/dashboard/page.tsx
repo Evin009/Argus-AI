@@ -9,6 +9,7 @@ import { api } from "@/lib/api";
 import { createClient } from "@/lib/supabase/client";
 
 import { AskArgusBar } from "./_components/AskArgusBar";
+import { SafeToSpendHero } from "./_components/SafeToSpendHero";
 import { BalanceCard, type Account } from "./_components/BalanceCard";
 import { SpendingLimitCard, type Transaction } from "./_components/SpendingLimitCard";
 import { MyCards } from "./_components/MyCards";
@@ -191,6 +192,8 @@ export default function DashboardPage() {
           </button>
         </div>
       </div>
+
+      <SafeToSpendHero />
 
       {accounts.length === 0 ? (
         <EmptyState />
