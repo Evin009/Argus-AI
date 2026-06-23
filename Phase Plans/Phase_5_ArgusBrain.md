@@ -48,10 +48,10 @@ develop
 *Argus's routing brain — starts small, grows without rearchitecting*
 
 **Backend:**
-- [ ] `backend/agents/tools.py` — tool registry pattern; new engine tools register themselves here as later phases ship
-- [ ] Register Phase 3.5's existing capabilities (categorization, bills, subscriptions) as the first tools
-- [ ] `backend/agents/supervisor.py` — LangGraph supervisor graph routing queries to specialist nodes based on available tools
-- [ ] Tests for tool registration and routing logic
+- [x] `backend/agents/tools.py` — tool registry pattern; new engine tools register themselves here as later phases ship
+- [x] Register Phase 3.5's existing capabilities (categorization, bills, subscriptions) as the first tools
+- [x] `backend/agents/supervisor.py` — LangGraph supervisor graph routing queries to specialist nodes based on available tools
+- [x] Tests for tool registration and routing logic
 - [ ] Merge → `develop`
 
 ---
