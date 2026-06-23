@@ -37,9 +37,9 @@ develop
 *Every prediction Argus makes gets logged and later graded*
 
 **Backend:**
-- [ ] Migration — `ai_predictions` table: `id`, `user_id`, `prediction_type`, `prediction_payload JSONB`, `predicted_at`, `resolves_at`, `actual_outcome JSONB`, `was_accurate BOOLEAN`, RLS policy
-- [ ] `backend/tasks/resolve_predictions.py` — Celery task, runs periodically, checks unresolved predictions (`resolves_at <= now()`) against actual transaction/balance data, fills `actual_outcome` + `was_accurate`
-- [ ] Tests for the resolution logic (pure function, mocked Supabase)
+- [x] Migration — `ai_predictions` table: `id`, `user_id`, `prediction_type`, `prediction_payload JSONB`, `predicted_at`, `resolves_at`, `actual_outcome JSONB`, `was_accurate BOOLEAN`, RLS policy
+- [x] `backend/tasks/resolve_predictions.py` — Celery task, runs periodically, checks unresolved predictions (`resolves_at <= now()`) against actual transaction/balance data, fills `actual_outcome` + `was_accurate`
+- [x] Tests for the resolution logic (pure function, mocked Supabase)
 - [ ] Merge → `develop`
 
 ---
@@ -48,10 +48,10 @@ develop
 *Argus's routing brain — starts small, grows without rearchitecting*
 
 **Backend:**
-- [ ] `backend/agents/tools.py` — tool registry pattern; new engine tools register themselves here as later phases ship
-- [ ] Register Phase 3.5's existing capabilities (categorization, bills, subscriptions) as the first tools
-- [ ] `backend/agents/supervisor.py` — LangGraph supervisor graph routing queries to specialist nodes based on available tools
-- [ ] Tests for tool registration and routing logic
+- [x] `backend/agents/tools.py` — tool registry pattern; new engine tools register themselves here as later phases ship
+- [x] Register Phase 3.5's existing capabilities (categorization, bills, subscriptions) as the first tools
+- [x] `backend/agents/supervisor.py` — LangGraph supervisor graph routing queries to specialist nodes based on available tools
+- [x] Tests for tool registration and routing logic
 - [ ] Merge → `develop`
 
 ---
@@ -60,10 +60,10 @@ develop
 *The endpoint the frontend actually talks to*
 
 **Backend:**
-- [ ] `backend/routers/argus.py` — `POST /argus/chat` SSE streaming endpoint
-- [ ] RAG retrieval wired in: hot transactions (pgvector, last 90 days) + distilled monthly summaries (`ai_insights`) + profile (`user_financial_profiles`) + outcome ledger (relevant past predictions + accuracy for this user)
-- [ ] Every response that makes a prediction/recommendation logs to `ai_predictions`
-- [ ] Tests for the endpoint (mocked RAG + supervisor)
+- [x] `backend/routers/argus.py` — `POST /argus/chat` SSE streaming endpoint
+- [x] RAG retrieval wired in: hot transactions (pgvector, last 90 days) + distilled monthly summaries (`ai_insights`) + profile (`user_financial_profiles`) + outcome ledger (relevant past predictions + accuracy for this user)
+- [x] Every response that makes a prediction/recommendation logs to `ai_predictions`
+- [x] Tests for the endpoint (mocked RAG + supervisor)
 - [ ] Merge → `develop`
 
 ---
@@ -72,8 +72,8 @@ develop
 *Where users actually talk to Argus*
 
 **Frontend:**
-- [ ] `app/(app)/argus/page.tsx` — chat page, SSE streaming consumption
-- [ ] Responses render as charts/tables/verdict cards — no paragraph-only responses (per the Specificity rule in `Argus Details/product-detail.md`)
+- [x] `app/(app)/argus/page.tsx` — chat page, SSE streaming consumption
+- [x] Responses render as charts/tables/verdict cards — no paragraph-only responses (per the Specificity rule in `Argus Details/product-detail.md`)
 - [ ] Merge → `develop`
 
 ---
@@ -82,10 +82,10 @@ develop
 *Argus everywhere, not just its own page*
 
 **Frontend:**
-- [ ] Side panel component — slides in from right (380px)
-- [ ] Cmd+K trigger from any screen
-- [ ] Context-aware per current screen (knows what page the user is on)
-- [ ] Conversation persists across navigation (not reset per route change)
+- [x] Side panel component — slides in from right (380px)
+- [x] Cmd+K trigger from any screen
+- [x] Context-aware per current screen (knows what page the user is on)
+- [x] Conversation persists across navigation (not reset per route change)
 - [ ] Merge → `develop`
 
 ---
