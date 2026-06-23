@@ -13,6 +13,7 @@ from routers import (
     onboarding,
     pay_timing,
     plaid,
+    profile,
     subscriptions,
     transactions,
 )
@@ -49,6 +50,7 @@ app.include_router(onboarding.router)
 app.include_router(argus.router)
 app.include_router(pay_timing.router)
 app.include_router(calendar.router)
+app.include_router(profile.router)
 
 
 @app.get("/health", tags=["system"])
