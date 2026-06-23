@@ -37,9 +37,9 @@ develop
 *Every prediction Argus makes gets logged and later graded*
 
 **Backend:**
-- [ ] Migration — `ai_predictions` table: `id`, `user_id`, `prediction_type`, `prediction_payload JSONB`, `predicted_at`, `resolves_at`, `actual_outcome JSONB`, `was_accurate BOOLEAN`, RLS policy
-- [ ] `backend/tasks/resolve_predictions.py` — Celery task, runs periodically, checks unresolved predictions (`resolves_at <= now()`) against actual transaction/balance data, fills `actual_outcome` + `was_accurate`
-- [ ] Tests for the resolution logic (pure function, mocked Supabase)
+- [x] Migration — `ai_predictions` table: `id`, `user_id`, `prediction_type`, `prediction_payload JSONB`, `predicted_at`, `resolves_at`, `actual_outcome JSONB`, `was_accurate BOOLEAN`, RLS policy
+- [x] `backend/tasks/resolve_predictions.py` — Celery task, runs periodically, checks unresolved predictions (`resolves_at <= now()`) against actual transaction/balance data, fills `actual_outcome` + `was_accurate`
+- [x] Tests for the resolution logic (pure function, mocked Supabase)
 - [ ] Merge → `develop`
 
 ---
