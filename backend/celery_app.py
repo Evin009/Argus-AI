@@ -16,6 +16,7 @@ celery = Celery(
         "tasks.detect_subscriptions",
         "tasks.categorize_transactions",
         "tasks.run_intelligence_pipeline",
+        "tasks.recompute_safe_to_spend",
     ],
 )
 
@@ -26,3 +27,13 @@ celery.conf.update(
     timezone="UTC",
     enable_utc=True,
 )
+
+from celery.schedules import crontab  # noqa: E402
+
+celery.conf.beat_schedule = {
+    "nightly-safe-to-spend-recompute": {
+        "task": "tasks.recompute_safe_to_spend.recompute_safe_to_spend_for_user",
+        "schedule": crontab(hour=2, minute=0),
+        "args": [],
+    },
+}
