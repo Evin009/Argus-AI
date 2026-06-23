@@ -129,11 +129,7 @@ async def exchange_public_token(
 async def get_accounts(user_id: str = Depends(get_current_user)):
     supabase = get_supabase()
     result = (
-        supabase.table("accounts")
-        .select("*")
-        .eq("user_id", user_id)
-        .order("institution")
-        .execute()
+        supabase.table("accounts").select("*").eq("user_id", user_id).order("institution").execute()
     )
     return {"accounts": result.data}
 
@@ -141,5 +137,6 @@ async def get_accounts(user_id: str = Depends(get_current_user)):
 @router.post("/sync")
 async def trigger_sync(user_id: str = Depends(get_current_user)):
     from tasks.sync_transactions import sync_transactions_for_user
+
     task = sync_transactions_for_user.delay(user_id)
     return {"status": "syncing", "task_id": task.id}

@@ -18,7 +18,12 @@ def test_get_safe_to_spend_returns_cached_value():
             m.select.return_value.eq.return_value.execute.return_value.data = [
                 {
                     "safe_amount": 450.0,
-                    "breakdown": {"balance": 600.0, "bills_due": 100.0, "buffer_reserve": 50.0, "window_days": 14},
+                    "breakdown": {
+                        "balance": 600.0,
+                        "bills_due": 100.0,
+                        "buffer_reserve": 50.0,
+                        "window_days": 14,
+                    },
                     "computed_at": "2026-06-01T02:00:00Z",
                 }
             ]
@@ -45,7 +50,9 @@ def test_get_safe_to_spend_live_compute_when_no_cache():
         elif name == "bills":
             m.select.return_value.eq.return_value.execute.return_value.data = []
         elif name == "onboarding_responses":
-            m.select.return_value.eq.return_value.execute.return_value.data = [{"pay_schedule": "biweekly"}]
+            m.select.return_value.eq.return_value.execute.return_value.data = [
+                {"pay_schedule": "biweekly"}
+            ]
         return m
 
     mock_supabase.table.side_effect = table_side

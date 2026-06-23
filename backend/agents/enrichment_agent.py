@@ -47,20 +47,20 @@ def _build_enrichment_prompt(bills: list[dict], subscriptions: list[dict]) -> st
         f"Bills:\n{bills_section}\n\n"
         f"Subscriptions:\n{subs_section}\n\n"
         f"Return a JSON object with this exact shape:\n"
-        f'{{\n'
+        f"{{\n"
         f'  "bills": [\n'
-        f'    {{\n'
+        f"    {{\n"
         f'      "id": "<bill id>",\n'
         f'      "enrichment": {{\n'
         f'        "ai_confidence": <float 0-1>,\n'
         f'        "merchant_context": "<what this merchant sells>",\n'
         f'        "classification_note": "<why classified as recurring>",\n'
         f'        "is_subscription_candidate": <true|false>\n'
-        f'      }}\n'
-        f'    }}\n'
-        f'  ],\n'
+        f"      }}\n"
+        f"    }}\n"
+        f"  ],\n"
         f'  "subscriptions": [\n'
-        f'    {{\n'
+        f"    {{\n"
         f'      "id": "<subscription id>",\n'
         f'      "enrichment": {{\n'
         f'        "service_category": "<streaming|software|fitness|news|utilities|other>",\n'
@@ -69,10 +69,10 @@ def _build_enrichment_prompt(bills: list[dict], subscriptions: list[dict]) -> st
         f'        "price_trend_interpretation": "<plain English interpretation>",\n'
         f'        "cancel_recommendation": <true|false>,\n'
         f'        "cancel_reasoning": "<explanation or null>"\n'
-        f'      }}\n'
-        f'    }}\n'
-        f'  ]\n'
-        f'}}'
+        f"      }}\n"
+        f"    }}\n"
+        f"  ]\n"
+        f"}}"
     )
 
 
@@ -107,11 +107,13 @@ def enrichment_node(state: IntelligenceState) -> dict:
         message = client.messages.create(
             model="claude-sonnet-4-6",
             max_tokens=4096,
-            system=[{
-                "type": "text",
-                "text": _SYSTEM_PROMPT,
-                "cache_control": {"type": "ephemeral"},
-            }],
+            system=[
+                {
+                    "type": "text",
+                    "text": _SYSTEM_PROMPT,
+                    "cache_control": {"type": "ephemeral"},
+                }
+            ],
             messages=[{"role": "user", "content": prompt}],
         )
         response_text = message.content[0].text
@@ -152,9 +154,7 @@ def enrichment_node(state: IntelligenceState) -> dict:
         if "id" in e and "enrichment" in e
     }
 
-    enriched_bills = [
-        {**b, "ai_enrichment": enrichment_by_bill_id.get(b["id"])} for b in bills
-    ]
+    enriched_bills = [{**b, "ai_enrichment": enrichment_by_bill_id.get(b["id"])} for b in bills]
     enriched_subs = [
         {**s, "ai_enrichment": enrichment_by_sub_id.get(s["id"])} for s in subscriptions
     ]

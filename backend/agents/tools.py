@@ -71,9 +71,7 @@ def _get_subscriptions_tool(user_id: str) -> dict:
 )
 def _get_spending_by_category_tool(user_id: str) -> dict:
     supabase = get_supabase()
-    accounts = (
-        supabase.table("accounts").select("id").eq("user_id", user_id).execute()
-    ).data or []
+    accounts = (supabase.table("accounts").select("id").eq("user_id", user_id).execute()).data or []
     account_ids = [a["id"] for a in accounts]
     if not account_ids:
         return {"transactions": []}
@@ -109,11 +107,13 @@ def _get_safe_to_spend_tool(user_id: str) -> dict:
 
 @register_tool(
     "get_pay_timing",
-    "Returns when and how much to pay on each credit card to stay under 8% utilization, plus dangerous bill stacking windows",
+    "Returns when and how much to pay on each credit card to stay under 8% utilization,"
+    " plus dangerous bill stacking windows",
     keywords=["pay timing", "when to pay", "credit utilization", "bill stacking", "pay my card"],
 )
 def _get_pay_timing_tool(user_id: str) -> dict:
     from engines.pay_timing import compute_pay_timing
+
     supabase = get_supabase()
     accounts = (
         supabase.table("accounts")

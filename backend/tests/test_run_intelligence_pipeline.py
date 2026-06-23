@@ -23,16 +23,16 @@ def test_build_rag_query_text_handles_empty():
 
 def test_retrieve_relevant_insights_returns_results():
     mock_openai = MagicMock()
-    mock_openai.embeddings.create.return_value = MagicMock(
-        data=[MagicMock(embedding=[0.1] * 1536)]
-    )
+    mock_openai.embeddings.create.return_value = MagicMock(data=[MagicMock(embedding=[0.1] * 1536)])
     mock_supabase = MagicMock()
     mock_supabase.rpc.return_value.execute.return_value.data = [
         {"id": "ins1", "summary": "Past insight", "similarity": 0.85}
     ]
 
-    with patch("tasks.run_intelligence_pipeline.OpenAI", return_value=mock_openai), \
-         patch("tasks.run_intelligence_pipeline.get_supabase", return_value=mock_supabase):
+    with (
+        patch("tasks.run_intelligence_pipeline.OpenAI", return_value=mock_openai),
+        patch("tasks.run_intelligence_pipeline.get_supabase", return_value=mock_supabase),
+    ):
         result = _retrieve_relevant_insights("user-1", "test query")
 
     assert len(result) == 1
@@ -73,10 +73,13 @@ def test_pipeline_task_returns_decisions_written():
     mock_openai = MagicMock()
     mock_openai.embeddings.create.side_effect = Exception("skip RAG")
 
-    with patch("tasks.run_intelligence_pipeline.get_supabase", return_value=mock_supabase), \
-         patch("tasks.run_intelligence_pipeline.intelligence_graph", mock_graph), \
-         patch("tasks.run_intelligence_pipeline.OpenAI", return_value=mock_openai):
+    with (
+        patch("tasks.run_intelligence_pipeline.get_supabase", return_value=mock_supabase),
+        patch("tasks.run_intelligence_pipeline.intelligence_graph", mock_graph),
+        patch("tasks.run_intelligence_pipeline.OpenAI", return_value=mock_openai),
+    ):
         from tasks.run_intelligence_pipeline import run_intelligence_pipeline_for_user
+
         result = run_intelligence_pipeline_for_user("user-1")
 
     assert result["decisions_written"] == 2

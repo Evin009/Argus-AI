@@ -89,17 +89,18 @@ def test_retrieve_chat_context_combines_sources():
     profile_chain.execute.return_value.data = [{"profile": {"income": 5000}}]
 
     predictions_chain = (
-        mock_supabase.table.return_value.select.return_value.eq.return_value
-        .order.return_value.limit.return_value
+        mock_supabase.table.return_value.select.return_value.eq.return_value.order.return_value.limit.return_value
     )
     predictions_chain.execute.return_value.data = [
         {"prediction_type": "balance_below_threshold", "was_accurate": True},
         {"prediction_type": "balance_below_threshold", "was_accurate": None},
     ]
 
-    with patch("agents.chat.supervisor_graph") as mock_graph, \
-         patch("agents.chat.get_supabase", return_value=mock_supabase), \
-         patch("agents.chat._retrieve_relevant_insights", return_value=[{"summary": "x"}]):
+    with (
+        patch("agents.chat.supervisor_graph") as mock_graph,
+        patch("agents.chat.get_supabase", return_value=mock_supabase),
+        patch("agents.chat._retrieve_relevant_insights", return_value=[{"summary": "x"}]),
+    ):
         mock_graph.invoke.return_value = mock_supervisor_result
         result = _retrieve_chat_context("user-123", "what bills do I have")
 

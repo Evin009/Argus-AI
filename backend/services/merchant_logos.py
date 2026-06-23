@@ -11,10 +11,7 @@ def _slug(merchant: str) -> str:
 
 def get_logo_url(merchant: str, supabase) -> str | None:
     cached = (
-        supabase.table("merchant_logos")
-        .select("logo_url")
-        .eq("merchant", merchant)
-        .execute()
+        supabase.table("merchant_logos").select("logo_url").eq("merchant", merchant).execute()
     ).data or []
 
     if cached:

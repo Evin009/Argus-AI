@@ -93,31 +93,32 @@ def _extract_prediction_block(response_text: str) -> dict | None:
 
 def _log_prediction(user_id: str, prediction: dict) -> None:
     supabase = get_supabase()
-    supabase.table("ai_predictions").insert({
-        "id": str(uuid.uuid4()),
-        "user_id": user_id,
-        "prediction_type": prediction["prediction_type"],
-        "prediction_payload": prediction["payload"],
-        "predicted_at": datetime.now(UTC).isoformat(),
-        "resolves_at": prediction["resolves_at"],
-    }).execute()
+    supabase.table("ai_predictions").insert(
+        {
+            "id": str(uuid.uuid4()),
+            "user_id": user_id,
+            "prediction_type": prediction["prediction_type"],
+            "prediction_payload": prediction["payload"],
+            "predicted_at": datetime.now(UTC).isoformat(),
+            "resolves_at": prediction["resolves_at"],
+        }
+    ).execute()
 
 
 def _retrieve_chat_context(user_id: str, query: str) -> dict:
-    supervisor_result = supervisor_graph.invoke({
-        "user_id": user_id,
-        "query": query,
-        "selected_tools": [],
-        "tool_results": {},
-    })
+    supervisor_result = supervisor_graph.invoke(
+        {
+            "user_id": user_id,
+            "query": query,
+            "selected_tools": [],
+            "tool_results": {},
+        }
+    )
 
     supabase = get_supabase()
 
     profile_result = (
-        supabase.table("user_financial_profiles")
-        .select("profile")
-        .eq("user_id", user_id)
-        .execute()
+        supabase.table("user_financial_profiles").select("profile").eq("user_id", user_id).execute()
     )
     profile = profile_result.data[0]["profile"] if profile_result.data else {}
 

@@ -26,7 +26,8 @@ async def get_insights(
     data = result.data or []
     if signal_type:
         data = [
-            r for r in data
+            r
+            for r in data
             if (r.get("structured_output_json") or {}).get("signal_type") == signal_type
         ]
     return data
@@ -55,7 +56,10 @@ async def get_safe_to_spend(user_id: str = Depends(get_current_user)):
     ).data or []
 
     onboarding = (
-        supabase.table("onboarding_responses").select("pay_schedule").eq("user_id", user_id).execute()
+        supabase.table("onboarding_responses")
+        .select("pay_schedule")
+        .eq("user_id", user_id)
+        .execute()
     ).data or []
     pay_schedule = (onboarding[0].get("pay_schedule") or "monthly") if onboarding else "monthly"
 

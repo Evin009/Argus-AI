@@ -75,9 +75,7 @@ def _build_analyst_brief(
                 "title": i.get("summary"),
                 "created_at": i.get("created_at"),
                 "similarity": (
-                    round(i.get("similarity", 0), 3)
-                    if i.get("similarity") is not None
-                    else None
+                    round(i.get("similarity", 0), 3) if i.get("similarity") is not None else None
                 ),
             }
             for i in past_insights
@@ -90,28 +88,53 @@ def _build_analyst_brief(
         f"RELEVANT PAST DECISIONS"
         f" (semantic memory — ranked by relevance to current situation):"
         f"\n{recent_memory}\n\n"
-        f"CURRENT ACCOUNTS:\n{json.dumps([
-            {'type': a.get('account_type'), 'balance': a.get('balance'),
-             'credit_limit': a.get('credit_limit')}
-            for a in accounts
-        ], indent=2)}\n\n"
-        f"UPCOMING BILLS:\n{json.dumps([
-            {'merchant': b.get('merchant'), 'amount': b.get('avg_amount'),
-             'due': b.get('next_due_date'), 'enrichment': b.get('ai_enrichment')}
-            for b in bills
-        ], indent=2)}\n\n"
-        f"ACTIVE SUBSCRIPTIONS:\n{json.dumps([
-            {'merchant': s.get('merchant'), 'amount': s.get('avg_amount'),
-             'price_change_pct': s.get('price_change_pct'),
-             'enrichment': s.get('ai_enrichment')}
-            for s in subscriptions
-        ], indent=2)}\n\n"
+        f"CURRENT ACCOUNTS:\n{
+            json.dumps(
+                [
+                    {
+                        'type': a.get('account_type'),
+                        'balance': a.get('balance'),
+                        'credit_limit': a.get('credit_limit'),
+                    }
+                    for a in accounts
+                ],
+                indent=2,
+            )
+        }\n\n"
+        f"UPCOMING BILLS:\n{
+            json.dumps(
+                [
+                    {
+                        'merchant': b.get('merchant'),
+                        'amount': b.get('avg_amount'),
+                        'due': b.get('next_due_date'),
+                        'enrichment': b.get('ai_enrichment'),
+                    }
+                    for b in bills
+                ],
+                indent=2,
+            )
+        }\n\n"
+        f"ACTIVE SUBSCRIPTIONS:\n{
+            json.dumps(
+                [
+                    {
+                        'merchant': s.get('merchant'),
+                        'amount': s.get('avg_amount'),
+                        'price_change_pct': s.get('price_change_pct'),
+                        'enrichment': s.get('ai_enrichment'),
+                    }
+                    for s in subscriptions
+                ],
+                indent=2,
+            )
+        }\n\n"
         f"SPENDING SUMMARY (last 90 days by category):\n{json.dumps(tx_summary, indent=2)}\n\n"
         f"Generate 3-5 analyst decisions AND an updated user profile.\n\n"
         f"Return this exact JSON shape:\n"
-        f'{{\n'
+        f"{{\n"
         f'  "decisions": [\n'
-        f'    {{\n'
+        f"    {{\n"
         f'      "signal_type": "<behavioral|risk|opportunity|anomaly|subscription>",\n'
         f'      "severity": "<info|warning|critical>",\n'
         f'      "title": "<specific, concrete title>",\n'
@@ -120,8 +143,8 @@ def _build_analyst_brief(
         f'      "simulation": "<forward projection>",\n'
         f'      "confidence": <float 0-1>,\n'
         f'      "sources": ["<data sources>"]\n'
-        f'    }}\n'
-        f'  ],\n'
+        f"    }}\n"
+        f"  ],\n"
         f'  "updated_profile": {{\n'
         f'    "income_pattern": {{}},\n'
         f'    "spending_baselines": {{}},\n'
@@ -129,8 +152,8 @@ def _build_analyst_brief(
         f'    "known_risks": [],\n'
         f'    "analyst_notes": "<running notes about this user>",\n'
         f'    "resolved_patterns": []\n'
-        f'  }}\n'
-        f'}}'
+        f"  }}\n"
+        f"}}"
     )
 
 
@@ -166,11 +189,13 @@ def analyst_node(state: IntelligenceState) -> dict:
         message = client.messages.create(
             model="claude-sonnet-4-6",
             max_tokens=8096,
-            system=[{
-                "type": "text",
-                "text": _ANALYST_SYSTEM_PROMPT,
-                "cache_control": {"type": "ephemeral"},
-            }],
+            system=[
+                {
+                    "type": "text",
+                    "text": _ANALYST_SYSTEM_PROMPT,
+                    "cache_control": {"type": "ephemeral"},
+                }
+            ],
             messages=[{"role": "user", "content": brief}],
         )
         response_text = message.content[0].text

@@ -10,18 +10,12 @@ def recompute_safe_to_spend_for_user(user_id: str) -> None:
     supabase = get_supabase()
 
     accounts = (
-        supabase.table("accounts")
-        .select("id, balance")
-        .eq("user_id", user_id)
-        .execute()
+        supabase.table("accounts").select("id, balance").eq("user_id", user_id).execute()
     ).data or []
     balance = sum(a.get("balance") or 0 for a in accounts)
 
     bills = (
-        supabase.table("bills")
-        .select("avg_amount, next_due_date")
-        .eq("user_id", user_id)
-        .execute()
+        supabase.table("bills").select("avg_amount, next_due_date").eq("user_id", user_id).execute()
     ).data or []
 
     onboarding = (

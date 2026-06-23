@@ -25,8 +25,6 @@ async def get_pay_timing(user_id: str = Depends(get_current_user)):
         .execute()
     ).data or []
 
-    balance = sum(
-        a.get("balance") or 0 for a in accounts if a.get("account_type") != "credit"
-    )
+    balance = sum(a.get("balance") or 0 for a in accounts if a.get("account_type") != "credit")
 
     return compute_pay_timing(accounts=accounts, bills=bills, balance=balance)

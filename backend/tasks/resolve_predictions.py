@@ -36,17 +36,12 @@ def resolve_due_predictions() -> dict:
 
         if account_id:
             account = (
-                supabase.table("accounts")
-                .select("balance")
-                .eq("id", account_id)
-                .execute()
+                supabase.table("accounts").select("balance").eq("id", account_id).execute()
             ).data
             if account:
                 actual_balance = account[0]["balance"]
 
-        was_accurate = _evaluate_prediction(
-            prediction["prediction_type"], payload, actual_balance
-        )
+        was_accurate = _evaluate_prediction(prediction["prediction_type"], payload, actual_balance)
         if was_accurate is None:
             continue
 

@@ -16,7 +16,13 @@ def test_pay_timing_returns_recommendations():
         m = MagicMock()
         if name == "accounts":
             m.select.return_value.eq.return_value.execute.return_value.data = [
-                {"id": "card-1", "account_type": "credit", "balance": 500.0, "credit_limit": 1000.0, "closing_date": None}
+                {
+                    "id": "card-1",
+                    "account_type": "credit",
+                    "balance": 500.0,
+                    "credit_limit": 1000.0,
+                    "closing_date": None,
+                }
             ]
         elif name == "bills":
             m.select.return_value.eq.return_value.execute.return_value.data = []

@@ -40,6 +40,7 @@ def test_recompute_stores_result():
 
     with patch("tasks.recompute_safe_to_spend.get_supabase", return_value=mock_supabase):
         from tasks.recompute_safe_to_spend import recompute_safe_to_spend_for_user
+
         recompute_safe_to_spend_for_user("user-1")
 
     assert len(upserted_payloads) == 1

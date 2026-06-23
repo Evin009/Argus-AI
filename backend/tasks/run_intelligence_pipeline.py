@@ -15,16 +15,11 @@ def _build_rag_query_text(
     subscriptions: list[dict],
 ) -> str:
     account_summary = ", ".join(
-        f"{a.get('account_type', 'account')} balance {a.get('balance', 0)}"
-        for a in accounts[:3]
+        f"{a.get('account_type', 'account')} balance {a.get('balance', 0)}" for a in accounts[:3]
     )
     bill_merchants = ", ".join(b["merchant"] for b in bills[:5] if b.get("merchant"))
     sub_merchants = ", ".join(s["merchant"] for s in subscriptions[:5] if s.get("merchant"))
-    return (
-        f"Accounts: {account_summary}. "
-        f"Bills: {bill_merchants}. "
-        f"Subscriptions: {sub_merchants}."
-    )
+    return f"Accounts: {account_summary}. Bills: {bill_merchants}. Subscriptions: {sub_merchants}."
 
 
 def _retrieve_relevant_insights(
@@ -86,19 +81,21 @@ def run_intelligence_pipeline_for_user(user_id: str) -> dict:
     ).data or []
 
     transactions = (
-        supabase.table("transactions")
-        .select("category, amount, timestamp")
-        .in_("account_id", account_ids)
-        .order("timestamp", desc=True)
-        .limit(500)
-        .execute()
-    ).data or [] if account_ids else []
+        (
+            supabase.table("transactions")
+            .select("category, amount, timestamp")
+            .in_("account_id", account_ids)
+            .order("timestamp", desc=True)
+            .limit(500)
+            .execute()
+        ).data
+        or []
+        if account_ids
+        else []
+    )
 
     profile_result = (
-        supabase.table("user_financial_profiles")
-        .select("profile")
-        .eq("user_id", user_id)
-        .execute()
+        supabase.table("user_financial_profiles").select("profile").eq("user_id", user_id).execute()
     )
     profile = profile_result.data[0]["profile"] if profile_result.data else {}
 
