@@ -90,7 +90,7 @@ LangGraph multi-agent pipeline (enrichment + analyst + memory nodes), pgvector R
 
 ---
 
-## Phase 5 — Argus Brain: Skeleton ⬜
+## Phase 5 — Argus Brain: Skeleton ✅
 *Weeks 11–12*
 
 **Goal:** Stand up Argus as living infrastructure early — alive with whatever tools exist today, built to grow as later phases add engines. This is the most important phase in the remaining roadmap; everything after this is Argus gaining new senses.
@@ -111,7 +111,7 @@ LangGraph multi-agent pipeline (enrichment + analyst + memory nodes), pgvector R
 
 ---
 
-## Phase 6 — Daily Intelligence ⬜
+## Phase 6 — Daily Intelligence ✅
 *Weeks 13–14*
 
 **Goal:** Safe to Spend Today and Smart Payment Calendar — the two features users open every morning. Both register as new Argus tools on completion.
@@ -151,33 +151,38 @@ Pages redesigned: login, signup, verify-email, transactions, bills, bills calend
 
 ---
 
-## Phase 7 — Financial Profile + Guardian ⬜
-*Weeks 15–16*
+## Phase 7A — Financial Profile + Merchant Intelligence ⬜
+*Week 15*
 
-**Goal:** Financial Profile Page with Merchant Intelligence, and Argus Guardian Chrome extension — Argus's first ambient surface.
+**Goal:** Deep spending map — where money goes, which merchants dominate, Argus insight per merchant. Three-level profile page: overview → category → merchant. All data registered as Argus tools.
 
-### Financial Profile Page
-1. Build `GET /profile/overview` — spending breakdown by category, habit streaks, subscription summary, utilization summary
-2. Build `GET /profile/merchants` — all user merchants ranked by total spend with transaction count and trend
-3. Build `GET /profile/merchants/{merchant_id}` — weekly/monthly/yearly spend, frequency heatmap data, cost trend, Argus insight for that merchant
-4. Build Financial Profile page `app/(app)/profile/page.tsx`:
-   - Level 1: spending ring, streaks grid (GitHub-style), subscription logo grid, utilization gauge, biggest spend day chart
-   - Level 2: category drill-down — merchants ranked by spend within category
-   - Level 3: Merchant Intelligence per merchant — charts, heatmap, cost trend, one specific insight. Dynamically generated — only exists for merchants the user actually uses.
-5. Register profile/merchant data as Argus tools
+### Features
+1. `GET /profile/overview` — spending breakdown by category, habit streaks, subscription summary, utilization summary
+2. `GET /profile/merchants` — all merchants ranked by total spend with transaction count and 30-day trend
+3. `GET /profile/merchants/{merchant_id}` — weekly/monthly/yearly spend, frequency heatmap, cost trend, one Argus insight for that merchant + user combination
+4. Financial Profile page `app/(app)/profile/page.tsx` — three drill levels: spending ring + streaks grid + subscription logos + utilization gauge → category merchants list → per-merchant heatmap + trend + insight
+5. Register `get_profile_overview` and `get_merchant_history` as Argus tools
 
-### Argus Guardian (Chrome Extension)
-6. Scaffold Chrome extension — manifest v3, background service worker, content script
-7. Build checkout and product page detection — content script identifies checkout and product pages across major retailers
-8. Build Guardian verdict API — `POST /guardian/analyze` with page context (merchant, detected amount), routes through Argus, returns verdict, Safe to Spend, one-line reason
-9. Build slide-in verdict panel — compact, visual, brand logo, one reason, Safe to Spend, tap to expand
-10. Build native notification trigger — Mac/Windows native notification on checkout detection
-11. Build post-purchase Plaid webhook handler — fires within seconds of transaction, generates impact analysis + recovery options via Argus
-12. Build notification sensitivity settings in main app — quiet hours, minimum amount threshold, notification type controls
-13. Build Guardian status card on dashboard — current highest-priority signal, last updated, active status indicator
-14. Extension settings sync with main app account
+**Deliverable:** Financial Profile live, Argus can answer spending pattern questions in chat.
 
-**Deliverable:** Financial Profile and Merchant Intelligence live, Argus Guardian intercepting checkout decisions in the browser.
+---
+
+## Phase 7B — Argus Guardian (Chrome Extension) ⬜
+*Week 16*
+
+**Goal:** Argus reaches the browser. Detects checkout and product pages, fires verdict panel within 2 seconds, reacts post-purchase when Plaid webhook fires. Same brain, new surface.
+
+### Features
+1. Chrome extension scaffold — manifest v3, service worker, content script, verdict panel, auth popup
+2. Checkout + product page detection across major retailers — extracts merchant name and amount
+3. `POST /guardian/analyze` — routes detection context through Argus supervisor, returns verdict + reason + recommended card
+4. Slide-in verdict panel injected into detected pages — copper design, one reason, Safe to Spend, expandable
+5. `POST /guardian/webhook/plaid` — post-purchase impact analysis + two recovery options via Argus within 10 seconds
+6. `analyze_purchase` registered as Argus tool — same reasoning callable from chat
+7. Guardian status card on dashboard — last verdict, active status
+8. Notification settings in main app — quiet hours, amount threshold, notification type; extension respects these
+
+**Deliverable:** Guardian intercepting checkout decisions in browser, post-purchase analysis firing automatically, dashboard showing Guardian status.
 
 ---
 

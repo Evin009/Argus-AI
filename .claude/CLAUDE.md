@@ -66,6 +66,9 @@ Follow this exactly when starting any phase or feature work:
 1. **Phase plan first.** Write the phase plan in `Phase Plans/Phase_X_Name.md`, matching the
    existing convention (git branch tree, feature checklist, endpoints, schema, Definition of Done).
    List every feature branch the phase needs.
+   **No code in phase plans.** Plans describe what will be built — file names, what each thing does,
+   what endpoints return, what tables exist. Never include Python, SQL, TypeScript, or bash snippets.
+   Code lives in the codebase, not the plan.
 2. **One feature at a time.** Never start a second feature before the current one is fully closed out.
    Create each feature branch off the phase branch automatically — no need to ask.
 3. **Within a feature, one task at a time, TDD style** (`superpowers:test-driven-development`):

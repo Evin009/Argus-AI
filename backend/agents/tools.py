@@ -24,11 +24,11 @@ def get_registered_tools() -> dict[str, dict]:
     return dict(_TOOL_REGISTRY)
 
 
-def call_tool(name: str, user_id: str) -> dict:
+def call_tool(name: str, user_id: str, **kwargs) -> dict:
     tool = _TOOL_REGISTRY.get(name)
     if tool is None:
         raise KeyError(f"Unknown tool: {name}")
-    return tool["fn"](user_id)
+    return tool["fn"](user_id, **kwargs)
 
 
 @register_tool(
@@ -129,3 +129,72 @@ def _get_pay_timing_tool(user_id: str) -> dict:
     ).data or []
     balance = sum(a.get("balance") or 0 for a in accounts if a.get("account_type") != "credit")
     return compute_pay_timing(accounts=accounts, bills=bills, balance=balance)
+
+
+@register_tool(
+    "get_profile_overview",
+    "Returns user's spending breakdown by category, subscription summary, and credit utilization",
+    keywords=["profile", "spending", "overview", "categories", "habits", "utilization"],
+)
+def _get_profile_overview_tool(user_id: str) -> dict:
+    from engines.profile import compute_spending_by_category, compute_utilization_summary
+
+    supabase = get_supabase()
+    accounts = (
+        supabase.table("accounts")
+        .select("id, balance, credit_limit, account_type")
+        .eq("user_id", user_id)
+        .execute()
+    ).data or []
+    account_ids = [a["id"] for a in accounts]
+    transactions = []
+    if account_ids:
+        transactions = (
+            supabase.table("transactions")
+            .select("merchant, amount, category, timestamp")
+            .in_("account_id", account_ids)
+            .order("timestamp", desc=True)
+            .limit(1000)
+            .execute()
+        ).data or []
+    subs = (
+        supabase.table("subscriptions")
+        .select("merchant, avg_amount")
+        .eq("user_id", user_id)
+        .eq("is_active", True)
+        .execute()
+    ).data or []
+
+    spending_by_category = compute_spending_by_category(transactions)
+    utilization_summary = compute_utilization_summary(accounts)
+    monthly_total_subs = sum(float(s.get("avg_amount") or 0) for s in subs)
+
+    return {
+        "spending_by_category": spending_by_category,
+        "subscription_summary": {"count": len(subs), "monthly_total": round(monthly_total_subs, 2)},
+        "utilization_summary": utilization_summary,
+    }
+
+
+@register_tool(
+    "get_merchant_history",
+    "Returns full spending history and trend for a specific merchant for this user",
+    keywords=["merchant", "store", "vendor", "spend history", "how much at"],
+)
+def _get_merchant_history_tool(user_id: str, merchant: str = "") -> dict:
+    from engines.profile import compute_merchant_detail
+
+    supabase = get_supabase()
+    accounts = (supabase.table("accounts").select("id").eq("user_id", user_id).execute()).data or []
+    account_ids = [a["id"] for a in accounts]
+    transactions = []
+    if account_ids:
+        transactions = (
+            supabase.table("transactions")
+            .select("merchant, amount, category, timestamp")
+            .in_("account_id", account_ids)
+            .order("timestamp", desc=True)
+            .limit(1000)
+            .execute()
+        ).data or []
+    return compute_merchant_detail(transactions, merchant)
