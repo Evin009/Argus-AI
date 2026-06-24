@@ -1,16 +1,6 @@
-# ArgusAI — Phase 6.5: UI Design Overhaul
+# ArgusAI — Phase 6.5: Feature Refinement Pass
 
-> After Phase 6. Goal: bring every app page into the Argus design language before Phase 7 ships new surfaces. Pages were built functional-first; this phase makes them look like the product.
-
----
-
-## What This Phase Covers
-
-All pages currently use zero design tokens. Every page below gets:
-- Design tokens (`--surface-*`, `--r-*`, `--font-display`, `--font-sans`, `--copper`, `--paper`, etc.)
-- Argus typography scale (`--text-hero`, `--text-kpi`, `--text-heading`, `--text-sub`, `--text-eyebrow`)
-- Consistent card pattern (`--surface-1` background, `--surface-3` border, `--r-lg` radius)
-- No raw Tailwind color utilities (`bg-white`, `text-gray-*`, `p-8`)
+> Goal: revisit every completed feature one by one. Identify gaps, problems, and anything that feels off. Redesign and refine based on direct instruction — no AI-driven design decisions. You direct, it gets built.
 
 ---
 
@@ -18,94 +8,72 @@ All pages currently use zero design tokens. Every page below gets:
 
 ```
 develop
-└── phase/6.5-ui-overhaul
-      ├── feature/overhaul-auth-pages
-      ├── feature/overhaul-transactions
-      ├── feature/overhaul-bills-subscriptions
-      ├── feature/overhaul-accounts-settings
-      ├── feature/overhaul-intelligence
-      ├── feature/overhaul-argus-chat
-      └── feature/overhaul-argus-side-panel
+└── phase/6.5-feature-refinement
 ```
 
----
-
-## Execution Checklist
-
-### `feature/overhaul-auth-pages` ⬜
-*Login + signup deferred from Phase 1.5 — still plain*
-
-- [ ] `app/(auth)/login/page.tsx` — apply brand tokens, aurora background, Instrument Serif heading, copper accent CTA
-- [ ] `app/(auth)/signup/page.tsx` — same treatment as login
-- [ ] `app/(auth)/verify-email/page.tsx` — match auth page pattern
-- [ ] Merge → `phase/6.5-ui-overhaul`
+One branch. Commit per feature as each one is done. Single PR at the end.
 
 ---
 
-### `feature/overhaul-transactions` ⬜
-*Functional table with no visual design*
+## Features to Revisit (in order)
 
-- [ ] `app/(app)/transactions/page.tsx` — design token layout, merchant name + amount + category row pattern, recurring badge, category filter as styled chip group, pagination controls on-brand
-- [ ] Merge → `phase/6.5-ui-overhaul`
+### 1. Auth Pages ⬜
+- Login (`app/(auth)/login/page.tsx`)
+- Signup (`app/(auth)/signup/page.tsx`)
+- Verify Email (`app/(auth)/verify-email/page.tsx`)
 
----
+### 2. Onboarding ⬜
+- Multi-chapter onboarding flow (`app/onboarding/`)
+- Bank linking step inside onboarding
 
-### `feature/overhaul-bills-subscriptions` ⬜
-*Both pages unstyled*
+### 3. Dashboard ⬜
+- Safe to Spend hero (`_components/SafeToSpendHero.tsx`)
+- Balance cards, spending wheel, recent activity, cashflow curve, subscription calendar
+- Ask Argus bar
 
-- [ ] `app/(app)/bills/page.tsx` — card-per-bill layout, copper accent for overdue, due-date chip, amount styled as KPI
-- [ ] `app/(app)/bills/calendar/page.tsx` — on-brand calendar grid, urgency color coding, consistent with the unified Smart Payment Calendar arriving in Phase 6
-- [ ] `app/(app)/subscriptions/page.tsx` — logo tile fallback, price creep badge, renewal date chip, cancel CTA on-brand
-- [ ] Merge → `phase/6.5-ui-overhaul`
+### 4. Accounts ⬜
+- Account cards, Plaid Link button, sync status (`app/(app)/accounts/page.tsx`)
 
----
+### 5. Transactions ⬜
+- Transaction list, category filter, pagination (`app/(app)/transactions/page.tsx`)
 
-### `feature/overhaul-accounts-settings` ⬜
-*Both pages bare*
+### 6. Bills ⬜
+- Bill cards, due-date urgency, AI enrichment drawer (`app/(app)/bills/page.tsx`)
 
-- [ ] `app/(app)/accounts/page.tsx` — card-per-account, balance as KPI, institution name as eyebrow, last-synced timestamp sub-text
-- [ ] `app/(app)/settings/page.tsx` — section grouping with `--surface-1` card blocks, labels/values in Argus type scale, destructive actions clearly marked
-- [ ] Merge → `phase/6.5-ui-overhaul`
+### 7. Subscriptions ⬜
+- Subscription cards, price creep badge, cancel recommendation (`app/(app)/subscriptions/page.tsx`)
 
----
+### 8. Calendar ⬜
+- Smart Payment Calendar — bills + subscriptions + AI-recommended dates (`app/(app)/calendar/page.tsx`)
 
-### `feature/overhaul-intelligence` ⬜
-*AI insights feed with no visual hierarchy*
+### 9. Intelligence Feed ⬜
+- AI analyst decisions, signal type filter, severity badges (`app/(app)/intelligence/page.tsx`)
 
-- [ ] `app/(app)/intelligence/page.tsx` — insight card pattern: eyebrow label (insight type), heading (the finding), sub-text (reasoning), copper accent bar on left edge, timestamp
-- [ ] Merge → `phase/6.5-ui-overhaul`
+### 10. Financial Profile ⬜
+- Spending ring, utilization gauge, merchant rankings, merchant detail + heatmap + Argus insight (`app/(app)/profile/page.tsx`)
 
----
+### 11. Argus Chat ⬜
+- Full chat page, streaming, verdict/table/chart response cards (`app/(app)/argus/page.tsx`)
 
-### `feature/overhaul-argus-chat` ⬜
-*Chat page functional but not visually cohesive*
+### 12. Argus Side Panel ⬜
+- Cmd+K overlay, context-aware, nav-persistent (`app/(app)/_components/ArgusSidePanel.tsx`)
 
-- [ ] `app/(app)/argus/page.tsx` — page shell matches app layout tokens, input bar on-brand, streaming indicator using copper
-- [ ] `app/(app)/argus/_components/Cards.tsx` — verdict/table/chart cards use `--surface-1`/`--surface-2` hierarchy, copper accent for Argus identity, Instrument Serif for verdict text
-- [ ] Merge → `phase/6.5-ui-overhaul`
-
----
-
-### `feature/overhaul-argus-side-panel` ⬜
-*Panel functional but minimal token usage (3 references)*
-
-- [ ] `app/(app)/_components/ArgusSidePanel.tsx` — full token adoption, copper header bar, Argus eye mark branding, input matches main chat bar, response cards match `Cards.tsx` pattern, slide animation polished
-- [ ] Merge → `phase/6.5-ui-overhaul`
+### 13. Settings ⬜
+- User settings page (`app/(app)/settings/page.tsx`)
 
 ---
 
-### Phase 6.5 Close
-- [ ] Merge `phase/6.5-ui-overhaul` → `develop`
+## How This Works
+
+- Visit one feature at a time in the order above
+- You review it, tell me what needs to change
+- I implement exactly what you instruct — no unsolicited redesign
+- Commit, move to next feature
+- PR at the end when all 13 are done
+
+---
+
+## Phase 6.5 Close
+- [ ] Merge `phase/6.5-feature-refinement` → `develop`
 - [ ] Open PR `develop` → `main`, wait for CI, merge
-- [ ] Delete all feature branches + `phase/6.5-ui-overhaul`
 - [ ] Mark Phase 6.5 as ✅ Complete in `Argus Details/product-plan.md`
-
----
-
-## Definition of Done
-
-- [ ] Every page above uses only design tokens — zero raw color/spacing utilities
-- [ ] Typography scale applied consistently across all pages
-- [ ] Argus side panel visually matches the main chat page
-- [ ] Auth pages match the landing page visual quality
-- [ ] No page looks like it was built by a different team than the dashboard
