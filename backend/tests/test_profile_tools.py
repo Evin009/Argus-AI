@@ -25,8 +25,14 @@ def test_get_profile_overview_tool_returns_categories():
                 {"id": "acc-1", "balance": 500.0, "credit_limit": None, "account_type": "checking"}
             ]
         elif name == "transactions":
-            m.select.return_value.in_.return_value.order.return_value.limit.return_value.execute.return_value.data = [
-                {"merchant": "Starbucks", "amount": 10.0, "category": "food", "timestamp": "2026-06-01T00:00:00Z"}
+            chain = m.select.return_value.in_.return_value.order.return_value.limit.return_value
+            chain.execute.return_value.data = [
+                {
+                    "merchant": "Starbucks",
+                    "amount": 10.0,
+                    "category": "food",
+                    "timestamp": "2026-06-01T00:00:00Z",
+                }
             ]
         elif name == "subscriptions":
             m.select.return_value.eq.return_value.eq.return_value.execute.return_value.data = []
@@ -50,8 +56,14 @@ def test_get_merchant_history_tool_returns_detail():
         if name == "accounts":
             m.select.return_value.eq.return_value.execute.return_value.data = [{"id": "acc-1"}]
         elif name == "transactions":
-            m.select.return_value.in_.return_value.order.return_value.limit.return_value.execute.return_value.data = [
-                {"merchant": "Amazon", "amount": 50.0, "category": "shopping", "timestamp": "2026-06-01T00:00:00Z"}
+            chain = m.select.return_value.in_.return_value.order.return_value.limit.return_value
+            chain.execute.return_value.data = [
+                {
+                    "merchant": "Amazon",
+                    "amount": 50.0,
+                    "category": "shopping",
+                    "timestamp": "2026-06-01T00:00:00Z",
+                }
             ]
         return m
 

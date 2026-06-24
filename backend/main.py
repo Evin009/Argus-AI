@@ -59,7 +59,9 @@ class PrivateNetworkAccessMiddleware:
                     (b"access-control-max-age", b"600"),
                     (b"content-length", b"0"),
                 ]
-                await send({"type": "http.response.start", "status": 200, "headers": response_headers})
+                await send(
+                    {"type": "http.response.start", "status": 200, "headers": response_headers}
+                )
                 await send({"type": "http.response.body", "body": b""})
                 return
         await self.app(scope, receive, send)

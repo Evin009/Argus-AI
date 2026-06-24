@@ -18,9 +18,8 @@ def make_supabase(accounts_data, transactions_data):
         if name == "accounts":
             m.select.return_value.eq.return_value.execute.return_value.data = accounts_data
         elif name == "transactions":
-            m.select.return_value.in_.return_value.order.return_value.limit.return_value.execute.return_value.data = (
-                transactions_data
-            )
+            chain = m.select.return_value.in_.return_value.order.return_value.limit.return_value
+            chain.execute.return_value.data = transactions_data
         return m
 
     mock_supabase.table.side_effect = table_side

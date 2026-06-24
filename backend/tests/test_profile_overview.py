@@ -17,9 +17,8 @@ def make_supabase(accounts_data, transactions_data, subscriptions_data):
         if name == "accounts":
             m.select.return_value.eq.return_value.execute.return_value.data = accounts_data
         elif name == "transactions":
-            m.select.return_value.in_.return_value.order.return_value.limit.return_value.execute.return_value.data = (
-                transactions_data
-            )
+            chain = m.select.return_value.in_.return_value.order.return_value.limit.return_value
+            chain.execute.return_value.data = transactions_data
         elif name == "subscriptions":
             m.select.return_value.eq.return_value.eq.return_value.execute.return_value.data = (
                 subscriptions_data
@@ -31,7 +30,9 @@ def make_supabase(accounts_data, transactions_data, subscriptions_data):
 
 
 def test_overview_returns_spending_by_category():
-    accounts = [{"id": "acc-1", "balance": 1000.0, "credit_limit": None, "account_type": "checking"}]
+    accounts = [
+        {"id": "acc-1", "balance": 1000.0, "credit_limit": None, "account_type": "checking"}
+    ]
     transactions = [
         {"category": "food", "amount": 50.0, "timestamp": "2026-06-01T12:00:00Z"},
         {"category": "food", "amount": 30.0, "timestamp": "2026-06-08T12:00:00Z"},
